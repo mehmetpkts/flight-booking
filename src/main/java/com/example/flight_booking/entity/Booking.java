@@ -4,11 +4,14 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import com.example.flight_booking.enums.Status;
 
 @Entity
 public class Booking {
@@ -37,7 +40,8 @@ public class Booking {
   // status
 
   @Column(nullable = false) // Boş olamaz
-  private String status;
+  @Enumerated(EnumType.STRING)
+  private Status status;
 
   // PNR değerimiz
   @Column(nullable = false, unique = true, length = 6) // Boş olamaz ve benzersiz olmalı
@@ -87,11 +91,11 @@ public class Booking {
 
   // status
 
-  public String getStatus() {
+  public Status getStatus() {
     return status;
   }
 
-  public void setStatus(String status) {
+  public void setStatus(Status status) {
     this.status = status;
   }
 
