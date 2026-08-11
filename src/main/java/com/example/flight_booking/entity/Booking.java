@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import com.example.flight_booking.enums.Status;
+import com.example.flight_booking.enums.BookingStatus;
 
 @Entity
 public class Booking {
@@ -41,7 +41,7 @@ public class Booking {
 
   @Column(nullable = false) // Boş olamaz
   @Enumerated(EnumType.STRING)
-  private Status status;
+  private BookingStatus status;
 
   // PNR değerimiz
   @Column(nullable = false, unique = true, length = 6) // Boş olamaz ve benzersiz olmalı
@@ -91,11 +91,11 @@ public class Booking {
 
   // status
 
-  public Status getStatus() {
+  public BookingStatus getStatus() {
     return status;
   }
 
-  public void setStatus(Status status) {
+  public void setStatus(BookingStatus status) {
     this.status = status;
   }
 

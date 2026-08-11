@@ -9,7 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import com.example.flight_booking.enums.Status;
+import com.example.flight_booking.enums.BookingStatus;
 
 @Entity
 public class Aircraft {
@@ -28,7 +28,7 @@ public class Aircraft {
 
   @Column(nullable = false) // Boş olamaz ve benzersiz olmalı
   @Enumerated(EnumType.STRING) // Enum değerini String olarak saklamak için
-  private Status status;
+  private BookingStatus status;
 
   // birden fazla aircraft bir airline'e ait olabilir. Bu yüzden ManyToOne
   // ilişkisi kuruyoruz.
@@ -75,11 +75,11 @@ public class Aircraft {
   }
 
   // status
-  public Status getStatus() {
+  public BookingStatus getStatus() {
     return status;
   }
 
-  public void setStatus(Status status) {
+  public void setStatus(BookingStatus status) {
     this.status = status;
   }
 

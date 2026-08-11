@@ -1,6 +1,6 @@
 package com.example.flight_booking.entity;
 
-import com.example.flight_booking.enums.Status;
+import com.example.flight_booking.enums.BookingStatus;
 import jakarta.persistence.Column;
 import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
@@ -54,7 +54,7 @@ public class Flight {
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private Status status;
+  private BookingStatus status;
 
   // şimdi getter ve setter metodlarını oluşturulurr
 
@@ -134,11 +134,11 @@ public class Flight {
 
   // status
 
-  public Status getStatus() {
+  public BookingStatus getStatus() {
     return status;
   }
 
-  public void setStatus(Status status) {
+  public void setStatus(BookingStatus status) {
     this.status = status;
   }
 
