@@ -26,7 +26,8 @@ public class Airport {
   private String country;
 
   // IATA code değerimiz
-  @Column(nullable = false, length = 3, unique = true) // Boş olamaz - 3 harften oluşmalı - benzersiz olmalı
+  @Column(name = "iatacode", nullable = false, length = 3, unique = true) // Boş olamaz - 3 harften oluşmalı - benzersiz
+                                                                          // olmalı
   private String iataCode;
 
   // yine aynı şekilde bunlara dışardan erişebilmek için getter ve setter
