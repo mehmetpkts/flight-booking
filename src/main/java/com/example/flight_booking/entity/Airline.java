@@ -16,7 +16,8 @@ public class Airline {
   @Column(nullable = false, unique = true) // Boş olamaz ve benzersiz olmalı
   private String name;
 
-  @Column(nullable = false, length = 3, unique = true) // Boş olamaz - 3 harften oluşmalı - benzersiz olmalı
+  @Column(name = "iatacode", nullable = false, length = 3, unique = true) // Boş olamaz - 3 harften oluşmalı - benzersiz
+                                                                          // olmalı
   private String iataCode;
 
   @Column(nullable = false) // Boş olamaz

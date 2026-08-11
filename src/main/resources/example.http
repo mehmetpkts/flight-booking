@@ -1,0 +1,26 @@
+GET http://localhost:8080/api/airlines
+
+###
+
+POST http://localhost:8080/api/airlines
+Content-Type: application/json
+
+{
+  "name": "Example Airline",
+  "iataCode": "EXA",
+  "country": "Example Country"
+}
+
+###
+
+PUT http://localhost:8080/api/airlines/2
+Content-Type: application/json
+
+{
+  "name": "Example Airline",
+  "iataCode": "EXA",
+  "country": "Example Country"
+}
+
+DELETE http://localhost:8080/api/airlines/7
+
