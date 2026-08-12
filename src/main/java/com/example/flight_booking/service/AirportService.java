@@ -16,8 +16,13 @@ public class AirportService {
 
   // oluşturma - kaydetme
 
-  public void createAirport(Airport airport) {
-    airportRepository.save(airport);
+  public Airport createAirport(String name, String city, String country, String iataCode) {
+    Airport airport = new Airport();
+    airport.setName(name);
+    airport.setCity(city);
+    airport.setCountry(country);
+    airport.setIataCode(iataCode);
+    return airportRepository.save(airport);
   }
 
   // okuma - listeleme
@@ -34,8 +39,16 @@ public class AirportService {
 
   // güncelleme
 
-  public void updateAirport(Airport airport) {
-    airportRepository.save(airport);
+  public Airport updateAirport(Long id, String name, String city, String country, String iataCode) {
+    Airport airport = airportRepository.findById(id).orElse(null);
+    if (airport != null) {
+      airport.setName(name);
+      airport.setCity(city);
+      airport.setCountry(country);
+      airport.setIataCode(iataCode);
+      return airportRepository.save(airport);
+    }
+    return null;
   }
 
   // silme

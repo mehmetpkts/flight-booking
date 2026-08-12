@@ -15,8 +15,16 @@ public class PassengerService {
   }
 
   // oluşturma - kaydetme
-  public void createPassenger(Passenger passenger) {
-    passengerRepository.save(passenger);
+  public Passenger createPassenger(String firstName, String lastName, String passportNumber, String email,
+      String phoneNumber, String nationality) {
+    Passenger passenger = new Passenger();
+    passenger.setFirstName(firstName);
+    passenger.setLastName(lastName);
+    passenger.setPassportNumber(passportNumber);
+    passenger.setEmail(email);
+    passenger.setPhone(phoneNumber);
+    passenger.setNationality(nationality);
+    return passengerRepository.save(passenger);
   }
 
   // okuma - listeleme
@@ -30,8 +38,19 @@ public class PassengerService {
   }
 
   // güncelleme
-  public void updatePassenger(Passenger passenger) {
-    passengerRepository.save(passenger);
+  public Passenger updatePassenger(Long id, String firstName, String lastName, String passportNumber, String email,
+      String phoneNumber, String nationality) {
+    Passenger passenger = passengerRepository.findById(id).orElse(null);
+    if (passenger != null) {
+      passenger.setFirstName(firstName);
+      passenger.setLastName(lastName);
+      passenger.setPassportNumber(passportNumber);
+      passenger.setEmail(email);
+      passenger.setPhone(phoneNumber);
+      passenger.setNationality(nationality);
+      return passengerRepository.save(passenger);
+    }
+    return null;
   }
 
   // silme
