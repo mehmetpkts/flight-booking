@@ -1,49 +1,50 @@
 package com.example.flight_booking.service;
 
-import com.example.flight_booking.repository.AirlineRepository;
 import com.example.flight_booking.entity.Airline;
+import com.example.flight_booking.repository.AirlineRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.List;
 
 @Service
 public class AirlineService {
 
-  // bu tanım sayesinde sınıf içinde yazılan her metot veri tabanı üzerinde işlem
-  // yapabilme yeteneği kazanır.
   private final AirlineRepository airlineRepository;
 
   public AirlineService(AirlineRepository airlineRepository) {
     this.airlineRepository = airlineRepository;
   }
 
-  // oluşturma - kaydetme
-
-  public void createAirline(Airline airline) {
-    airlineRepository.save(airline);
-  }
-
-  // okuma - listeleme
-
   public List<Airline> getAllAirlines() {
     return airlineRepository.findAll();
   }
 
-  // id okuma
-
   public Airline getAirlineById(Long id) {
-    return airlineRepository.findById(id).orElse(null);
+    return airlineRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Airline not found with id " + id));
   }
 
-  // güncelleme
-
-  public void updateAirline(Airline airline) {
-    airlineRepository.save(airline);
+  public Airline createAirline(String name, String iataCode, String country) {
+    Airline airline = new Airline();
+    airline.setName(name);
+    airline.setIataCode(iataCode);
+    airline.setCountry(country);
+    return airlineRepository.save(airline);
   }
 
-  // silme
+  public Airline updateAirline(Long id, String name, String iataCode, String country) {
+    Airline airline = getAirlineById(id);
+    airline.setName(name);
+    airline.setIataCode(iataCode);
+    airline.setCountry(country);
+    return airlineRepository.save(airline);
+  }
 
   public void deleteAirline(Long id) {
-    airlineRepository.deleteById(id);
+    Airline airline = getAirlineById(id);
+    airlineRepository.delete(airline);
   }
-
 }
