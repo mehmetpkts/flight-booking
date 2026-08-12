@@ -65,8 +65,8 @@ public class Passenger {
     return passportNumber;
   }
 
-  public void setPassaportNumber(String passaportNumber) {
-    this.passportNumber = passaportNumber;
+  public void setPassportNumber(String passportNumber) {
+    this.passportNumber = passportNumber;
   }
 
   // email

@@ -71,7 +71,7 @@ public class AirportController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAirport(@PathVariable Long id) {
-    var airport = airportRepository.findById(id)
+    Airport airport = airportRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("Airport not found with id " + id));
     airportRepository.delete(airport);
     return ResponseEntity.noContent().build();
