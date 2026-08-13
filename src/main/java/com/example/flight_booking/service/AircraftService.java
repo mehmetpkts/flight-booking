@@ -1,11 +1,13 @@
 package com.example.flight_booking.service;
 
-import org.springframework.stereotype.Service;
-import com.example.flight_booking.repository.AircraftRepository;
 import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.enums.AircraftStatus;
+import com.example.flight_booking.repository.AircraftRepository;
 import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AircraftService {
@@ -15,8 +17,6 @@ public class AircraftService {
   public AircraftService(AircraftRepository aircraftRepository) {
     this.aircraftRepository = aircraftRepository;
   }
-
-  // Oluşturma - Kaydetme:
 
   public Aircraft createAircraft(String model, String manufacturer, int capacity, AircraftStatus status,
       Airline airline) {
@@ -29,38 +29,30 @@ public class AircraftService {
     return aircraftRepository.save(aircraft);
   }
 
-  // Okuma - Listeleme:
-
   public List<Aircraft> getAllAircrafts() {
     return aircraftRepository.findAll();
   }
 
-  // Id ile okuma:
-
   public Aircraft getAircraftById(Long id) {
-    return aircraftRepository.findById(id).orElse(null);
+    return aircraftRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Aircraft not found with id " + id));
   }
-
-  // Güncelleme:
 
   public Aircraft updateAircraft(Long id, String model, String manufacturer, int capacity, AircraftStatus status,
       Airline airline) {
-    Aircraft aircraft = aircraftRepository.findById(id).orElse(null);
-    if (aircraft != null) {
-      aircraft.setModel(model);
-      aircraft.setManufacturer(manufacturer);
-      aircraft.setCapacity(capacity);
-      aircraft.setStatus(status);
-      aircraft.setAirline(airline);
-      return aircraftRepository.save(aircraft);
-    }
-    return null;
+    Aircraft aircraft = getAircraftById(id);
+    aircraft.setModel(model);
+    aircraft.setManufacturer(manufacturer);
+    aircraft.setCapacity(capacity);
+    aircraft.setStatus(status);
+    aircraft.setAirline(airline);
+    return aircraftRepository.save(aircraft);
   }
 
-  // Silme:
-
   public void deleteAircraft(Long id) {
-    aircraftRepository.deleteById(id);
+    Aircraft aircraft = getAircraftById(id);
+    aircraftRepository.delete(aircraft);
   }
 
 }

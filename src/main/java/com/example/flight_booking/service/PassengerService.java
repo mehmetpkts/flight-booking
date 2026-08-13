@@ -1,9 +1,11 @@
 package com.example.flight_booking.service;
 
-import org.springframework.stereotype.Service;
-import java.util.List;
-import com.example.flight_booking.repository.PassengerRepository;
 import com.example.flight_booking.entity.Passenger;
+import com.example.flight_booking.repository.PassengerRepository;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PassengerService {
@@ -14,7 +16,6 @@ public class PassengerService {
     this.passengerRepository = passengerRepository;
   }
 
-  // oluşturma - kaydetme
   public Passenger createPassenger(String firstName, String lastName, String passportNumber, String email,
       String phoneNumber, String nationality) {
     Passenger passenger = new Passenger();
@@ -27,35 +28,30 @@ public class PassengerService {
     return passengerRepository.save(passenger);
   }
 
-  // okuma - listeleme
   public List<Passenger> getAllPassengers() {
     return passengerRepository.findAll();
   }
 
-  // id okuma
   public Passenger getPassengerById(Long id) {
-    return passengerRepository.findById(id).orElse(null);
+    return passengerRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Passenger not found with id " + id));
   }
 
-  // güncelleme
   public Passenger updatePassenger(Long id, String firstName, String lastName, String passportNumber, String email,
       String phoneNumber, String nationality) {
-    Passenger passenger = passengerRepository.findById(id).orElse(null);
-    if (passenger != null) {
-      passenger.setFirstName(firstName);
-      passenger.setLastName(lastName);
-      passenger.setPassportNumber(passportNumber);
-      passenger.setEmail(email);
-      passenger.setPhone(phoneNumber);
-      passenger.setNationality(nationality);
-      return passengerRepository.save(passenger);
-    }
-    return null;
+    Passenger passenger = getPassengerById(id);
+    passenger.setFirstName(firstName);
+    passenger.setLastName(lastName);
+    passenger.setPassportNumber(passportNumber);
+    passenger.setEmail(email);
+    passenger.setPhone(phoneNumber);
+    passenger.setNationality(nationality);
+    return passengerRepository.save(passenger);
   }
 
-  // silme
-
   public void deletePassenger(Long id) {
-    passengerRepository.deleteById(id);
+    Passenger passenger = getPassengerById(id);
+    passengerRepository.delete(passenger);
   }
 }

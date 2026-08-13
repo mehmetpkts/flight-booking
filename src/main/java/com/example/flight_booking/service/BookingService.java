@@ -1,13 +1,15 @@
 package com.example.flight_booking.service;
 
-import org.springframework.stereotype.Service;
-import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.entity.Booking;
-import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.entity.Flight;
+import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.repository.BookingRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class BookingService {
@@ -17,8 +19,6 @@ public class BookingService {
   public BookingService(BookingRepository bookingRepository) {
     this.bookingRepository = bookingRepository;
   }
-
-  // Oluşturma - Kaydetme:
 
   public Booking createBooking(Passenger passenger, Flight flight, LocalDateTime bookingDate, BookingStatus status,
       String pnr) {
@@ -31,38 +31,30 @@ public class BookingService {
     return bookingRepository.save(booking);
   }
 
-  // Okuma - Listeleme:
-
   public List<Booking> getAllBookings() {
     return bookingRepository.findAll();
   }
 
-  // Id ile okuma:
-
   public Booking getBookingById(Long id) {
-    return bookingRepository.findById(id).orElse(null);
+    return bookingRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Booking not found with id " + id));
   }
-
-  // Güncelleme:
 
   public Booking updateBooking(Long id, Passenger passenger, Flight flight, LocalDateTime bookingDate,
       BookingStatus status, String pnr) {
-    Booking booking = bookingRepository.findById(id).orElse(null);
-    if (booking != null) {
-      booking.setPassenger(passenger);
-      booking.setFlight(flight);
-      booking.setBookingDate(bookingDate);
-      booking.setStatus(status);
-      booking.setPnr(pnr);
-      return bookingRepository.save(booking);
-    }
-    return null;
+    Booking booking = getBookingById(id);
+    booking.setPassenger(passenger);
+    booking.setFlight(flight);
+    booking.setBookingDate(bookingDate);
+    booking.setStatus(status);
+    booking.setPnr(pnr);
+    return bookingRepository.save(booking);
   }
 
-  // Silme:
-
   public void deleteBooking(Long id) {
-    bookingRepository.deleteById(id);
+    Booking booking = getBookingById(id);
+    bookingRepository.delete(booking);
   }
 
 }
