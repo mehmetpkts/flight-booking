@@ -1,6 +1,5 @@
 package com.example.flight_booking.controller;
 
-import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Ticket;
 import com.example.flight_booking.service.TicketService;
 import jakarta.validation.Valid;
@@ -41,7 +40,7 @@ public class TicketController {
   }
 
   record CreateTicketPayload(
-      @NotNull(message = "Booking must not be null") Booking booking,
+      @NotNull(message = "Booking ID must not be null") Long bookingId,
       @NotBlank(message = "Ticket number must not be blank") String ticketNumber,
       @NotNull(message = "Issue date must not be null") LocalDateTime issueDate,
       @NotNull(message = "Price must not be null") BigDecimal price) {
@@ -50,7 +49,7 @@ public class TicketController {
   @PostMapping
   public ResponseEntity<Ticket> createTicket(@Valid @RequestBody CreateTicketPayload payload) {
     Ticket createdTicket = ticketService.createTicket(
-        payload.booking(),
+        payload.bookingId(),
         payload.ticketNumber(),
         payload.issueDate(),
         payload.price());
@@ -62,7 +61,7 @@ public class TicketController {
       @Valid @RequestBody CreateTicketPayload payload) {
     Ticket updatedTicket = ticketService.updateTicket(
         id,
-        payload.booking(),
+        payload.bookingId(),
         payload.ticketNumber(),
         payload.issueDate(),
         payload.price());

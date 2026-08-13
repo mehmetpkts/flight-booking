@@ -2,6 +2,7 @@ package com.example.flight_booking.service;
 
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Ticket;
+import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.TicketRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,12 +15,18 @@ import org.springframework.web.server.ResponseStatusException;
 public class TicketService {
 
   private final TicketRepository ticketRepository;
+  private final BookingRepository bookingRepository;
 
-  public TicketService(TicketRepository ticketRepository) {
+  public TicketService(TicketRepository ticketRepository, BookingRepository bookingRepository) {
     this.ticketRepository = ticketRepository;
+    this.bookingRepository = bookingRepository;
   }
 
-  public Ticket createTicket(Booking booking, String ticketNumber, LocalDateTime issueDate, BigDecimal price) {
+  public Ticket createTicket(Long bookingId, String ticketNumber, LocalDateTime issueDate, BigDecimal price) {
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Booking not found with id " + bookingId));
+
     Ticket ticket = new Ticket();
     ticket.setBooking(booking);
     ticket.setTicketNumber(ticketNumber);
@@ -38,8 +45,12 @@ public class TicketService {
             "Ticket not found with id " + id));
   }
 
-  public Ticket updateTicket(Long id, Booking booking, String ticketNumber, LocalDateTime issueDate, BigDecimal price) {
+  public Ticket updateTicket(Long id, Long bookingId, String ticketNumber, LocalDateTime issueDate, BigDecimal price) {
     Ticket ticket = getTicketById(id);
+    Booking booking = bookingRepository.findById(bookingId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Booking not found with id " + bookingId));
+
     ticket.setBooking(booking);
     ticket.setTicketNumber(ticketNumber);
     ticket.setIssueDate(issueDate);

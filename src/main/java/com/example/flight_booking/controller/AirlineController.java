@@ -3,7 +3,7 @@ package com.example.flight_booking.controller;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.service.AirlineService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,9 +37,9 @@ public class AirlineController {
   }
 
   record CreateAirlinePayload(
-      @NotEmpty(message = "Airline name must not be empty") String name,
-      @NotEmpty(message = "Airline code must not be empty") String iataCode,
-      @NotEmpty(message = "Airline country must not be empty") String country) {
+      @NotBlank(message = "Airline name must not be blank") String name,
+      @NotBlank(message = "Airline code must not be blank") String iataCode,
+      @NotBlank(message = "Airline country must not be blank") String country) {
   }
 
   @PostMapping

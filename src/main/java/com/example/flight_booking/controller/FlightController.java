@@ -4,6 +4,7 @@ import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.enums.FlightStatus;
 import com.example.flight_booking.service.FlightService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,7 +41,7 @@ public class FlightController {
   }
 
   record CreateFlightPayload(
-      @NotNull(message = "Flight number must not be null") String flightNumber,
+      @NotBlank(message = "Flight number must not be blank") String flightNumber,
       @NotNull(message = "Departure airport ID must not be null") Long departureAirportId,
       @NotNull(message = "Arrival airport ID must not be null") Long arrivalAirportId,
       @NotNull(message = "Aircraft ID must not be null") Long aircraftId,

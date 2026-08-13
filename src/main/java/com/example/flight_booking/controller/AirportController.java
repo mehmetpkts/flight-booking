@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.flight_booking.entity.Airport;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,10 +42,10 @@ public class AirportController {
   }
 
   record CreateAirportPayload(
-      @NotEmpty(message = "Airport name must not be empty") String name,
-      @NotEmpty(message = "Airport city must not be empty") String city,
-      @NotEmpty(message = "Airport country must not be empty") String country,
-      @NotEmpty(message = "Airport IATA code must not be empty") String iataCode) {
+      @NotBlank(message = "Airport name must not be blank") String name,
+      @NotBlank(message = "Airport city must not be blank") String city,
+      @NotBlank(message = "Airport country must not be blank") String country,
+      @NotBlank(message = "Airport IATA code must not be blank") String iataCode) {
   };
 
   @PostMapping
