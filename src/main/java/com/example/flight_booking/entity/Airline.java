@@ -1,32 +1,27 @@
 package com.example.flight_booking.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class Airline {
 
-  @Id // PK değerimiz
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Otomatik olarak ID değeri üretilecek
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long airlineId;
 
-  @Column(nullable = false, unique = true) // Boş olamaz ve benzersiz olmalı
+  @Column(nullable = false, unique = true)
   private String name;
 
-  @Column(name = "iatacode", nullable = false, length = 3, unique = true) // Boş olamaz - 3 harften oluşmalı - benzersiz
-                                                                          // olmalı
+  @Column(name = "iatacode", nullable = false, length = 3, unique = true)
   private String iataCode;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String country;
 
-  // Bu fieldler için getter ve setter metodları oluşturulması gerekiyormuş
-  // dışardan ulaşabilmek için.
-
-  // id
   public Long getAirlineId() {
     return airlineId;
   }
@@ -35,7 +30,6 @@ public class Airline {
     this.airlineId = airlineId;
   }
 
-  // name
   public String getName() {
     return name;
   }
@@ -44,7 +38,6 @@ public class Airline {
     this.name = name;
   }
 
-  // iataCode
   public String getIataCode() {
     return iataCode;
   }
@@ -53,7 +46,6 @@ public class Airline {
     this.iataCode = iataCode;
   }
 
-  // country
   public String getCountry() {
     return country;
   }
@@ -61,5 +53,4 @@ public class Airline {
   public void setCountry(String country) {
     this.country = country;
   }
-
 }

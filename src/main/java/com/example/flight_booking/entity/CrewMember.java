@@ -34,9 +34,6 @@ public class CrewMember {
   @JoinColumn(name = "airline_id", nullable = false)
   private Airline airline;
 
-  // getter ve setter metodları
-
-  // id
   public Long getCrewMemberId() {
     return crewMemberId;
   }
@@ -45,7 +42,6 @@ public class CrewMember {
     this.crewMemberId = crewMemberId;
   }
 
-  // name
   public String getFirstName() {
     return firstName;
   }
@@ -53,8 +49,6 @@ public class CrewMember {
   public void setFirstName(String firstName) {
     this.firstName = firstName;
   }
-
-  // lastname
 
   public String getLastName() {
     return lastName;
@@ -64,7 +58,6 @@ public class CrewMember {
     this.lastName = lastName;
   }
 
-  // role
   public String getRole() {
     return role;
   }
@@ -73,7 +66,6 @@ public class CrewMember {
     this.role = role;
   }
 
-  // employeeNumber
   public int getEmployeeNumber() {
     return employeeNumber;
   }
@@ -81,8 +73,6 @@ public class CrewMember {
   public void setEmployeeNumber(int employeeNumber) {
     this.employeeNumber = employeeNumber;
   }
-
-  // phone
 
   public String getPhone() {
     return phone;
@@ -92,7 +82,6 @@ public class CrewMember {
     this.phone = phone;
   }
 
-  // airlineid
   public Airline getAirline() {
     return airline;
   }

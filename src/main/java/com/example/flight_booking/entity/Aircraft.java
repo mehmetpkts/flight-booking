@@ -1,44 +1,40 @@
 package com.example.flight_booking.entity;
 
+import com.example.flight_booking.enums.AircraftStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import com.example.flight_booking.enums.AircraftStatus;
 
 @Entity
 public class Aircraft {
-  @Id // PK değerimiz
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Otomatik olarak ID değeri üretilecek
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long aircraftId;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String model;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String manufacturer;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private int capacity;
 
-  @Column(nullable = false) // Boş olamaz ve benzersiz olmalı
-  @Enumerated(EnumType.STRING) // Enum değerini String olarak saklamak için
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
   private AircraftStatus status;
 
-  // birden fazla aircraft bir airline'e ait olabilir. Bu yüzden ManyToOne
-  // ilişkisi kuruyoruz.
   @ManyToOne
-  @JoinColumn(name = "airline_id", nullable = false) // Boş olamaz
+  @JoinColumn(name = "airline_id", nullable = false)
   private Airline airline;
 
-  // getter ve setter metodları
-
-  // id
   public Long getAircraftId() {
     return aircraftId;
   }
@@ -47,7 +43,6 @@ public class Aircraft {
     this.aircraftId = aircraftId;
   }
 
-  // model
   public String getModel() {
     return model;
   }
@@ -56,7 +51,6 @@ public class Aircraft {
     this.model = model;
   }
 
-  // manufacturer
   public String getManufacturer() {
     return manufacturer;
   }
@@ -65,7 +59,6 @@ public class Aircraft {
     this.manufacturer = manufacturer;
   }
 
-  // capacity
   public int getCapacity() {
     return capacity;
   }
@@ -74,7 +67,6 @@ public class Aircraft {
     this.capacity = capacity;
   }
 
-  // status
   public AircraftStatus getStatus() {
     return status;
   }
@@ -83,7 +75,6 @@ public class Aircraft {
     this.status = status;
   }
 
-  // airline
   public Airline getAirline() {
     return airline;
   }

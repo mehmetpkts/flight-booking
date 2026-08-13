@@ -1,39 +1,36 @@
 package com.example.flight_booking.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Column;
 
 @Entity
 public class Passenger {
 
-  @Id // PK değerimiz
-  @GeneratedValue(strategy = GenerationType.IDENTITY) // Otomatik olarak ID değeri üretilecek
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long passengerId;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String firstName;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String lastName;
 
-  @Column(nullable = false, unique = true) // Boş olamaz ve benzersiz olmalı
+  @Column(nullable = false, unique = true)
   private String passportNumber;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String email;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String phone;
 
-  @Column(nullable = false) // Boş olamaz
+  @Column(nullable = false)
   private String nationality;
 
-  // getter ve setter metodları
-
-  // id
   public Long getPassengerId() {
     return passengerId;
   }
@@ -42,7 +39,6 @@ public class Passenger {
     this.passengerId = passengerId;
   }
 
-  // firstName
   public String getFirstName() {
     return firstName;
   }
@@ -51,7 +47,6 @@ public class Passenger {
     this.firstName = firstName;
   }
 
-  // lastName
   public String getLastName() {
     return lastName;
   }
@@ -60,8 +55,7 @@ public class Passenger {
     this.lastName = lastName;
   }
 
-  // passaportNumber
-  public String getPassaportNumber() {
+  public String getPassportNumber() {
     return passportNumber;
   }
 
@@ -69,7 +63,6 @@ public class Passenger {
     this.passportNumber = passportNumber;
   }
 
-  // email
   public String getEmail() {
     return email;
   }
@@ -78,7 +71,6 @@ public class Passenger {
     this.email = email;
   }
 
-  // phone
   public String getPhone() {
     return phone;
   }
@@ -87,7 +79,6 @@ public class Passenger {
     this.phone = phone;
   }
 
-  // nationality
   public String getNationality() {
     return nationality;
   }
@@ -95,5 +86,4 @@ public class Passenger {
   public void setNationality(String nationality) {
     this.nationality = nationality;
   }
-
 }

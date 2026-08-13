@@ -2,15 +2,15 @@ package com.example.flight_booking.entity;
 
 import com.example.flight_booking.enums.FlightStatus;
 import jakarta.persistence.Column;
-import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 
 @Entity
 public class Flight {
@@ -30,24 +30,16 @@ public class Flight {
   @JoinColumn(name = "arrival_airport_id", nullable = false)
   private Airport arrivalAirport;
 
-  // Aircraft
-
   @ManyToOne
   @JoinColumn(name = "aircraft_id", nullable = false)
   private Aircraft aircraft;
-
-  // Airline
 
   @ManyToOne
   @JoinColumn(name = "airline_id", nullable = false)
   private Airline airline;
 
-  // Departure Time
-
   @Column(nullable = false)
   private LocalDateTime departureTime;
-
-  // Arrival Time
 
   @Column(nullable = false)
   private LocalDateTime arrivalTime;
@@ -55,10 +47,6 @@ public class Flight {
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private FlightStatus status;
-
-  // şimdi getter ve setter metodlarını oluşturulurr
-
-  // flightId
 
   public Long getFlightId() {
     return flightId;
@@ -68,7 +56,6 @@ public class Flight {
     this.flightId = flightId;
   }
 
-  // flightNumber
   public String getFlightNumber() {
     return flightNumber;
   }
@@ -77,7 +64,6 @@ public class Flight {
     this.flightNumber = flightNumber;
   }
 
-  // departureAirport
   public Airport getDepartureAirport() {
     return departureAirport;
   }
@@ -86,7 +72,6 @@ public class Flight {
     this.departureAirport = departureAirport;
   }
 
-  // arrivalAirport
   public Airport getArrivalAirport() {
     return arrivalAirport;
   }
@@ -95,7 +80,6 @@ public class Flight {
     this.arrivalAirport = arrivalAirport;
   }
 
-  // aircraft
   public Aircraft getAircraft() {
     return aircraft;
   }
@@ -103,8 +87,6 @@ public class Flight {
   public void setAircraft(Aircraft aircraft) {
     this.aircraft = aircraft;
   }
-
-  // airline
 
   public Airline getAirline() {
     return airline;
@@ -114,7 +96,6 @@ public class Flight {
     this.airline = airline;
   }
 
-  // departureTime
   public LocalDateTime getDepartureTime() {
     return departureTime;
   }
@@ -123,7 +104,6 @@ public class Flight {
     this.departureTime = departureTime;
   }
 
-  // arrivalTime
   public LocalDateTime getArrivalTime() {
     return arrivalTime;
   }
@@ -132,8 +112,6 @@ public class Flight {
     this.arrivalTime = arrivalTime;
   }
 
-  // status
-
   public FlightStatus getStatus() {
     return status;
   }
@@ -141,5 +119,4 @@ public class Flight {
   public void setStatus(FlightStatus status) {
     this.status = status;
   }
-
 }

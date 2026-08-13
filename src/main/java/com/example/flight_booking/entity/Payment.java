@@ -1,54 +1,41 @@
 package com.example.flight_booking.entity;
 
 import com.example.flight_booking.enums.PaymentStatus;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
-import java.time.LocalDateTime;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 
 @Entity
 public class Payment {
-
-  // payment id
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long paymentId;
 
-  // Booking id
-
   @ManyToOne
   @JoinColumn(name = "booking_id", nullable = false)
   private Booking booking;
 
-  // Amount
   @Column(nullable = false)
   private Double amount;
-
-  // payment method
 
   @Column(nullable = false)
   private String paymentMethod;
 
-  // payment date
   @Column(nullable = false)
   private LocalDateTime paymentDate;
 
-  // status
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private PaymentStatus status;
 
-  // getter and setter methods
-
-  // id
   public Long getPaymentId() {
     return paymentId;
   }
@@ -56,8 +43,6 @@ public class Payment {
   public void setPaymentId(Long paymentId) {
     this.paymentId = paymentId;
   }
-
-  // booking
 
   public Booking getBooking() {
     return booking;
@@ -67,8 +52,6 @@ public class Payment {
     this.booking = booking;
   }
 
-  // amount
-
   public Double getAmount() {
     return amount;
   }
@@ -76,8 +59,6 @@ public class Payment {
   public void setAmount(Double amount) {
     this.amount = amount;
   }
-
-  // payment method
 
   public String getPaymentMethod() {
     return paymentMethod;
@@ -87,8 +68,6 @@ public class Payment {
     this.paymentMethod = paymentMethod;
   }
 
-  // payment date
-
   public LocalDateTime getPaymentDate() {
     return paymentDate;
   }
@@ -96,8 +75,6 @@ public class Payment {
   public void setPaymentDate(LocalDateTime paymentDate) {
     this.paymentDate = paymentDate;
   }
-
-  // status
 
   public PaymentStatus getStatus() {
     return status;

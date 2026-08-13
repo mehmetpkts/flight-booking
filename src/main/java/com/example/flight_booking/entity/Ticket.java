@@ -1,15 +1,14 @@
 package com.example.flight_booking.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 public class Ticket {
@@ -18,29 +17,18 @@ public class Ticket {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long ticketId;
 
-  // booking id
-
   @OneToOne
   @JoinColumn(name = "booking_id", nullable = false)
   private Booking booking;
 
-  // ticket number
-
   @Column(nullable = false, unique = true)
   private String ticketNumber;
 
-  // IssueDate
   @Column(nullable = false)
   private LocalDateTime issueDate;
 
-  // price
-
   @Column(nullable = false)
   private BigDecimal price;
-
-  // getter ve setter metodları
-
-  // id
 
   public Long getTicketId() {
     return ticketId;
@@ -50,8 +38,6 @@ public class Ticket {
     this.ticketId = ticketId;
   }
 
-  // booking
-
   public Booking getBooking() {
     return booking;
   }
@@ -59,8 +45,6 @@ public class Ticket {
   public void setBooking(Booking booking) {
     this.booking = booking;
   }
-
-  // ticketNumber
 
   public String getTicketNumber() {
     return ticketNumber;
@@ -70,8 +54,6 @@ public class Ticket {
     this.ticketNumber = ticketNumber;
   }
 
-  // issueDate
-
   public LocalDateTime getIssueDate() {
     return issueDate;
   }
@@ -79,8 +61,6 @@ public class Ticket {
   public void setIssueDate(LocalDateTime issueDate) {
     this.issueDate = issueDate;
   }
-
-  // price
 
   public BigDecimal getPrice() {
     return price;

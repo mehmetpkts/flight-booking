@@ -1,13 +1,12 @@
 package com.example.flight_booking.entity;
 
-import jakarta.persistence.JoinColumn;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class CrewAssignment {
@@ -24,14 +23,8 @@ public class CrewAssignment {
   @JoinColumn(name = "crew_member_id", nullable = false)
   private CrewMember crewMember;
 
-  // duty
-
   @Column(nullable = false)
   private String duty;
-
-  // getter ve setter metodları
-
-  // id
 
   public Long getAssignmentId() {
     return assignmentId;
@@ -41,8 +34,6 @@ public class CrewAssignment {
     this.assignmentId = assignmentId;
   }
 
-  // flight
-
   public Flight getFlight() {
     return flight;
   }
@@ -50,8 +41,6 @@ public class CrewAssignment {
   public void setFlight(Flight flight) {
     this.flight = flight;
   }
-
-  // crewMember
 
   public CrewMember getCrewMember() {
     return crewMember;
@@ -61,8 +50,6 @@ public class CrewAssignment {
     this.crewMember = crewMember;
   }
 
-  // duty
-
   public String getDuty() {
     return duty;
   }
@@ -70,5 +57,4 @@ public class CrewAssignment {
   public void setDuty(String duty) {
     this.duty = duty;
   }
-
 }
