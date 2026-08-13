@@ -29,8 +29,6 @@ public class AirportController {
     this.airportService = airportService;
   }
 
-  // crud işlemlerii
-
   @GetMapping()
   public List<Airport> getAllAirports() {
     return airportService.getAllAirports();
