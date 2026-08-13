@@ -1,24 +1,26 @@
 package com.example.flight_booking.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.http.ResponseEntity;
-import jakarta.validation.constraints.NotEmpty;
 import com.example.flight_booking.entity.Booking;
-import java.util.List;
 import com.example.flight_booking.entity.Ticket;
 import com.example.flight_booking.service.TicketService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PutMapping;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("/api/tickets")
 public class TicketController {
 
   private final TicketService ticketService;
@@ -27,52 +29,51 @@ public class TicketController {
     this.ticketService = ticketService;
   }
 
-  // curd işlemleri
-
-  @GetMapping()
+  @GetMapping
   public List<Ticket> getAllTickets() {
     return ticketService.getAllTickets();
   }
 
-  // id ile okuma
-  @GetMapping("/id")
-  public Ticket getTicketById(@RequestParam Long id) {
-    return ticketService.getTicketById(id);
+  @GetMapping("/{id}")
+  public ResponseEntity<Ticket> getTicketById(@PathVariable Long id) {
+    return ResponseEntity.ok(ticketService.getTicketById(id));
   }
 
-  // oluşturma kaydetme
+  record CreateTicketPayload(
+      @NotNull(message = "Booking must not be null") Booking booking,
+      @NotBlank(message = "Ticket number must not be blank") String ticketNumber,
+      @NotNull(message = "Issue date must not be null") LocalDateTime issueDate,
+      @NotNull(message = "Price must not be null") BigDecimal price) {
+  }
 
-  record CreateTicketPayload(@NotEmpty Booking bookingId,
-      @NotEmpty String ticketNumber,
-      @NotEmpty String issueDate, @NotEmpty Double price) {
-  };
-
-  @PostMapping()
+  @PostMapping
   public ResponseEntity<Ticket> createTicket(@Valid @RequestBody CreateTicketPayload payload) {
-    Ticket createdTicket = ticketService.createTicket(payload.bookingId(), payload.ticketNumber(),
-        java.time.LocalDateTime.parse(payload.issueDate()), java.math.BigDecimal.valueOf(payload.price()));
+    Ticket createdTicket = ticketService.createTicket(
+        payload.booking(),
+        payload.ticketNumber(),
+        payload.issueDate(),
+        payload.price());
     return ResponseEntity.ok(createdTicket);
   }
 
-  // güncelleme
-
   @PutMapping("/{id}")
-  public ResponseEntity<Ticket> updateTicket(@PathVariable Long id, @Valid @RequestBody CreateTicketPayload payload) {
-    Ticket updatedTicket = ticketService.updateTicket(id, payload.bookingId(), payload.ticketNumber(),
-        java.time.LocalDateTime.parse(payload.issueDate()), java.math.BigDecimal.valueOf(payload.price()));
+  public ResponseEntity<Ticket> updateTicket(@PathVariable Long id,
+      @Valid @RequestBody CreateTicketPayload payload) {
+    Ticket updatedTicket = ticketService.updateTicket(
+        id,
+        payload.booking(),
+        payload.ticketNumber(),
+        payload.issueDate(),
+        payload.price());
     if (updatedTicket != null) {
       return ResponseEntity.ok(updatedTicket);
-    } else {
-      return ResponseEntity.notFound().build();
     }
+    return ResponseEntity.notFound().build();
   }
-
-  // silme
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
     ticketService.deleteTicket(id);
     return ResponseEntity.noContent().build();
   }
-
 }
