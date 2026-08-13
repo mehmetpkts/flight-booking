@@ -1,24 +1,23 @@
 package com.example.flight_booking.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.http.ResponseEntity;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.Valid;
-
-import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.CrewMember;
-import java.util.List;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import com.example.flight_booking.service.CrewMemberService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/crew-members")
+@RequestMapping("/api/crew-members")
 public class CrewMemberController {
 
   private final CrewMemberService crewMemberService;
@@ -27,33 +26,29 @@ public class CrewMemberController {
     this.crewMemberService = crewMemberService;
   }
 
-  // crud işlemleri
-
-  @GetMapping()
+  @GetMapping
   public List<CrewMember> getAllCrewMembers() {
     return crewMemberService.getAllCrewMembers();
   }
 
-  // Id ile okuma:
-
   @GetMapping("/{id}")
-  public CrewMember getCrewMemberById(@PathVariable Long id) {
-    return crewMemberService.getCrewMemberById(id);
+  public ResponseEntity<CrewMember> getCrewMemberById(@PathVariable Long id) {
+    return ResponseEntity.ok(crewMemberService.getCrewMemberById(id));
   }
 
-  // Oluşturma - Kaydetme:
+  record CreateCrewMemberPayload(
+      @NotBlank(message = "First name must not be blank") String firstName,
+      @NotBlank(message = "Last name must not be blank") String lastName,
+      @NotBlank(message = "Role must not be blank") String role,
+      @NotNull(message = "Employee number must not be null") Integer employeeNumber,
+      @NotBlank(message = "Phone must not be blank") String phone,
+      @NotNull(message = "Airline ID must not be null") Long airlineId) {
+  }
 
-  record CreateCrewMemberPayload(@NotEmpty String firstName,
-      @NotEmpty String lastName,
-      @NotEmpty String role,
-      @NotEmpty Integer employeeNumber,
-      @NotEmpty String phone,
-      @NotEmpty Airline airlineId) {
-  };
-
-  @PostMapping()
+  @PostMapping
   public ResponseEntity<CrewMember> createCrewMember(@Valid @RequestBody CreateCrewMemberPayload payload) {
-    CrewMember crewMember = crewMemberService.createCrewMember(payload.firstName(),
+    CrewMember crewMember = crewMemberService.createCrewMember(
+        payload.firstName(),
         payload.lastName(),
         payload.role(),
         payload.employeeNumber(),
@@ -62,25 +57,19 @@ public class CrewMemberController {
     return ResponseEntity.ok(crewMember);
   }
 
-  // Güncelleme
-
   @PutMapping("/{id}")
   public ResponseEntity<CrewMember> updateCrewMember(@PathVariable Long id,
       @Valid @RequestBody CreateCrewMemberPayload payload) {
-    CrewMember updatedCrewMember = crewMemberService.updateCrewMember(id, payload.firstName(),
+    CrewMember updatedCrewMember = crewMemberService.updateCrewMember(
+        id,
+        payload.firstName(),
         payload.lastName(),
         payload.role(),
         payload.employeeNumber(),
         payload.phone(),
         payload.airlineId());
-    if (updatedCrewMember != null) {
-      return ResponseEntity.ok(updatedCrewMember);
-    } else {
-      return ResponseEntity.notFound().build();
-    }
+    return ResponseEntity.ok(updatedCrewMember);
   }
-
-  // Silme
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteCrewMember(@PathVariable Long id) {

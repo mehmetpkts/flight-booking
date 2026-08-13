@@ -1,6 +1,5 @@
 package com.example.flight_booking.controller;
 
-import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Payment;
 import com.example.flight_booking.enums.PaymentStatus;
 import com.example.flight_booking.service.PaymentService;
@@ -40,7 +39,7 @@ public class PaymentController {
   }
 
   record CreatePaymentPayload(
-      @NotNull(message = "Booking must not be null") Booking booking,
+      @NotNull(message = "Booking ID must not be null") Long bookingId,
       @NotNull(message = "Amount must not be null") Double amount,
       @NotBlank(message = "Payment method must not be blank") String paymentMethod,
       @NotNull(message = "Payment date must not be null") LocalDateTime paymentDate,
@@ -50,7 +49,7 @@ public class PaymentController {
   @PostMapping
   public ResponseEntity<Payment> createPayment(@Valid @RequestBody CreatePaymentPayload payload) {
     Payment payment = paymentService.createPayment(
-        payload.booking(),
+        payload.bookingId(),
         payload.amount(),
         payload.paymentMethod(),
         payload.paymentDate(),
@@ -63,7 +62,7 @@ public class PaymentController {
       @Valid @RequestBody CreatePaymentPayload payload) {
     Payment updatedPayment = paymentService.updatePayment(
         id,
-        payload.booking(),
+        payload.bookingId(),
         payload.amount(),
         payload.paymentMethod(),
         payload.paymentDate(),
