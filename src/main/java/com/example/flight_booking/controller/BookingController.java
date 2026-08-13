@@ -1,29 +1,27 @@
 package com.example.flight_booking.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import com.example.flight_booking.service.BookingService;
-import org.springframework.http.ResponseEntity;
-import java.time.LocalDateTime;
-
-import jakarta.validation.constraints.NotEmpty;
-import com.example.flight_booking.enums.BookingStatus;
-import jakarta.validation.Valid;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
-
+import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.service.BookingService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/bookings")
+@RequestMapping("/api/bookings")
 public class BookingController {
 
   private final BookingService bookingService;
@@ -32,50 +30,47 @@ public class BookingController {
     this.bookingService = bookingService;
   }
 
-  // crud işlemleri
-
-  @GetMapping()
+  @GetMapping
   public List<Booking> getAllBookings() {
     return bookingService.getAllBookings();
   }
 
-  // Id ile okuma:
-
   @GetMapping("/{id}")
-  public Booking getBookingById(@PathVariable Long id) {
-    return bookingService.getBookingById(id);
+  public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+    return ResponseEntity.ok(bookingService.getBookingById(id));
   }
-
-  // Oluşturma - Kaydetme:
 
   record CreateBookingPayload(
-      @NotEmpty(message = "Passenger must not be empty") Passenger passengerId,
-      @NotEmpty(message = "Flight must not be empty") Flight flightId,
-      @NotEmpty(message = "Booking date must not be empty") LocalDateTime bookingDate,
-      @NotEmpty(message = "Booking status must not be empty") BookingStatus status,
-      @NotEmpty(message = "PNR must not be empty") String pnr) {
-  };
-
-  @PostMapping()
-  public ResponseEntity<Booking> createBooking(@Valid @RequestBody CreateBookingPayload payload) {
-    Booking savedBooking = bookingService.createBooking(payload.passengerId(), payload.flightId(),
-        payload.bookingDate(),
-        payload.status(), payload.pnr());
-    return ResponseEntity.ok(savedBooking);
+      @NotNull(message = "Passenger must not be null") Passenger passenger,
+      @NotNull(message = "Flight must not be null") Flight flight,
+      @NotNull(message = "Booking date must not be null") LocalDateTime bookingDate,
+      @NotNull(message = "Booking status must not be null") BookingStatus status,
+      @NotBlank(message = "PNR must not be blank") String pnr) {
   }
 
-  // Güncelleme:
+  @PostMapping
+  public ResponseEntity<Booking> createBooking(@Valid @RequestBody CreateBookingPayload payload) {
+    Booking savedBooking = bookingService.createBooking(
+        payload.passenger(),
+        payload.flight(),
+        payload.bookingDate(),
+        payload.status(),
+        payload.pnr());
+    return ResponseEntity.ok(savedBooking);
+  }
 
   @PutMapping("/{id}")
   public ResponseEntity<Booking> updateBooking(@PathVariable Long id,
       @Valid @RequestBody CreateBookingPayload payload) {
-    Booking updatedBooking = bookingService.updateBooking(id, payload.passengerId(), payload.flightId(),
+    Booking updatedBooking = bookingService.updateBooking(
+        id,
+        payload.passenger(),
+        payload.flight(),
         payload.bookingDate(),
-        payload.status(), payload.pnr());
+        payload.status(),
+        payload.pnr());
     return ResponseEntity.ok(updatedBooking);
   }
-
-  // Silme
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {

@@ -1,20 +1,19 @@
 package com.example.flight_booking.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import jakarta.validation.constraints.NotEmpty;
-import com.example.flight_booking.service.PassengerService;
 import com.example.flight_booking.entity.Passenger;
-
-import java.util.List;
-
+import com.example.flight_booking.service.PassengerService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/passengers")
@@ -26,9 +25,7 @@ public class PassengerController {
     this.passengerService = passengerService;
   }
 
-  // CRUD işlemleri
-
-  @GetMapping()
+  @GetMapping
   public List<Passenger> getAllPassengers() {
     return passengerService.getAllPassengers();
   }
@@ -39,16 +36,16 @@ public class PassengerController {
   }
 
   record CreatePassengerPayload(
-      @NotEmpty(message = "Passenger first name must not be empty") String firstName,
-      @NotEmpty(message = "Passenger last name must not be empty") String lastName,
-      @NotEmpty(message = "Passenger passport number must not be empty") String passportNumber,
-      @NotEmpty(message = "Passenger email must not be empty") String email,
-      @NotEmpty(message = "Passenger phone number must not be empty") String phoneNumber,
-      @NotEmpty(message = "Passenger nationality must not be empty") String nationality) {
-  };
+      @NotBlank(message = "Passenger first name must not be blank") String firstName,
+      @NotBlank(message = "Passenger last name must not be blank") String lastName,
+      @NotBlank(message = "Passenger passport number must not be blank") String passportNumber,
+      @NotBlank(message = "Passenger email must not be blank") String email,
+      @NotBlank(message = "Passenger phone number must not be blank") String phoneNumber,
+      @NotBlank(message = "Passenger nationality must not be blank") String nationality) {
+  }
 
-  @PostMapping()
-  public ResponseEntity<Passenger> createPassenger(@RequestBody CreatePassengerPayload payload) {
+  @PostMapping
+  public ResponseEntity<Passenger> createPassenger(@Valid @RequestBody CreatePassengerPayload payload) {
     Passenger savedPassenger = passengerService.createPassenger(
         payload.firstName(),
         payload.lastName(),
@@ -60,7 +57,8 @@ public class PassengerController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Passenger> updatePassenger(@PathVariable Long id, @RequestBody CreatePassengerPayload payload) {
+  public ResponseEntity<Passenger> updatePassenger(@PathVariable Long id,
+      @Valid @RequestBody CreatePassengerPayload payload) {
     Passenger updatedPassenger = passengerService.updatePassenger(
         id,
         payload.firstName(),
