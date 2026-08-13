@@ -1,8 +1,6 @@
 package com.example.flight_booking.controller;
 
 import com.example.flight_booking.entity.Booking;
-import com.example.flight_booking.entity.Flight;
-import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.service.BookingService;
 import jakarta.validation.Valid;
@@ -41,8 +39,8 @@ public class BookingController {
   }
 
   record CreateBookingPayload(
-      @NotNull(message = "Passenger must not be null") Passenger passenger,
-      @NotNull(message = "Flight must not be null") Flight flight,
+      @NotNull(message = "Passenger ID must not be null") Long passengerId,
+      @NotNull(message = "Flight ID must not be null") Long flightId,
       @NotNull(message = "Booking date must not be null") LocalDateTime bookingDate,
       @NotNull(message = "Booking status must not be null") BookingStatus status,
       @NotBlank(message = "PNR must not be blank") String pnr) {
@@ -51,8 +49,8 @@ public class BookingController {
   @PostMapping
   public ResponseEntity<Booking> createBooking(@Valid @RequestBody CreateBookingPayload payload) {
     Booking savedBooking = bookingService.createBooking(
-        payload.passenger(),
-        payload.flight(),
+        payload.passengerId(),
+        payload.flightId(),
         payload.bookingDate(),
         payload.status(),
         payload.pnr());
@@ -64,8 +62,8 @@ public class BookingController {
       @Valid @RequestBody CreateBookingPayload payload) {
     Booking updatedBooking = bookingService.updateBooking(
         id,
-        payload.passenger(),
-        payload.flight(),
+        payload.passengerId(),
+        payload.flightId(),
         payload.bookingDate(),
         payload.status(),
         payload.pnr());
