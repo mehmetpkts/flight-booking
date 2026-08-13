@@ -4,10 +4,6 @@ import com.example.flight_booking.entity.CrewAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * CrewAssignment entity'si için repository interface'i.
- * Uçak görevlilerinin uçuşlara atanması bilgilerini yönetir.
- */
 @Repository
 public interface CrewAssignmentRepository extends JpaRepository<CrewAssignment, Long> {
 
