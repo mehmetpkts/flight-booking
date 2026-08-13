@@ -3,6 +3,7 @@ package com.example.flight_booking.controller;
 import com.example.flight_booking.service.AirportService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,7 +55,7 @@ public class AirportController {
         payload.city(),
         payload.country(),
         payload.iataCode());
-    return ResponseEntity.ok(savedAirport);
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedAirport);
   }
 
   @PutMapping("/{id}")

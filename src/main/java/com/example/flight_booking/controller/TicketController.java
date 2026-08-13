@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,7 +54,7 @@ public class TicketController {
         payload.ticketNumber(),
         payload.issueDate(),
         payload.price());
-    return ResponseEntity.ok(createdTicket);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdTicket);
   }
 
   @PutMapping("/{id}")

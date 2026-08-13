@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,7 +61,7 @@ public class FlightController {
         payload.departureTime(),
         payload.arrivalTime(),
         payload.status());
-    return ResponseEntity.ok(savedFlight);
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedFlight);
   }
 
   @PutMapping("/{id}")

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +49,7 @@ public class CrewAssignmentController {
         payload.flightId(),
         payload.crewMemberId(),
         payload.duty());
-    return ResponseEntity.ok(crewAssignment);
+    return ResponseEntity.status(HttpStatus.CREATED).body(crewAssignment);
   }
 
   @PutMapping("/{id}")

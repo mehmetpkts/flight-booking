@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +55,7 @@ public class PaymentController {
         payload.paymentMethod(),
         payload.paymentDate(),
         payload.status());
-    return ResponseEntity.ok(payment);
+    return ResponseEntity.status(HttpStatus.CREATED).body(payment);
   }
 
   @PutMapping("/{id}")
