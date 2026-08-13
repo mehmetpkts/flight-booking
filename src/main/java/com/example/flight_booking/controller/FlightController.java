@@ -1,26 +1,22 @@
 package com.example.flight_booking.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.example.flight_booking.entity.Aircraft;
-import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.enums.FlightStatus;
-import java.util.List;
 import com.example.flight_booking.service.FlightService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-
+import java.util.List;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/flights")
@@ -32,9 +28,7 @@ public class FlightController {
     this.flightService = flightService;
   }
 
-  // crud işlemleri
-
-  @GetMapping()
+  @GetMapping
   public List<Flight> getAllFlights() {
     return flightService.getAllFlights();
   }
@@ -48,34 +42,39 @@ public class FlightController {
       @NotNull(message = "Flight number must not be null") String flightNumber,
       @NotNull(message = "Departure airport ID must not be null") Long departureAirportId,
       @NotNull(message = "Arrival airport ID must not be null") Long arrivalAirportId,
+      @NotNull(message = "Aircraft ID must not be null") Long aircraftId,
+      @NotNull(message = "Airline ID must not be null") Long airlineId,
       @NotNull(message = "Departure time must not be null") LocalDateTime departureTime,
       @NotNull(message = "Arrival time must not be null") LocalDateTime arrivalTime,
-      @NotNull(message = "Aircraft ID must not be null") Aircraft aircraftId,
-      @NotNull(message = "Airline ID must not be null") Airline airlineId,
       @NotNull(message = "Flight status must not be null") FlightStatus status) {
   }
 
-  @PostMapping()
+  @PostMapping
   public ResponseEntity<Flight> createFlight(@Valid @RequestBody CreateFlightPayload payload) {
     Flight savedFlight = flightService.createFlight(
         payload.flightNumber(),
-        payload.departureTime(),
-        payload.arrivalTime(),
+        payload.departureAirportId(),
+        payload.arrivalAirportId(),
         payload.aircraftId(),
         payload.airlineId(),
+        payload.departureTime(),
+        payload.arrivalTime(),
         payload.status());
     return ResponseEntity.ok(savedFlight);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Flight> updateFlight(@PathVariable Long id, @Valid @RequestBody CreateFlightPayload payload) {
+  public ResponseEntity<Flight> updateFlight(@PathVariable Long id,
+      @Valid @RequestBody CreateFlightPayload payload) {
     Flight updatedFlight = flightService.updateFlight(
         id,
         payload.flightNumber(),
-        payload.departureTime(),
-        payload.arrivalTime(),
+        payload.departureAirportId(),
+        payload.arrivalAirportId(),
         payload.aircraftId(),
         payload.airlineId(),
+        payload.departureTime(),
+        payload.arrivalTime(),
         payload.status());
     return ResponseEntity.ok(updatedFlight);
   }
@@ -85,8 +84,6 @@ public class FlightController {
     flightService.deleteFlight(id);
     return ResponseEntity.noContent().build();
   }
-
-  // ekstra uçuş arama işlemleri
 
   @GetMapping("/search")
   public List<Flight> getFlightsByIataCode(@RequestParam String iataCode) {

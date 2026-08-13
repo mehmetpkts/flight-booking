@@ -1,33 +1,63 @@
 package com.example.flight_booking.service;
 
-import com.example.flight_booking.repository.FlightRepository;
 import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
-import java.time.LocalDateTime;
-
-import com.example.flight_booking.enums.FlightStatus;
-import java.util.List;
-import java.lang.String;
-
+import com.example.flight_booking.entity.Airport;
 import com.example.flight_booking.entity.Flight;
-
+import com.example.flight_booking.enums.FlightStatus;
+import com.example.flight_booking.repository.AircraftRepository;
+import com.example.flight_booking.repository.AirlineRepository;
+import com.example.flight_booking.repository.AirportRepository;
+import com.example.flight_booking.repository.FlightRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class FlightService {
 
   private final FlightRepository flightRepository;
+  private final AirportRepository airportRepository;
+  private final AircraftRepository aircraftRepository;
+  private final AirlineRepository airlineRepository;
 
-  public FlightService(FlightRepository flightRepository) {
+  public FlightService(FlightRepository flightRepository,
+      AirportRepository airportRepository,
+      AircraftRepository aircraftRepository,
+      AirlineRepository airlineRepository) {
     this.flightRepository = flightRepository;
+    this.airportRepository = airportRepository;
+    this.aircraftRepository = aircraftRepository;
+    this.airlineRepository = airlineRepository;
   }
 
-  // oluşturma kaydetme:
+  public Flight createFlight(String flightNumber,
+      Long departureAirportId,
+      Long arrivalAirportId,
+      Long aircraftId,
+      Long airlineId,
+      LocalDateTime departureTime,
+      LocalDateTime arrivalTime,
+      FlightStatus status) {
+    Airport departureAirport = airportRepository.findById(departureAirportId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Departure airport not found with id " + departureAirportId));
+    Airport arrivalAirport = airportRepository.findById(arrivalAirportId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Arrival airport not found with id " + arrivalAirportId));
+    Aircraft aircraft = aircraftRepository.findById(aircraftId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Aircraft not found with id " + aircraftId));
+    Airline airline = airlineRepository.findById(airlineId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Airline not found with id " + airlineId));
 
-  public Flight createFlight(String flightNumber, LocalDateTime departureTime, LocalDateTime arrivalTime,
-      Aircraft aircraft, Airline airline, FlightStatus status) {
     Flight flight = new Flight();
     flight.setFlightNumber(flightNumber);
+    flight.setDepartureAirport(departureAirport);
+    flight.setArrivalAirport(arrivalAirport);
     flight.setDepartureTime(departureTime);
     flight.setArrivalTime(arrivalTime);
     flight.setAircraft(aircraft);
@@ -36,42 +66,55 @@ public class FlightService {
     return flightRepository.save(flight);
   }
 
-  // okuma - listeleme:
-
   public List<Flight> getAllFlights() {
     return flightRepository.findAll();
   }
 
-  // id okuma:
-
   public Flight getFlightById(Long id) {
-    return flightRepository.findById(id).orElse(null);
+    return flightRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Flight not found with id " + id));
   }
 
-  // güncelleme:
+  public Flight updateFlight(Long id,
+      String flightNumber,
+      Long departureAirportId,
+      Long arrivalAirportId,
+      Long aircraftId,
+      Long airlineId,
+      LocalDateTime departureTime,
+      LocalDateTime arrivalTime,
+      FlightStatus status) {
+    Flight flight = getFlightById(id);
 
-  public Flight updateFlight(Long id, String flightNumber, LocalDateTime departureTime, LocalDateTime arrivalTime,
-      Aircraft aircraft, Airline airline, FlightStatus status) {
-    Flight flight = flightRepository.findById(id).orElse(null);
-    if (flight != null) {
-      flight.setFlightNumber(flightNumber);
-      flight.setDepartureTime(departureTime);
-      flight.setArrivalTime(arrivalTime);
-      flight.setAircraft(aircraft);
-      flight.setAirline(airline);
-      flight.setStatus(status);
-      return flightRepository.save(flight);
-    }
-    return null;
+    Airport departureAirport = airportRepository.findById(departureAirportId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Departure airport not found with id " + departureAirportId));
+    Airport arrivalAirport = airportRepository.findById(arrivalAirportId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Arrival airport not found with id " + arrivalAirportId));
+    Aircraft aircraft = aircraftRepository.findById(aircraftId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Aircraft not found with id " + aircraftId));
+    Airline airline = airlineRepository.findById(airlineId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Airline not found with id " + airlineId));
+
+    flight.setFlightNumber(flightNumber);
+    flight.setDepartureAirport(departureAirport);
+    flight.setArrivalAirport(arrivalAirport);
+    flight.setDepartureTime(departureTime);
+    flight.setArrivalTime(arrivalTime);
+    flight.setAircraft(aircraft);
+    flight.setAirline(airline);
+    flight.setStatus(status);
+    return flightRepository.save(flight);
   }
-
-  // silme:
 
   public void deleteFlight(Long id) {
-    flightRepository.deleteById(id);
+    Flight flight = getFlightById(id);
+    flightRepository.delete(flight);
   }
-
-  // iataCode ile uçuşları listeleme:
 
   public List<Flight> getFlightsByIataCode(String iataCode) {
     return flightRepository.findByDepartureAirport_iataCodeFlights(iataCode);
