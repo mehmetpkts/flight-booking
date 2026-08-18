@@ -1,5 +1,8 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.FlightFilterRequestDto;
+import com.example.flight_booking.dto.FlightFilterResponseDto;
+import com.example.flight_booking.dto.FlightIataCodeRequestDto;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.enums.FlightStatus;
 import com.example.flight_booking.service.FlightService;
@@ -36,7 +39,7 @@ public class FlightController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Flight> getFlightById(@PathVariable Long id) {
+  public ResponseEntity<FlightFilterResponseDto> getFlightById(@PathVariable Long id) {
     return ResponseEntity.ok(flightService.getFlightById(id));
   }
 
@@ -87,8 +90,13 @@ public class FlightController {
     return ResponseEntity.noContent().build();
   }
 
-  @GetMapping("/search")
-  public List<Flight> getFlightsByIataCode(@RequestParam String iataCode) {
-    return flightService.getFlightsByIataCode(iataCode);
+  @PostMapping("/iataCode")
+  public List<Flight> iataFlights(@RequestBody FlightIataCodeRequestDto flightIataCodeRequestDto){
+    return flightService.getByIataCode(flightIataCodeRequestDto);
+  }
+
+  @PostMapping("/filter")
+  public List<Flight> filterFlights(@RequestBody FlightFilterRequestDto filterRequestDto) {
+    return flightService.getByArrivalAndDepartureCitiesAndStatus(filterRequestDto);
   }
 }
