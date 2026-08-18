@@ -1,19 +1,17 @@
 package com.example.flight_booking.service;
 
-import com.example.flight_booking.dto.FlightFilterRequestDto;
-import com.example.flight_booking.dto.FlightFilterResponseDto;
-import com.example.flight_booking.dto.FlightIataCodeRequestDto;
+import com.example.flight_booking.dto.flight.*;
 import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.Airport;
 import com.example.flight_booking.entity.Flight;
-import com.example.flight_booking.enums.FlightStatus;
 import com.example.flight_booking.repository.AircraftRepository;
 import com.example.flight_booking.repository.AirlineRepository;
 import com.example.flight_booking.repository.AirportRepository;
 import com.example.flight_booking.repository.FlightRepository;
-import java.time.LocalDateTime;
+
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,42 +34,42 @@ public class FlightService {
     this.airlineRepository = airlineRepository;
   }
 
-  public Flight createFlight(String flightNumber,
-      Long departureAirportId,
-      Long arrivalAirportId,
-      Long aircraftId,
-      Long airlineId,
-      LocalDateTime departureTime,
-      LocalDateTime arrivalTime,
-      FlightStatus status) {
-    Airport departureAirport = airportRepository.findById(departureAirportId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Departure airport not found with id " + departureAirportId));
-    Airport arrivalAirport = airportRepository.findById(arrivalAirportId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Arrival airport not found with id " + arrivalAirportId));
-    Aircraft aircraft = aircraftRepository.findById(aircraftId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Aircraft not found with id " + aircraftId));
-    Airline airline = airlineRepository.findById(airlineId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Airline not found with id " + airlineId));
+
+
+
+
+  public Flight createFlight(FlightCreateRequestDto create) {
 
     Flight flight = new Flight();
-    flight.setFlightNumber(flightNumber);
+
+    flight.setFlightNumber(create.getFlightNumber());
+
+    Airport departureAirport = airportRepository.findById(create.getDepartureAirportId())
+            .orElseThrow(() -> new RuntimeException("departureAirport yok"));
     flight.setDepartureAirport(departureAirport);
+
+    Airport arrivalAirport = airportRepository.findById(create.getArrivalAirportId())
+            .orElseThrow(() -> new RuntimeException("arrival airport yok"));
     flight.setArrivalAirport(arrivalAirport);
-    flight.setDepartureTime(departureTime);
-    flight.setArrivalTime(arrivalTime);
+
+    Aircraft aircraft = aircraftRepository.findById(create.getAircraftId())
+            .orElseThrow(() -> new RuntimeException("aircraft id yok"));
     flight.setAircraft(aircraft);
+
+    Airline airline = airlineRepository.findById(create.getAirlineId())
+            .orElseThrow(() -> new RuntimeException("airline id yok"));
     flight.setAirline(airline);
-    flight.setStatus(status);
+
+    flight.setDepartureTime(create.getDepartureTime());
+    flight.setArrivalTime(create.getArrivalTime());
+    flight.setStatus(create.getStatus());
+
     return flightRepository.save(flight);
   }
 
-  public List<Flight> getAllFlights() {
-    return flightRepository.findAll();
-  }
+//  public List<Flight> getAllFlights() {
+//    return flightRepository.findAll();
+//  }
 
   public FlightFilterResponseDto getFlightById(Long id) {
     Flight flight = getFlightEntityById(id);
@@ -95,38 +93,31 @@ public class FlightService {
             "Flight not found with id " + id));
   }
 
-  public Flight updateFlight(Long id,
-      String flightNumber,
-      Long departureAirportId,
-      Long arrivalAirportId,
-      Long aircraftId,
-      Long airlineId,
-      LocalDateTime departureTime,
-      LocalDateTime arrivalTime,
-      FlightStatus status) {
+  public Flight updateFlight(Long id, FlightUpdateRequestDto update) {
     Flight flight = getFlightEntityById(id);
 
-    Airport departureAirport = airportRepository.findById(departureAirportId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Departure airport not found with id " + departureAirportId));
-    Airport arrivalAirport = airportRepository.findById(arrivalAirportId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Arrival airport not found with id " + arrivalAirportId));
-    Aircraft aircraft = aircraftRepository.findById(aircraftId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Aircraft not found with id " + aircraftId));
-    Airline airline = airlineRepository.findById(airlineId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Airline not found with id " + airlineId));
+    flight.setFlightNumber(update.getFlightNumber());
 
-    flight.setFlightNumber(flightNumber);
+    Airport departureAirport = airportRepository.findById(update.getDepartureAirportId())
+            .orElseThrow(() -> new RuntimeException("departureAirport yok"));
     flight.setDepartureAirport(departureAirport);
+
+    Airport arrivalAirport = airportRepository.findById(update.getArrivalAirportId())
+            .orElseThrow(() -> new RuntimeException("arrival airport yok"));
     flight.setArrivalAirport(arrivalAirport);
-    flight.setDepartureTime(departureTime);
-    flight.setArrivalTime(arrivalTime);
+
+    Aircraft aircraft = aircraftRepository.findById(update.getAircraftId())
+            .orElseThrow(() -> new RuntimeException("aircraft id yok"));
     flight.setAircraft(aircraft);
+
+    Airline airline = airlineRepository.findById(update.getAirlineId())
+            .orElseThrow(() -> new RuntimeException("airline id yok"));
     flight.setAirline(airline);
-    flight.setStatus(status);
+
+    flight.setDepartureTime(update.getDepartureTime());
+    flight.setArrivalTime(update.getArrivalTime());
+    flight.setStatus(update.getStatus());
+
     return flightRepository.save(flight);
   }
 

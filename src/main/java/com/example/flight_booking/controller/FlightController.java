@@ -1,8 +1,6 @@
 package com.example.flight_booking.controller;
 
-import com.example.flight_booking.dto.FlightFilterRequestDto;
-import com.example.flight_booking.dto.FlightFilterResponseDto;
-import com.example.flight_booking.dto.FlightIataCodeRequestDto;
+import com.example.flight_booking.dto.flight.*;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.enums.FlightStatus;
 import com.example.flight_booking.service.FlightService;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,10 +30,10 @@ public class FlightController {
     this.flightService = flightService;
   }
 
-  @GetMapping
-  public List<Flight> getAllFlights() {
-    return flightService.getAllFlights();
-  }
+//  @GetMapping
+//  public List<Flight> getAllFlights() {
+//    return flightService.getAllFlights();
+//  }
 
   @GetMapping("/{id}")
   public ResponseEntity<FlightFilterResponseDto> getFlightById(@PathVariable Long id) {
@@ -55,32 +52,14 @@ public class FlightController {
   }
 
   @PostMapping
-  public ResponseEntity<Flight> createFlight(@Valid @RequestBody CreateFlightPayload payload) {
-    Flight savedFlight = flightService.createFlight(
-        payload.flightNumber(),
-        payload.departureAirportId(),
-        payload.arrivalAirportId(),
-        payload.aircraftId(),
-        payload.airlineId(),
-        payload.departureTime(),
-        payload.arrivalTime(),
-        payload.status());
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedFlight);
+  public ResponseEntity<Flight> createFlight(@Valid @RequestBody FlightCreateRequestDto create) {
+    Flight createdFlight = flightService.createFlight(create);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createdFlight);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Flight> updateFlight(@PathVariable Long id,
-      @Valid @RequestBody CreateFlightPayload payload) {
-    Flight updatedFlight = flightService.updateFlight(
-        id,
-        payload.flightNumber(),
-        payload.departureAirportId(),
-        payload.arrivalAirportId(),
-        payload.aircraftId(),
-        payload.airlineId(),
-        payload.departureTime(),
-        payload.arrivalTime(),
-        payload.status());
+  public ResponseEntity<Flight> updateFlight(@PathVariable Long id, @Valid @RequestBody FlightUpdateRequestDto update) {
+    Flight updatedFlight = flightService.updateFlight(id, update);
     return ResponseEntity.ok(updatedFlight);
   }
 

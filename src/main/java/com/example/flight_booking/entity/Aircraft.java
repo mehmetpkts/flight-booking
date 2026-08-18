@@ -10,7 +10,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 public class Aircraft {
 
@@ -35,51 +39,4 @@ public class Aircraft {
   @JoinColumn(name = "airline_id", nullable = false)
   private Airline airline;
 
-  public Long getAircraftId() {
-    return aircraftId;
-  }
-
-  public void setAircraftId(Long aircraftId) {
-    this.aircraftId = aircraftId;
-  }
-
-  public String getModel() {
-    return model;
-  }
-
-  public void setModel(String model) {
-    this.model = model;
-  }
-
-  public String getManufacturer() {
-    return manufacturer;
-  }
-
-  public void setManufacturer(String manufacturer) {
-    this.manufacturer = manufacturer;
-  }
-
-  public int getCapacity() {
-    return capacity;
-  }
-
-  public void setCapacity(int capacity) {
-    this.capacity = capacity;
-  }
-
-  public AircraftStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(AircraftStatus status) {
-    this.status = status;
-  }
-
-  public Airline getAirline() {
-    return airline;
-  }
-
-  public void setAirline(Airline airline) {
-    this.airline = airline;
-  }
 }
