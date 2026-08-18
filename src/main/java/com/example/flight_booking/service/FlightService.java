@@ -1,5 +1,8 @@
 package com.example.flight_booking.service;
 
+import com.example.flight_booking.dto.FlightFilterRequestDto;
+import com.example.flight_booking.dto.FlightFilterResponseDto;
+import com.example.flight_booking.dto.FlightIataCodeRequestDto;
 import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.Airport;
@@ -70,7 +73,23 @@ public class FlightService {
     return flightRepository.findAll();
   }
 
-  public Flight getFlightById(Long id) {
+  public FlightFilterResponseDto getFlightById(Long id) {
+    Flight flight = getFlightEntityById(id);
+
+    FlightFilterResponseDto dto = new FlightFilterResponseDto();
+    dto.setFlightId(flight.getFlightId());
+    dto.setFlightNumber(flight.getFlightNumber());
+    dto.setDepartureAirportName(flight.getDepartureAirport().getName());
+    dto.setDepartureAirportCity(flight.getDepartureAirport().getCity());
+    dto.setArrivalAirportName(flight.getArrivalAirport().getName());
+    dto.setArrivalAirportCity(flight.getArrivalAirport().getCity());
+    dto.setAirlineName(flight.getAirline().getName());
+    dto.setAirlineCountry(flight.getAirline().getCountry());
+
+    return dto;
+  }
+
+  private Flight getFlightEntityById(Long id) {
     return flightRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "Flight not found with id " + id));
@@ -85,7 +104,7 @@ public class FlightService {
       LocalDateTime departureTime,
       LocalDateTime arrivalTime,
       FlightStatus status) {
-    Flight flight = getFlightById(id);
+    Flight flight = getFlightEntityById(id);
 
     Airport departureAirport = airportRepository.findById(departureAirportId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -112,12 +131,23 @@ public class FlightService {
   }
 
   public void deleteFlight(Long id) {
-    Flight flight = getFlightById(id);
-    flightRepository.delete(flight);
+    flightRepository.delete(getFlightEntityById(id));
   }
 
-  public List<Flight> getFlightsByIataCode(String iataCode) {
-    return flightRepository.findByDepartureAirport_iataCodeFlights(iataCode);
+  public List<Flight> getByIataCode(FlightIataCodeRequestDto flightIataCodeRequestDto){
+    List<Flight> flights = flightRepository.findByDepartureAirportIataCode(
+            flightIataCodeRequestDto.getIataCode());
+
+    return flights;
+  }
+
+  public List<Flight> getByArrivalAndDepartureCitiesAndStatus(FlightFilterRequestDto filterRequestDto) {
+    List<Flight> flights = flightRepository.findByDepartureAirport_cityAndArrivalAirport_cityAndStatus(
+        filterRequestDto.getDepartureCity(),
+        filterRequestDto.getArrivalCity(),
+        filterRequestDto.getFlightStatus());
+
+    return flights;
   }
 
 }
