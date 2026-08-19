@@ -1,13 +1,11 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.Booking.BookingCreateRequestDto;
+import com.example.flight_booking.dto.Booking.BookingFilterResponseDto;
+import com.example.flight_booking.dto.Booking.BookingUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
-import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.service.BookingService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,45 +27,21 @@ public class BookingController {
     this.bookingService = bookingService;
   }
 
-  @GetMapping
-  public List<Booking> getAllBookings() {
-    return bookingService.getAllBookings();
-  }
-
   @GetMapping("/{id}")
-  public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+  public ResponseEntity<BookingFilterResponseDto> getBookingById(@PathVariable Long id) {
     return ResponseEntity.ok(bookingService.getBookingById(id));
   }
 
-  record CreateBookingPayload(
-      @NotNull(message = "Passenger ID must not be null") Long passengerId,
-      @NotNull(message = "Flight ID must not be null") Long flightId,
-      @NotNull(message = "Booking date must not be null") LocalDateTime bookingDate,
-      @NotNull(message = "Booking status must not be null") BookingStatus status,
-      @NotBlank(message = "PNR must not be blank") String pnr) {
-  }
-
   @PostMapping
-  public ResponseEntity<Booking> createBooking(@Valid @RequestBody CreateBookingPayload payload) {
-    Booking savedBooking = bookingService.createBooking(
-        payload.passengerId(),
-        payload.flightId(),
-        payload.bookingDate(),
-        payload.status(),
-        payload.pnr());
+  public ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingCreateRequestDto create) {
+    Booking savedBooking = bookingService.createBooking(create);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedBooking);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Booking> updateBooking(@PathVariable Long id,
-      @Valid @RequestBody CreateBookingPayload payload) {
-    Booking updatedBooking = bookingService.updateBooking(
-        id,
-        payload.passengerId(),
-        payload.flightId(),
-        payload.bookingDate(),
-        payload.status(),
-        payload.pnr());
+      @Valid @RequestBody BookingUpdateRequestDto update) {
+    Booking updatedBooking = bookingService.updateBooking(id, update);
     return ResponseEntity.ok(updatedBooking);
   }
 

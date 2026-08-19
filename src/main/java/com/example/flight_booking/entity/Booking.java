@@ -10,8 +10,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 public class Booking {
 
@@ -30,58 +35,10 @@ public class Booking {
   @Column(nullable = false)
   private LocalDateTime bookingDate;
 
-  @Column(nullable = false)
+  @Column(name = "status", nullable = false)
   @Enumerated(EnumType.STRING)
   private BookingStatus status;
 
   @Column(nullable = false, unique = true, length = 6)
   private String pnr;
-
-  public Long getBookingId() {
-    return bookingId;
-  }
-
-  public void setBookingId(Long bookingId) {
-    this.bookingId = bookingId;
-  }
-
-  public Passenger getPassenger() {
-    return passenger;
-  }
-
-  public void setPassenger(Passenger passenger) {
-    this.passenger = passenger;
-  }
-
-  public Flight getFlight() {
-    return flight;
-  }
-
-  public void setFlight(Flight flight) {
-    this.flight = flight;
-  }
-
-  public LocalDateTime getBookingDate() {
-    return bookingDate;
-  }
-
-  public void setBookingDate(LocalDateTime bookingDate) {
-    this.bookingDate = bookingDate;
-  }
-
-  public BookingStatus getStatus() {
-    return status;
-  }
-
-  public void setStatus(BookingStatus status) {
-    this.status = status;
-  }
-
-  public String getPnr() {
-    return pnr;
-  }
-
-  public void setPnr(String pnr) {
-    this.pnr = pnr;
-  }
 }
