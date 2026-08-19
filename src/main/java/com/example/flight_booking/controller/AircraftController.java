@@ -1,13 +1,11 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.Aircraft.AircraftCreateRequestDto;
+import com.example.flight_booking.dto.Aircraft.AircraftFilterResponseDto;
+import com.example.flight_booking.dto.Aircraft.AircraftUpdateRequestDto;
 import com.example.flight_booking.entity.Aircraft;
-import com.example.flight_booking.enums.AircraftStatus;
 import com.example.flight_booking.service.AircraftService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,50 +27,25 @@ public class AircraftController {
     this.aircraftService = aircraftService;
   }
 
-  @GetMapping
-  public List<Aircraft> getAllAircrafts() {
-    return aircraftService.getAllAircrafts();
-  }
-
   @GetMapping("/{id}")
-  public ResponseEntity<Aircraft> getAircraftById(@PathVariable Long id) {
+  public ResponseEntity<AircraftFilterResponseDto> getAircraftById(@PathVariable Long id){
     return ResponseEntity.ok(aircraftService.getAircraftById(id));
   }
 
-  record CreateAircraftPayload(
-      @NotBlank(message = "Model must not be blank") String model,
-      @NotBlank(message = "Manufacturer must not be blank") String manufacturer,
-      @NotNull(message = "Capacity must not be null") @Min(value = 1, message = "Capacity must be at least 1") Integer capacity,
-      @NotNull(message = "Status must not be null") AircraftStatus status,
-      @NotNull(message = "Airline ID must not be null") Long airlineId) {
-  }
 
   @PostMapping
-  public ResponseEntity<Aircraft> createAircraft(@Valid @RequestBody CreateAircraftPayload payload) {
-    Aircraft savedAircraft = aircraftService.createAircraft(
-        payload.model(),
-        payload.manufacturer(),
-        payload.capacity(),
-        payload.status(),
-        payload.airlineId());
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedAircraft);
+  public ResponseEntity<Aircraft> createAircraft(@Valid @RequestBody AircraftCreateRequestDto create) {
+    Aircraft createAircraft = aircraftService.createAircraft(create);
+    return ResponseEntity.status(HttpStatus.CREATED).body(createAircraft);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Aircraft> updateAircraft(@PathVariable Long id,
-      @Valid @RequestBody CreateAircraftPayload payload) {
-    Aircraft updatedAircraft = aircraftService.updateAircraft(
-        id,
-        payload.model(),
-        payload.manufacturer(),
-        payload.capacity(),
-        payload.status(),
-        payload.airlineId());
+  public ResponseEntity<Aircraft> updateAircraft(@PathVariable Long id, @Valid @RequestBody AircraftUpdateRequestDto update) {
+    Aircraft updatedAircraft = aircraftService.updateAircraft(id, update);
     return ResponseEntity.ok(updatedAircraft);
   }
-
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteAircraft(@PathVariable Long id) {
+  public ResponseEntity<Void> deleteAircraft (@PathVariable Long id){
     aircraftService.deleteAircraft(id);
     return ResponseEntity.noContent().build();
   }

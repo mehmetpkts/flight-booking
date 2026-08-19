@@ -2,12 +2,8 @@ package com.example.flight_booking.controller;
 
 import com.example.flight_booking.dto.flight.*;
 import com.example.flight_booking.entity.Flight;
-import com.example.flight_booking.enums.FlightStatus;
 import com.example.flight_booking.service.FlightService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,17 +34,6 @@ public class FlightController {
   @GetMapping("/{id}")
   public ResponseEntity<FlightFilterResponseDto> getFlightById(@PathVariable Long id) {
     return ResponseEntity.ok(flightService.getFlightById(id));
-  }
-
-  record CreateFlightPayload(
-      @NotBlank(message = "Flight number must not be blank") String flightNumber,
-      @NotNull(message = "Departure airport ID must not be null") Long departureAirportId,
-      @NotNull(message = "Arrival airport ID must not be null") Long arrivalAirportId,
-      @NotNull(message = "Aircraft ID must not be null") Long aircraftId,
-      @NotNull(message = "Airline ID must not be null") Long airlineId,
-      @NotNull(message = "Departure time must not be null") LocalDateTime departureTime,
-      @NotNull(message = "Arrival time must not be null") LocalDateTime arrivalTime,
-      @NotNull(message = "Flight status must not be null") FlightStatus status) {
   }
 
   @PostMapping

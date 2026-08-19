@@ -29,10 +29,4 @@ public class FlightCreateRequestDto {
     private LocalDateTime arrivalTime;
     @NotNull(message = "Flight status must not be null")
     private FlightStatus status;
-
-    public static record FlightFilterRequest(
-        String departureCity,
-        String arrivalCity,
-        FlightStatus flightStatus) {
-    }
 }

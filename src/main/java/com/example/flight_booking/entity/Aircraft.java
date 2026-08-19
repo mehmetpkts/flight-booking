@@ -13,9 +13,9 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity
 @Setter
 @Getter
-@Entity
 public class Aircraft {
 
   @Id
