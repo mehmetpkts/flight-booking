@@ -5,7 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 public class Airline {
 
@@ -22,35 +26,4 @@ public class Airline {
   @Column(nullable = false)
   private String country;
 
-  public Long getAirlineId() {
-    return airlineId;
-  }
-
-  public void setAirlineId(Long airlineId) {
-    this.airlineId = airlineId;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getIataCode() {
-    return iataCode;
-  }
-
-  public void setIataCode(String iataCode) {
-    this.iataCode = iataCode;
-  }
-
-  public String getCountry() {
-    return country;
-  }
-
-  public void setCountry(String country) {
-    this.country = country;
-  }
 }

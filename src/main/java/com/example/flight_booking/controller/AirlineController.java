@@ -1,9 +1,11 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.Airline.AirlineCreateRequestDto;
+import com.example.flight_booking.dto.Airline.AirlineFilterResponseDto;
+import com.example.flight_booking.dto.Airline.AirlineUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.service.AirlineService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/airlines")
 public class AirlineController {
@@ -26,39 +26,21 @@ public class AirlineController {
     this.airlineService = airlineService;
   }
 
-  @GetMapping
-  public List<Airline> getAllAirlines() {
-    return airlineService.getAllAirlines();
-  }
-
   @GetMapping("/{id}")
-  public ResponseEntity<Airline> getAirlineById(@PathVariable Long id) {
+  public ResponseEntity<AirlineFilterResponseDto> getAirlineById(@PathVariable Long id) {
     return ResponseEntity.ok(airlineService.getAirlineById(id));
   }
 
-  record CreateAirlinePayload(
-      @NotBlank(message = "Airline name must not be blank") String name,
-      @NotBlank(message = "Airline code must not be blank") String iataCode,
-      @NotBlank(message = "Airline country must not be blank") String country) {
-  }
-
   @PostMapping
-  public ResponseEntity<Airline> createAirline(@Valid @RequestBody CreateAirlinePayload payload) {
-    Airline savedAirline = airlineService.createAirline(
-        payload.name(),
-        payload.iataCode(),
-        payload.country());
+  public ResponseEntity<Airline> createAirline(@Valid @RequestBody AirlineCreateRequestDto create) {
+    Airline savedAirline = airlineService.createAirline(create);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedAirline);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Airline> updateAirline(@PathVariable Long id,
-      @Valid @RequestBody CreateAirlinePayload payload) {
-    Airline updatedAirline = airlineService.updateAirline(
-        id,
-        payload.name(),
-        payload.iataCode(),
-        payload.country());
+      @Valid @RequestBody AirlineUpdateRequestDto update) {
+    Airline updatedAirline = airlineService.updateAirline(id, update);
     return ResponseEntity.ok(updatedAirline);
   }
 

@@ -22,6 +22,26 @@ public class AircraftService {
     this.airlineRepository = airlineRepository;
   }
 
+  private Aircraft getAircraftEntityById(Long id){
+    return aircraftRepository
+            .findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus
+                    .NOT_FOUND, "aircraft id is not: " + id));
+  }
+
+  public AircraftFilterResponseDto getAircraftById(Long id){
+    Aircraft aircraft = getAircraftEntityById(id);
+
+    AircraftFilterResponseDto dto = new AircraftFilterResponseDto();
+    dto.setAirlineId(aircraft.getAirline().getAirlineId());
+    dto.setAirlineName(aircraft.getAirline().getName());
+    dto.setCapacity(aircraft.getCapacity());
+    dto.setManufacturer(aircraft.getManufacturer());
+    dto.setModel(aircraft.getModel());
+    dto.setStatus(aircraft.getStatus().name());
+
+    return dto;
+  }
+
   public Aircraft createAircraft(AircraftCreateRequestDto create) {
     Airline airline = airlineRepository.findById(create.getAirlineId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "airline id is no: " + create.getAirlineId()));
 
@@ -35,24 +55,6 @@ public class AircraftService {
     return aircraftRepository.save(aircraft);
   }
 
-  public AircraftFilterResponseDto getAircraftById(Long id){
-    Aircraft aircraft = getAircraftEntityById(id);
-
-    AircraftFilterResponseDto dto = new AircraftFilterResponseDto();
-    dto.setAirlineName(aircraft.getAirline().getName());
-    dto.setCapacity(aircraft.getCapacity());
-    dto.setManufacturer(aircraft.getManufacturer());
-    dto.setModel(aircraft.getModel());
-    dto.setStatus(aircraft.getStatus().name());
-
-    return dto;
-  }
-
-  private Aircraft getAircraftEntityById(Long id){
-    return aircraftRepository
-            .findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus
-                    .NOT_FOUND, "aircraft id is not: " + id));
-  }
 
   public Aircraft updateAircraft(Long id, AircraftUpdateRequestDto update) {
     Aircraft aircraft = getAircraftEntityById(id);
