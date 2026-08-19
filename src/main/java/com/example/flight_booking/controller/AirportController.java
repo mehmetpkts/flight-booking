@@ -1,5 +1,8 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.Airport.AirportCreateRequestDto;
+import com.example.flight_booking.dto.Airport.AirportFilterResponseDto;
+import com.example.flight_booking.dto.Airport.AirportUpdateRequestDto;
 import com.example.flight_booking.service.AirportService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,9 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.example.flight_booking.entity.Airport;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 
-import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,43 +30,23 @@ public class AirportController {
     this.airportService = airportService;
   }
 
-  @GetMapping()
-  public List<Airport> getAllAirports() {
-    return airportService.getAllAirports();
-  }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Airport> getAirportById(@PathVariable Long id) {
+  public ResponseEntity<AirportFilterResponseDto> getAirportById(@PathVariable Long id) {
     return ResponseEntity.ok(airportService.getAirportById(id));
   }
 
-  record CreateAirportPayload(
-      @NotBlank(message = "Airport name must not be blank") String name,
-      @NotBlank(message = "Airport city must not be blank") String city,
-      @NotBlank(message = "Airport country must not be blank") String country,
-      @NotBlank(message = "Airport IATA code must not be blank") String iataCode) {
-  };
 
   @PostMapping
-  public ResponseEntity<Airport> createAirport(@Valid @RequestBody CreateAirportPayload payload) {
-    Airport savedAirport = airportService.createAirport(
-        payload.name(),
-        payload.city(),
-        payload.country(),
-        payload.iataCode());
-    return ResponseEntity.status(HttpStatus.CREATED).body(savedAirport);
+  public ResponseEntity<Airport> createAirport(@Valid @RequestBody AirportCreateRequestDto create) {
+    Airport savedAirline = airportService.createAirport(create);
+    return ResponseEntity.status(HttpStatus.CREATED).body(savedAirline);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Airport> updateAirport(@PathVariable Long id,
-      @Valid @RequestBody CreateAirportPayload payload) {
-    Airport updatedAirport = airportService.updateAirport(
-        id,
-        payload.name(),
-        payload.city(),
-        payload.country(),
-        payload.iataCode());
-    return ResponseEntity.ok(updatedAirport);
+  public ResponseEntity<Airport> updateAirport(@PathVariable Long id, @Valid @RequestBody AirportUpdateRequestDto update) {
+    Airport updateAirport = airportService.updateAirport(id, update);
+    return ResponseEntity.ok(updateAirport);
   }
 
   @DeleteMapping("/{id}")
