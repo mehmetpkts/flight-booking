@@ -1,13 +1,11 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.Payment.PaymentCreateRequestDto;
+import com.example.flight_booking.dto.Payment.PaymentFilterResponseDto;
+import com.example.flight_booking.dto.Payment.PaymentUpdateRequestDto;
 import com.example.flight_booking.entity.Payment;
-import com.example.flight_booking.enums.PaymentStatus;
 import com.example.flight_booking.service.PaymentService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,45 +27,21 @@ public class PaymentController {
     this.paymentService = paymentService;
   }
 
-  @GetMapping
-  public List<Payment> getAllPayments() {
-    return paymentService.getAllPayments();
-  }
-
   @GetMapping("/{id}")
-  public ResponseEntity<Payment> getPaymentById(@PathVariable Long id) {
+  public ResponseEntity<PaymentFilterResponseDto> getPaymentById(@PathVariable Long id) {
     return ResponseEntity.ok(paymentService.getPaymentById(id));
   }
 
-  record CreatePaymentPayload(
-      @NotNull(message = "Booking ID must not be null") Long bookingId,
-      @NotNull(message = "Amount must not be null") Double amount,
-      @NotBlank(message = "Payment method must not be blank") String paymentMethod,
-      @NotNull(message = "Payment date must not be null") LocalDateTime paymentDate,
-      @NotNull(message = "Status must not be null") PaymentStatus status) {
-  }
-
   @PostMapping
-  public ResponseEntity<Payment> createPayment(@Valid @RequestBody CreatePaymentPayload payload) {
-    Payment payment = paymentService.createPayment(
-        payload.bookingId(),
-        payload.amount(),
-        payload.paymentMethod(),
-        payload.paymentDate(),
-        payload.status());
+  public ResponseEntity<Payment> createPayment(@Valid @RequestBody PaymentCreateRequestDto create) {
+    Payment payment = paymentService.createPayment(create);
     return ResponseEntity.status(HttpStatus.CREATED).body(payment);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Payment> updatePayment(@PathVariable Long id,
-      @Valid @RequestBody CreatePaymentPayload payload) {
-    Payment updatedPayment = paymentService.updatePayment(
-        id,
-        payload.bookingId(),
-        payload.amount(),
-        payload.paymentMethod(),
-        payload.paymentDate(),
-        payload.status());
+      @Valid @RequestBody PaymentUpdateRequestDto update) {
+    Payment updatedPayment = paymentService.updatePayment(id, update);
     return ResponseEntity.ok(updatedPayment);
   }
 

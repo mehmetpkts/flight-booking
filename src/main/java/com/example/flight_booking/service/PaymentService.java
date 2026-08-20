@@ -1,12 +1,12 @@
 package com.example.flight_booking.service;
 
+import com.example.flight_booking.dto.Payment.PaymentCreateRequestDto;
+import com.example.flight_booking.dto.Payment.PaymentFilterResponseDto;
+import com.example.flight_booking.dto.Payment.PaymentUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Payment;
-import com.example.flight_booking.enums.PaymentStatus;
 import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.PaymentRepository;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,49 +22,57 @@ public class PaymentService {
     this.bookingRepository = bookingRepository;
   }
 
-  public Payment createPayment(Long bookingId, Double amount, String paymentMethod, LocalDateTime paymentDate,
-      PaymentStatus status) {
-    Booking booking = bookingRepository.findById(bookingId)
+  private Booking getBookingEntityById(Long id) {
+    return bookingRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Booking not found with id " + bookingId));
-
-    Payment payment = new Payment();
-    payment.setBooking(booking);
-    payment.setAmount(amount);
-    payment.setPaymentMethod(paymentMethod);
-    payment.setPaymentDate(paymentDate);
-    payment.setStatus(status);
-    return paymentRepository.save(payment);
+            "Booking not found with id " + id));
   }
 
-  public List<Payment> getAllPayments() {
-    return paymentRepository.findAll();
-  }
-
-  public Payment getPaymentById(Long id) {
+  private Payment getPaymentEntityById(Long id) {
     return paymentRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "Payment not found with id " + id));
   }
 
-  public Payment updatePayment(Long id, Long bookingId, Double amount, String paymentMethod,
-      LocalDateTime paymentDate, PaymentStatus status) {
-    Payment payment = getPaymentById(id);
-    Booking booking = bookingRepository.findById(bookingId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Booking not found with id " + bookingId));
+  public PaymentFilterResponseDto getPaymentById(Long id) {
+    Payment payment = getPaymentEntityById(id);
+
+    PaymentFilterResponseDto dto = new PaymentFilterResponseDto();
+    dto.setPaymentId(payment.getPaymentId());
+    dto.setBookingId(payment.getBooking().getBookingId());
+    dto.setAmount(payment.getAmount());
+    dto.setPaymentMethod(payment.getPaymentMethod());
+    dto.setPaymentDate(payment.getPaymentDate());
+    dto.setStatus(payment.getStatus());
+
+    return dto;
+  }
+
+  public Payment createPayment(PaymentCreateRequestDto create) {
+    Booking booking = getBookingEntityById(create.getBookingId());
+    Payment payment = new Payment();
+    payment.setBooking(booking);
+    payment.setAmount(create.getAmount());
+    payment.setPaymentMethod(create.getPaymentMethod());
+    payment.setPaymentDate(create.getPaymentDate());
+    payment.setStatus(create.getStatus());
+    return paymentRepository.save(payment);
+  }
+
+  public Payment updatePayment(Long id, PaymentUpdateRequestDto update) {
+    Payment payment = getPaymentEntityById(id);
+    Booking booking = getBookingEntityById(update.getBookingId());
 
     payment.setBooking(booking);
-    payment.setAmount(amount);
-    payment.setPaymentMethod(paymentMethod);
-    payment.setPaymentDate(paymentDate);
-    payment.setStatus(status);
+    payment.setAmount(update.getAmount());
+    payment.setPaymentMethod(update.getPaymentMethod());
+    payment.setPaymentDate(update.getPaymentDate());
+    payment.setStatus(update.getStatus());
     return paymentRepository.save(payment);
   }
 
   public void deletePayment(Long id) {
-    Payment payment = getPaymentById(id);
-    paymentRepository.delete(payment);
+    paymentRepository.delete(getPaymentEntityById(id));
   }
 
 }
