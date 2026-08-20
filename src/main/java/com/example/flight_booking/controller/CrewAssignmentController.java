@@ -1,11 +1,11 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.CrewAssignment.CrewAssignmentCreateRequestDto;
+import com.example.flight_booking.dto.CrewAssignment.CrewAssignmentFilterResponseDto;
+import com.example.flight_booking.dto.CrewAssignment.CrewAssignmentUpdateRequestDto;
 import com.example.flight_booking.entity.CrewAssignment;
 import com.example.flight_booking.service.CrewAssignmentService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,39 +27,22 @@ public class CrewAssignmentController {
     this.crewAssignmentService = crewAssignmentService;
   }
 
-  @GetMapping
-  public List<CrewAssignment> getAllCrewAssignments() {
-    return crewAssignmentService.getAllCrewAssignments();
-  }
-
   @GetMapping("/{id}")
-  public ResponseEntity<CrewAssignment> getCrewAssignmentById(@PathVariable Long id) {
+  public ResponseEntity<CrewAssignmentFilterResponseDto> getCrewAssignmentById(@PathVariable Long id) {
     return ResponseEntity.ok(crewAssignmentService.getCrewAssignmentById(id));
   }
 
-  record CreateCrewAssignmentPayload(
-      @NotNull(message = "Flight ID must not be null") Long flightId,
-      @NotNull(message = "Crew member ID must not be null") Long crewMemberId,
-      @NotBlank(message = "Duty must not be blank") String duty) {
-  }
-
   @PostMapping
-  public ResponseEntity<CrewAssignment> createCrewAssignment(@Valid @RequestBody CreateCrewAssignmentPayload payload) {
-    CrewAssignment crewAssignment = crewAssignmentService.createCrewAssignment(
-        payload.flightId(),
-        payload.crewMemberId(),
-        payload.duty());
+  public ResponseEntity<CrewAssignment> createCrewAssignment(
+      @Valid @RequestBody CrewAssignmentCreateRequestDto create) {
+    CrewAssignment crewAssignment = crewAssignmentService.createCrewAssignment(create);
     return ResponseEntity.status(HttpStatus.CREATED).body(crewAssignment);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<CrewAssignment> updateCrewAssignment(@PathVariable Long id,
-      @Valid @RequestBody CreateCrewAssignmentPayload payload) {
-    CrewAssignment crewAssignment = crewAssignmentService.updateCrewAssignment(
-        id,
-        payload.flightId(),
-        payload.crewMemberId(),
-        payload.duty());
+      @Valid @RequestBody CrewAssignmentUpdateRequestDto update) {
+    CrewAssignment crewAssignment = crewAssignmentService.updateCrewAssignment(id, update);
     return ResponseEntity.ok(crewAssignment);
   }
 
