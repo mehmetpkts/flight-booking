@@ -7,7 +7,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 public class CrewAssignment {
 
@@ -20,41 +24,9 @@ public class CrewAssignment {
   private Flight flight;
 
   @ManyToOne
-  @JoinColumn(name = "crew_member_id", nullable = false)
+  @JoinColumn(name = "crew_id", nullable = false)
   private CrewMember crewMember;
 
   @Column(nullable = false)
   private String duty;
-
-  public Long getAssignmentId() {
-    return assignmentId;
-  }
-
-  public void setAssignmentId(Long assignmentId) {
-    this.assignmentId = assignmentId;
-  }
-
-  public Flight getFlight() {
-    return flight;
-  }
-
-  public void setFlight(Flight flight) {
-    this.flight = flight;
-  }
-
-  public CrewMember getCrewMember() {
-    return crewMember;
-  }
-
-  public void setCrewMember(CrewMember crewMember) {
-    this.crewMember = crewMember;
-  }
-
-  public String getDuty() {
-    return duty;
-  }
-
-  public void setDuty(String duty) {
-    this.duty = duty;
-  }
 }

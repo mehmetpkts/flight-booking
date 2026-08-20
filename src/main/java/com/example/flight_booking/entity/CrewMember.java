@@ -7,12 +7,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 public class CrewMember {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "crew_id")
   private Long crewMemberId;
 
   @Column(nullable = false)
@@ -34,59 +39,4 @@ public class CrewMember {
   @JoinColumn(name = "airline_id", nullable = false)
   private Airline airline;
 
-  public Long getCrewMemberId() {
-    return crewMemberId;
-  }
-
-  public void setCrewMemberId(Long crewMemberId) {
-    this.crewMemberId = crewMemberId;
-  }
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
-
-  public String getRole() {
-    return role;
-  }
-
-  public void setRole(String role) {
-    this.role = role;
-  }
-
-  public int getEmployeeNumber() {
-    return employeeNumber;
-  }
-
-  public void setEmployeeNumber(int employeeNumber) {
-    this.employeeNumber = employeeNumber;
-  }
-
-  public String getPhone() {
-    return phone;
-  }
-
-  public void setPhone(String phone) {
-    this.phone = phone;
-  }
-
-  public Airline getAirline() {
-    return airline;
-  }
-
-  public void setAirline(Airline airline) {
-    this.airline = airline;
-  }
 }

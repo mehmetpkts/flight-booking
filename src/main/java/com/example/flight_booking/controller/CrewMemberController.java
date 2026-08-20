@@ -1,11 +1,11 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.CrewMember.CrewMemberCreateRequestDto;
+import com.example.flight_booking.dto.CrewMember.CrewMemberFilterResponseDto;
+import com.example.flight_booking.dto.CrewMember.CrewMemberUpdateRequestDto;
 import com.example.flight_booking.entity.CrewMember;
 import com.example.flight_booking.service.CrewMemberService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,48 +27,21 @@ public class CrewMemberController {
     this.crewMemberService = crewMemberService;
   }
 
-  @GetMapping
-  public List<CrewMember> getAllCrewMembers() {
-    return crewMemberService.getAllCrewMembers();
-  }
 
   @GetMapping("/{id}")
-  public ResponseEntity<CrewMember> getCrewMemberById(@PathVariable Long id) {
+  public ResponseEntity<CrewMemberFilterResponseDto> getCrewMemberById(@PathVariable Long id) {
     return ResponseEntity.ok(crewMemberService.getCrewMemberById(id));
   }
 
-  record CreateCrewMemberPayload(
-      @NotBlank(message = "First name must not be blank") String firstName,
-      @NotBlank(message = "Last name must not be blank") String lastName,
-      @NotBlank(message = "Role must not be blank") String role,
-      @NotNull(message = "Employee number must not be null") Integer employeeNumber,
-      @NotBlank(message = "Phone must not be blank") String phone,
-      @NotNull(message = "Airline ID must not be null") Long airlineId) {
-  }
-
   @PostMapping
-  public ResponseEntity<CrewMember> createCrewMember(@Valid @RequestBody CreateCrewMemberPayload payload) {
-    CrewMember crewMember = crewMemberService.createCrewMember(
-        payload.firstName(),
-        payload.lastName(),
-        payload.role(),
-        payload.employeeNumber(),
-        payload.phone(),
-        payload.airlineId());
+  public ResponseEntity<CrewMember> createCrewMember(@Valid @RequestBody CrewMemberCreateRequestDto create) {
+    CrewMember crewMember = crewMemberService.createCrewMember(create);
     return ResponseEntity.status(HttpStatus.CREATED).body(crewMember);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<CrewMember> updateCrewMember(@PathVariable Long id,
-      @Valid @RequestBody CreateCrewMemberPayload payload) {
-    CrewMember updatedCrewMember = crewMemberService.updateCrewMember(
-        id,
-        payload.firstName(),
-        payload.lastName(),
-        payload.role(),
-        payload.employeeNumber(),
-        payload.phone(),
-        payload.airlineId());
+  public ResponseEntity<CrewMember> updateCrewMember(@PathVariable Long id, @Valid @RequestBody CrewMemberUpdateRequestDto update) {
+    CrewMember updatedCrewMember = crewMemberService.updateCrewMember(id, update);
     return ResponseEntity.ok(updatedCrewMember);
   }
 
