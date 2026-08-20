@@ -1,9 +1,11 @@
 package com.example.flight_booking.controller;
 
+import com.example.flight_booking.dto.Passenger.PassengerCreateRequestDto;
+import com.example.flight_booking.dto.Passenger.PassengerFilterResponseDto;
+import com.example.flight_booking.dto.Passenger.PassengerUpdateRequestDto;
 import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.service.PassengerService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/passengers")
@@ -26,48 +27,21 @@ public class PassengerController {
     this.passengerService = passengerService;
   }
 
-  @GetMapping
-  public List<Passenger> getAllPassengers() {
-    return passengerService.getAllPassengers();
-  }
-
   @GetMapping("/{id}")
-  public ResponseEntity<Passenger> getPassengerById(@PathVariable Long id) {
+  public ResponseEntity<PassengerFilterResponseDto> getPassengerById(@PathVariable Long id) {
     return ResponseEntity.ok(passengerService.getPassengerById(id));
   }
 
-  record CreatePassengerPayload(
-      @NotBlank(message = "Passenger first name must not be blank") String firstName,
-      @NotBlank(message = "Passenger last name must not be blank") String lastName,
-      @NotBlank(message = "Passenger passport number must not be blank") String passportNumber,
-      @NotBlank(message = "Passenger email must not be blank") String email,
-      @NotBlank(message = "Passenger phone number must not be blank") String phoneNumber,
-      @NotBlank(message = "Passenger nationality must not be blank") String nationality) {
-  }
-
   @PostMapping
-  public ResponseEntity<Passenger> createPassenger(@Valid @RequestBody CreatePassengerPayload payload) {
-    Passenger savedPassenger = passengerService.createPassenger(
-        payload.firstName(),
-        payload.lastName(),
-        payload.passportNumber(),
-        payload.email(),
-        payload.phoneNumber(),
-        payload.nationality());
+  public ResponseEntity<Passenger> createPassenger(
+      @Valid @RequestBody PassengerCreateRequestDto create) {
+    Passenger savedPassenger = passengerService.createPassenger(create);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedPassenger);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Passenger> updatePassenger(@PathVariable Long id,
-      @Valid @RequestBody CreatePassengerPayload payload) {
-    Passenger updatedPassenger = passengerService.updatePassenger(
-        id,
-        payload.firstName(),
-        payload.lastName(),
-        payload.passportNumber(),
-        payload.email(),
-        payload.phoneNumber(),
-        payload.nationality());
+  public ResponseEntity<Passenger> updatePassenger(@PathVariable Long id, @Valid @RequestBody PassengerUpdateRequestDto update) {
+    Passenger updatedPassenger = passengerService.updatePassenger(id, update);
     return ResponseEntity.ok(updatedPassenger);
   }
 

@@ -1,8 +1,10 @@
 package com.example.flight_booking.service;
 
+import com.example.flight_booking.dto.Passenger.PassengerCreateRequestDto;
+import com.example.flight_booking.dto.Passenger.PassengerFilterResponseDto;
+import com.example.flight_booking.dto.Passenger.PassengerUpdateRequestDto;
 import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.repository.PassengerRepository;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,42 +18,49 @@ public class PassengerService {
     this.passengerRepository = passengerRepository;
   }
 
-  public Passenger createPassenger(String firstName, String lastName, String passportNumber, String email,
-      String phoneNumber, String nationality) {
+  private Passenger getPassengerEntityById(Long id) {
+    return passengerRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Passenger not defined. Id is: " + id));
+  }
+
+  public PassengerFilterResponseDto getPassengerById(Long id) {
+    Passenger passenger = getPassengerEntityById(id);
+
+    PassengerFilterResponseDto dto = new PassengerFilterResponseDto();
+    dto.setFirstName(passenger.getFirstName());
+    dto.setLastName(passenger.getLastName());
+    dto.setPassportNumber(passenger.getPassportNumber());
+    dto.setEmail(passenger.getEmail());
+    dto.setPhoneNumber(passenger.getPhone());
+    dto.setNationality(passenger.getNationality());
+
+    return dto;
+  }
+
+  public Passenger createPassenger(PassengerCreateRequestDto create) {
     Passenger passenger = new Passenger();
-    passenger.setFirstName(firstName);
-    passenger.setLastName(lastName);
-    passenger.setPassportNumber(passportNumber);
-    passenger.setEmail(email);
-    passenger.setPhone(phoneNumber);
-    passenger.setNationality(nationality);
+    passenger.setFirstName(create.getFirstName());
+    passenger.setLastName(create.getLastName());
+    passenger.setPassportNumber(create.getPassportNumber());
+    passenger.setEmail(create.getEmail());
+    passenger.setPhone(create.getPhoneNumber());
+    passenger.setNationality(create.getNationality());
     return passengerRepository.save(passenger);
   }
 
-  public List<Passenger> getAllPassengers() {
-    return passengerRepository.findAll();
-  }
-
-  public Passenger getPassengerById(Long id) {
-    return passengerRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Passenger not found with id " + id));
-  }
-
-  public Passenger updatePassenger(Long id, String firstName, String lastName, String passportNumber, String email,
-      String phoneNumber, String nationality) {
-    Passenger passenger = getPassengerById(id);
-    passenger.setFirstName(firstName);
-    passenger.setLastName(lastName);
-    passenger.setPassportNumber(passportNumber);
-    passenger.setEmail(email);
-    passenger.setPhone(phoneNumber);
-    passenger.setNationality(nationality);
+  public Passenger updatePassenger(Long id, PassengerUpdateRequestDto update) {
+    Passenger passenger = getPassengerEntityById(id);
+    passenger.setFirstName(update.getFirstName());
+    passenger.setLastName(update.getLastName());
+    passenger.setPassportNumber(update.getPassportNumber());
+    passenger.setEmail(update.getEmail());
+    passenger.setPhone(update.getPhoneNumber());
+    passenger.setNationality(update.getNationality());
     return passengerRepository.save(passenger);
   }
 
   public void deletePassenger(Long id) {
-    Passenger passenger = getPassengerById(id);
-    passengerRepository.delete(passenger);
+    passengerRepository.delete(getPassengerEntityById(id));
   }
 }
