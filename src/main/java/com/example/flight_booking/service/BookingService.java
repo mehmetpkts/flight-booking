@@ -6,15 +6,23 @@ import com.example.flight_booking.dto.Booking.BookingUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
+import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.FlightRepository;
 import com.example.flight_booking.repository.PassengerRepository;
+import java.util.EnumSet;
+import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class BookingService {
+
+  private static final Set<BookingStatus> SEAT_OCCUPYING_STATUSES = EnumSet.of(
+      BookingStatus.CHECKED_IN,
+      BookingStatus.CONFIRMED);
 
   private final BookingRepository bookingRepository;
   private final PassengerRepository passengerRepository;
@@ -49,11 +57,14 @@ public class BookingService {
   }
 
 
+  @Transactional
   public Booking createBooking(BookingCreateRequestDto create) {
 
     Booking booking = new Booking();
     Passenger passenger = passengerRepository.findById(create.getPassengerId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "passenger id is not found. id is " + create.getPassengerId()));
-    Flight flight = flightRepository.findById(create.getFlightId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "flight id is not found. id is " + create.getFlightId()));
+    Flight flight = getFlightEntityByIdForUpdate(create.getFlightId());
+
+    validateFlightCapacity(flight, create.getStatus(), false);
 
     booking.setBookingDate(create.getBookingDate());
     booking.setPnr(create.getPnr());
@@ -66,10 +77,15 @@ public class BookingService {
   }
 
 
+  @Transactional
   public Booking updateBooking(Long id, BookingUpdateRequestDto update) {
     Booking booking = getBookingEntityById(id);
     Passenger passenger = passengerRepository.findById(update.getPassengerId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "passenger id is not found. id is " + update.getPassengerId()));
-    Flight flight = flightRepository.findById(update.getFlightId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "flight id is not found. id is " + update.getFlightId()));
+    Flight flight = getFlightEntityByIdForUpdate(update.getFlightId());
+    boolean alreadyOccupyingSameFlightSeat = booking.getFlight().getFlightId().equals(update.getFlightId())
+        && SEAT_OCCUPYING_STATUSES.contains(booking.getStatus());
+
+    validateFlightCapacity(flight, update.getStatus(), alreadyOccupyingSameFlightSeat);
 
     booking.setBookingDate(update.getBookingDate());
     booking.setPnr(update.getPnr());
@@ -84,6 +100,32 @@ public class BookingService {
   public void deleteBooking(Long id) {
     Booking booking = getBookingEntityById(id);
     bookingRepository.delete(booking);
+  }
+
+  private Flight getFlightEntityByIdForUpdate(Long flightId) {
+    return flightRepository.findByFlightId(flightId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "flight id is not found. id is " + flightId));
+  }
+
+  private void validateFlightCapacity(Flight flight, BookingStatus targetStatus,
+      boolean alreadyOccupyingSameFlightSeat) {
+    if (!SEAT_OCCUPYING_STATUSES.contains(targetStatus)) {
+      return;
+    }
+
+    long occupiedSeatCount = bookingRepository.countByFlight_FlightIdAndStatusIn(
+        flight.getFlightId(),
+        SEAT_OCCUPYING_STATUSES);
+
+    if (alreadyOccupyingSameFlightSeat) {
+      occupiedSeatCount--;
+    }
+
+    if (occupiedSeatCount >= flight.getAircraft().getCapacity()) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Flight capacity exceeded for flight id " + flight.getFlightId());
+    }
   }
 
 }
