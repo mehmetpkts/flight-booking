@@ -10,6 +10,7 @@ import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.FlightRepository;
 import com.example.flight_booking.repository.PassengerRepository;
+import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
@@ -64,6 +65,7 @@ public class BookingService {
     Passenger passenger = passengerRepository.findById(create.getPassengerId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "passenger id is not found. id is " + create.getPassengerId()));
     Flight flight = getFlightEntityByIdForUpdate(create.getFlightId());
 
+    validateFlightDepartureTime(flight);
     validateFlightCapacity(flight, create.getStatus(), false);
 
     booking.setBookingDate(create.getBookingDate());
@@ -85,6 +87,7 @@ public class BookingService {
     boolean alreadyOccupyingSameFlightSeat = booking.getFlight().getFlightId().equals(update.getFlightId())
         && SEAT_OCCUPYING_STATUSES.contains(booking.getStatus());
 
+    validateFlightDepartureTime(flight);
     validateFlightCapacity(flight, update.getStatus(), alreadyOccupyingSameFlightSeat);
 
     booking.setBookingDate(update.getBookingDate());
@@ -125,6 +128,13 @@ public class BookingService {
     if (occupiedSeatCount >= flight.getAircraft().getCapacity()) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
           "Flight capacity exceeded for flight id " + flight.getFlightId());
+    }
+  }
+
+  private void validateFlightDepartureTime(Flight flight) {
+    if (flight.getDepartureTime().isBefore(LocalDateTime.now())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Cannot create booking for a flight that has already departed. flight id " + flight.getFlightId());
     }
   }
 
