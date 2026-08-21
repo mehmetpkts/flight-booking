@@ -66,6 +66,7 @@ public class BookingService {
     Flight flight = getFlightEntityByIdForUpdate(create.getFlightId());
 
     validateFlightDepartureTime(flight);
+    validatePassengerHasNoBookingForFlight(passenger.getPassengerId(), flight.getFlightId());
     validateFlightCapacity(flight, create.getStatus(), false);
 
     booking.setBookingDate(create.getBookingDate());
@@ -88,6 +89,7 @@ public class BookingService {
         && SEAT_OCCUPYING_STATUSES.contains(booking.getStatus());
 
     validateFlightDepartureTime(flight);
+    validatePassengerHasNoOtherBookingForFlight(passenger.getPassengerId(), flight.getFlightId(), id);
     validateFlightCapacity(flight, update.getStatus(), alreadyOccupyingSameFlightSeat);
 
     booking.setBookingDate(update.getBookingDate());
@@ -129,6 +131,25 @@ public class BookingService {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
           "Flight capacity exceeded for flight id " + flight.getFlightId());
     }
+  }
+
+  private void validatePassengerHasNoBookingForFlight(Long passengerId, Long flightId) {
+    if (bookingRepository.existsByPassenger_PassengerIdAndFlight_FlightId(passengerId, flightId)) {
+      throw duplicateBookingException(passengerId, flightId);
+    }
+  }
+
+  private void validatePassengerHasNoOtherBookingForFlight(Long passengerId, Long flightId,
+      Long bookingId) {
+    if (bookingRepository.existsByPassenger_PassengerIdAndFlight_FlightIdAndBookingIdNot(
+        passengerId, flightId, bookingId)) {
+      throw duplicateBookingException(passengerId, flightId);
+    }
+  }
+
+  private ResponseStatusException duplicateBookingException(Long passengerId, Long flightId) {
+    return new ResponseStatusException(HttpStatus.CONFLICT,
+        "Passenger id " + passengerId + " already has a booking for flight id " + flightId);
   }
 
   private void validateFlightDepartureTime(Flight flight) {

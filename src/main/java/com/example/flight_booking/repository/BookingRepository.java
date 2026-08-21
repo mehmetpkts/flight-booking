@@ -11,4 +11,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
   long countByFlight_FlightIdAndStatusIn(Long flightId, Collection<BookingStatus> statuses);
 
+  boolean existsByPassenger_PassengerIdAndFlight_FlightId(Long passengerId, Long flightId);
+
+  boolean existsByPassenger_PassengerIdAndFlight_FlightIdAndBookingIdNot(Long passengerId,
+      Long flightId, Long bookingId);
+
 }
