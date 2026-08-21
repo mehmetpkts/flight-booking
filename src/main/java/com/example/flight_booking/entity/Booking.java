@@ -15,6 +15,7 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -44,4 +45,10 @@ public class Booking {
 
   @Column(nullable = false, unique = true, length = 6)
   private String pnr;
+
+  @Column(nullable = false)
+  private Boolean cancellationPenaltyApplied = false;
+
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal cancellationPenaltyAmount = BigDecimal.ZERO;
 }

@@ -16,4 +16,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   boolean existsByPassenger_PassengerIdAndFlight_FlightIdAndBookingIdNot(Long passengerId,
       Long flightId, Long bookingId);
 
+  boolean existsByPnr(String pnr);
+
+  boolean existsByPnrAndBookingIdNot(String pnr, Long bookingId);
+
 }

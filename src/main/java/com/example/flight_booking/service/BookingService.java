@@ -10,6 +10,7 @@ import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.FlightRepository;
 import com.example.flight_booking.repository.PassengerRepository;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
@@ -21,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class BookingService {
 
+  private static final BigDecimal CANCELLATION_PENALTY_FEE = new BigDecimal("250.00");
   private static final Set<BookingStatus> SEAT_OCCUPYING_STATUSES = EnumSet.of(
       BookingStatus.CHECKED_IN,
       BookingStatus.CONFIRMED);
@@ -53,6 +55,8 @@ public class BookingService {
     dto.setPassenger(booking.getPassenger());
     dto.setPnr(booking.getPnr());
     dto.setStatus(booking.getStatus());
+    dto.setCancellationPenaltyApplied(booking.getCancellationPenaltyApplied());
+    dto.setCancellationPenaltyAmount(booking.getCancellationPenaltyAmount());
 
     return dto;
   }
@@ -67,6 +71,7 @@ public class BookingService {
 
     validateFlightDepartureTime(flight);
     validatePassengerHasNoBookingForFlight(passenger.getPassengerId(), flight.getFlightId());
+    validatePnrIsUnique(create.getPnr());
     validateFlightCapacity(flight, create.getStatus(), false);
 
     booking.setBookingDate(create.getBookingDate());
@@ -74,6 +79,7 @@ public class BookingService {
     booking.setStatus(create.getStatus());
     booking.setPassenger(passenger);
     booking.setFlight(flight);
+    applyCancellationPenalty(booking, create.getStatus(), flight);
 
 
     return bookingRepository.save(booking);
@@ -90,6 +96,7 @@ public class BookingService {
 
     validateFlightDepartureTime(flight);
     validatePassengerHasNoOtherBookingForFlight(passenger.getPassengerId(), flight.getFlightId(), id);
+    validatePnrIsUniqueForOtherBooking(update.getPnr(), id);
     validateFlightCapacity(flight, update.getStatus(), alreadyOccupyingSameFlightSeat);
 
     booking.setBookingDate(update.getBookingDate());
@@ -97,6 +104,7 @@ public class BookingService {
     booking.setStatus(update.getStatus());
     booking.setPassenger(passenger);
     booking.setFlight(flight);
+    applyCancellationPenalty(booking, update.getStatus(), flight);
 
 
     return bookingRepository.save(booking);
@@ -152,11 +160,38 @@ public class BookingService {
         "Passenger id " + passengerId + " already has a booking for flight id " + flightId);
   }
 
+  private void validatePnrIsUnique(String pnr) {
+    if (bookingRepository.existsByPnr(pnr)) {
+      throw duplicatePnrException(pnr);
+    }
+  }
+
+  private void validatePnrIsUniqueForOtherBooking(String pnr, Long bookingId) {
+    if (bookingRepository.existsByPnrAndBookingIdNot(pnr, bookingId)) {
+      throw duplicatePnrException(pnr);
+    }
+  }
+
+  private ResponseStatusException duplicatePnrException(String pnr) {
+    return new ResponseStatusException(HttpStatus.CONFLICT,
+        "Booking already exists with pnr " + pnr);
+  }
+
   private void validateFlightDepartureTime(Flight flight) {
     if (flight.getDepartureTime().isBefore(LocalDateTime.now())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "Cannot create booking for a flight that has already departed. flight id " + flight.getFlightId());
     }
+  }
+
+  private void applyCancellationPenalty(Booking booking, BookingStatus targetStatus, Flight flight) {
+    boolean isCancelled = targetStatus == BookingStatus.CANCELLED;
+    boolean isWithin24Hours = !flight.getDepartureTime().isAfter(LocalDateTime.now().plusHours(24));
+    boolean shouldApplyPenalty = isCancelled && isWithin24Hours;
+
+    booking.setCancellationPenaltyApplied(shouldApplyPenalty);
+    booking.setCancellationPenaltyAmount(
+        shouldApplyPenalty ? CANCELLATION_PENALTY_FEE : BigDecimal.ZERO);
   }
 
 }
