@@ -5,12 +5,16 @@ import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.Airport;
 import com.example.flight_booking.entity.Flight;
+import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.repository.AircraftRepository;
 import com.example.flight_booking.repository.AirlineRepository;
 import com.example.flight_booking.repository.AirportRepository;
+import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.FlightRepository;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,19 +23,25 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class FlightService {
 
+  private static final Set<BookingStatus> NON_DELETABLE_BOOKING_STATUSES = EnumSet.of(
+      BookingStatus.CONFIRMED);
+
   private final FlightRepository flightRepository;
   private final AirportRepository airportRepository;
   private final AircraftRepository aircraftRepository;
   private final AirlineRepository airlineRepository;
+  private final BookingRepository bookingRepository;
 
   public FlightService(FlightRepository flightRepository,
       AirportRepository airportRepository,
       AircraftRepository aircraftRepository,
-      AirlineRepository airlineRepository) {
+      AirlineRepository airlineRepository,
+      BookingRepository bookingRepository) {
     this.flightRepository = flightRepository;
     this.airportRepository = airportRepository;
     this.aircraftRepository = aircraftRepository;
     this.airlineRepository = airlineRepository;
+    this.bookingRepository = bookingRepository;
   }
 
 
@@ -122,23 +132,29 @@ public class FlightService {
   }
 
   public void deleteFlight(Long id) {
-    flightRepository.delete(getFlightEntityById(id));
+    Flight flight = getFlightEntityById(id);
+    long blockingBookingCount = bookingRepository.countByFlight_FlightIdAndStatusIn(
+        flight.getFlightId(),
+        NON_DELETABLE_BOOKING_STATUSES);
+
+    if (blockingBookingCount > 0) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Cannot delete flight with confirmed bookings. flight id " + id);
+    }
+
+    flightRepository.delete(flight);
   }
 
   public List<Flight> getByIataCode(FlightIataCodeRequestDto flightIataCodeRequestDto){
-    List<Flight> flights = flightRepository.findByDepartureAirportIataCode(
-            flightIataCodeRequestDto.getIataCode());
-
-    return flights;
+    return flightRepository.findByDepartureAirportIataCode(
+        flightIataCodeRequestDto.getIataCode());
   }
 
   public List<Flight> getByArrivalAndDepartureCitiesAndStatus(FlightFilterRequestDto filterRequestDto) {
-    List<Flight> flights = flightRepository.findByDepartureAirport_cityAndArrivalAirport_cityAndStatus(
+    return flightRepository.findByDepartureAirport_cityAndArrivalAirport_cityAndStatus(
         filterRequestDto.getDepartureCity(),
         filterRequestDto.getArrivalCity(),
         filterRequestDto.getFlightStatus());
-
-    return flights;
   }
 
 }
