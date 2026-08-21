@@ -34,6 +34,18 @@ public class CrewAssignmentService {
             "Crew assignment not found with id " + id));
   }
 
+  private Flight getFlightEntityById(Long id) {
+    return flightRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Flight not found with id " + id));
+  }
+
+  private CrewMember getCrewMemberEntityById(Long id) {
+    return crewMemberRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Crew member not found with id " + id));
+  }
+
   public CrewAssignmentFilterResponseDto getCrewAssignmentById(Long id) {
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
     CrewAssignmentFilterResponseDto dto = new CrewAssignmentFilterResponseDto();
@@ -45,12 +57,8 @@ public class CrewAssignmentService {
   }
 
   public CrewAssignment createCrewAssignment(CrewAssignmentCreateRequestDto create) {
-    Flight flight = flightRepository.findById(create.getFlightId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Flight not found with id " + create.getFlightId()));
-    CrewMember crewMember = crewMemberRepository.findById(create.getCrewMemberId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Crew member not found with id " + create.getCrewMemberId()));
+    Flight flight = getFlightEntityById(create.getFlightId());
+    CrewMember crewMember = getCrewMemberEntityById(create.getCrewMemberId());
 
     CrewAssignment crewAssignment = new CrewAssignment();
     crewAssignment.setFlight(flight);
@@ -62,12 +70,8 @@ public class CrewAssignmentService {
 
   public CrewAssignment updateCrewAssignment(Long id, CrewAssignmentUpdateRequestDto update) {
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
-    Flight flight = flightRepository.findById(update.getFlightId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Flight not found with id " + update.getFlightId()));
-    CrewMember crewMember = crewMemberRepository.findById(update.getCrewMemberId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Crew member not found with id " + update.getCrewMemberId()));
+    Flight flight = getFlightEntityById(update.getFlightId());
+    CrewMember crewMember = getCrewMemberEntityById(update.getCrewMemberId());
 
     crewAssignment.setFlight(flight);
     crewAssignment.setCrewMember(crewMember);

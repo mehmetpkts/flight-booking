@@ -45,6 +45,12 @@ public class BookingService {
             "Booking not found with id " + id));
   }
 
+  private Passenger getPassengerEntityById(Long id) {
+    return passengerRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "passenger id is not found. id is " + id));
+  }
+
   public BookingFilterResponseDto getBookingById(Long id){
     Booking booking = getBookingEntityById(id);
 
@@ -66,7 +72,7 @@ public class BookingService {
   public Booking createBooking(BookingCreateRequestDto create) {
 
     Booking booking = new Booking();
-    Passenger passenger = passengerRepository.findById(create.getPassengerId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "passenger id is not found. id is " + create.getPassengerId()));
+    Passenger passenger = getPassengerEntityById(create.getPassengerId());
     Flight flight = getFlightEntityByIdForUpdate(create.getFlightId());
 
     validateFlightDepartureTime(flight);
@@ -89,7 +95,7 @@ public class BookingService {
   @Transactional
   public Booking updateBooking(Long id, BookingUpdateRequestDto update) {
     Booking booking = getBookingEntityById(id);
-    Passenger passenger = passengerRepository.findById(update.getPassengerId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "passenger id is not found. id is " + update.getPassengerId()));
+    Passenger passenger = getPassengerEntityById(update.getPassengerId());
     Flight flight = getFlightEntityByIdForUpdate(update.getFlightId());
     boolean alreadyOccupyingSameFlightSeat = booking.getFlight().getFlightId().equals(update.getFlightId())
         && SEAT_OCCUPYING_STATUSES.contains(booking.getStatus());

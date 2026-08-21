@@ -28,6 +28,12 @@ public class AircraftService {
                     .NOT_FOUND, "aircraft id is not: " + id));
   }
 
+  private Airline getAirlineEntityById(Long id) {
+    return airlineRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "airline id is no: " + id));
+  }
+
   public AircraftFilterResponseDto getAircraftById(Long id){
     Aircraft aircraft = getAircraftEntityById(id);
 
@@ -43,7 +49,7 @@ public class AircraftService {
   }
 
   public Aircraft createAircraft(AircraftCreateRequestDto create) {
-    Airline airline = airlineRepository.findById(create.getAirlineId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "airline id is no: " + create.getAirlineId()));
+    Airline airline = getAirlineEntityById(create.getAirlineId());
 
     Aircraft aircraft = new Aircraft();
     aircraft.setModel(create.getModel());

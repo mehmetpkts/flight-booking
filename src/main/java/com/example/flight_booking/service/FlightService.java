@@ -44,8 +44,29 @@ public class FlightService {
     this.bookingRepository = bookingRepository;
   }
 
+  private Flight getFlightEntityById(Long id) {
+    return flightRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Flight not found with id " + id));
+  }
 
+  private Airport getAirportEntityById(Long id, String airportType) {
+    return airportRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            airportType + " airport not found with id " + id));
+  }
 
+  private Aircraft getAircraftEntityById(Long id) {
+    return aircraftRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Aircraft not found with id " + id));
+  }
+
+  private Airline getAirlineEntityById(Long id) {
+    return airlineRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "Airline not found with id " + id));
+  }
 
 
   public Flight createFlight(FlightCreateRequestDto create) {
@@ -54,20 +75,16 @@ public class FlightService {
 
     flight.setFlightNumber(create.getFlightNumber());
 
-    Airport departureAirport = airportRepository.findById(create.getDepartureAirportId())
-            .orElseThrow(() -> new RuntimeException("departureAirport yok"));
+    Airport departureAirport = getAirportEntityById(create.getDepartureAirportId(), "Departure");
     flight.setDepartureAirport(departureAirport);
 
-    Airport arrivalAirport = airportRepository.findById(create.getArrivalAirportId())
-            .orElseThrow(() -> new RuntimeException("arrival airport yok"));
+    Airport arrivalAirport = getAirportEntityById(create.getArrivalAirportId(), "Arrival");
     flight.setArrivalAirport(arrivalAirport);
 
-    Aircraft aircraft = aircraftRepository.findById(create.getAircraftId())
-            .orElseThrow(() -> new RuntimeException("aircraft id yok"));
+    Aircraft aircraft = getAircraftEntityById(create.getAircraftId());
     flight.setAircraft(aircraft);
 
-    Airline airline = airlineRepository.findById(create.getAirlineId())
-            .orElseThrow(() -> new RuntimeException("airline id yok"));
+    Airline airline = getAirlineEntityById(create.getAirlineId());
     flight.setAirline(airline);
 
     flight.setDepartureTime(create.getDepartureTime());
@@ -97,31 +114,21 @@ public class FlightService {
     return dto;
   }
 
-  private Flight getFlightEntityById(Long id) {
-    return flightRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Flight not found with id " + id));
-  }
-
   public Flight updateFlight(Long id, FlightUpdateRequestDto update) {
     Flight flight = getFlightEntityById(id);
 
     flight.setFlightNumber(update.getFlightNumber());
 
-    Airport departureAirport = airportRepository.findById(update.getDepartureAirportId())
-            .orElseThrow(() -> new RuntimeException("departureAirport yok"));
+    Airport departureAirport = getAirportEntityById(update.getDepartureAirportId(), "Departure");
     flight.setDepartureAirport(departureAirport);
 
-    Airport arrivalAirport = airportRepository.findById(update.getArrivalAirportId())
-            .orElseThrow(() -> new RuntimeException("arrival airport yok"));
+    Airport arrivalAirport = getAirportEntityById(update.getArrivalAirportId(), "Arrival");
     flight.setArrivalAirport(arrivalAirport);
 
-    Aircraft aircraft = aircraftRepository.findById(update.getAircraftId())
-            .orElseThrow(() -> new RuntimeException("aircraft id yok"));
+    Aircraft aircraft = getAircraftEntityById(update.getAircraftId());
     flight.setAircraft(aircraft);
 
-    Airline airline = airlineRepository.findById(update.getAirlineId())
-            .orElseThrow(() -> new RuntimeException("airline id yok"));
+    Airline airline = getAirlineEntityById(update.getAirlineId());
     flight.setAirline(airline);
 
     flight.setDepartureTime(update.getDepartureTime());

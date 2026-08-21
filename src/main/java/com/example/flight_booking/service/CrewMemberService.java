@@ -27,6 +27,12 @@ public class CrewMemberService {
             "Crew member not found with id " + id));
   }
 
+  private Airline getAirlineEntityById(Long id) {
+    return airlineRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "airline id is not found. id is: " + id));
+  }
+
   public CrewMemberFilterResponseDto getCrewMemberById(Long id){
     CrewMember crewMember = getCrewMemberEntityById(id);
 
@@ -43,7 +49,7 @@ public class CrewMemberService {
   }
 
   public CrewMember createCrewMember(CrewMemberCreateRequestDto create) {
-    Airline airline = airlineRepository.findById(create.getAirlineId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "airline id is not found. id is: " + create.getAirlineId()));
+    Airline airline = getAirlineEntityById(create.getAirlineId());
 
     CrewMember crewMember = new CrewMember();
     crewMember.setFirstName(create.getFirstName());
@@ -57,9 +63,7 @@ public class CrewMemberService {
 
 
   public CrewMember updateCrewMember(Long id, CrewMemberUpdateRequestDto update) {
-    Airline airline = airlineRepository.findById(update.getAirlineId())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "airline id is not found. id is: " + update.getAirlineId()));
+    Airline airline = getAirlineEntityById(update.getAirlineId());
     CrewMember crewMember = getCrewMemberEntityById(id);
 
     crewMember.setFirstName(update.getFirstName());
