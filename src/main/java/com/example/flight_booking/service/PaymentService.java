@@ -5,7 +5,6 @@ import com.example.flight_booking.dto.Payment.PaymentFilterResponseDto;
 import com.example.flight_booking.dto.Payment.PaymentUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Payment;
-import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.PaymentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,17 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class PaymentService {
 
   private final PaymentRepository paymentRepository;
-  private final BookingRepository bookingRepository;
+  private final BookingService bookingService;
 
-  public PaymentService(PaymentRepository paymentRepository, BookingRepository bookingRepository) {
+  public PaymentService(PaymentRepository paymentRepository, BookingService bookingService) {
     this.paymentRepository = paymentRepository;
-    this.bookingRepository = bookingRepository;
-  }
-
-  private Booking getBookingEntityById(Long id) {
-    return bookingRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Booking not found with id " + id));
+    this.bookingService = bookingService;
   }
 
   private Payment getPaymentEntityById(Long id) {
@@ -33,6 +26,11 @@ public class PaymentService {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "Payment not found with id " + id));
   }
+
+  private Booking getBookingEntityById(Long id) {
+    return bookingService.getBookingEntityById(id);
+  }
+
 
   public PaymentFilterResponseDto getPaymentById(Long id) {
     Payment payment = getPaymentEntityById(id);

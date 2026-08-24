@@ -8,10 +8,9 @@ import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.repository.BookingRepository;
-import com.example.flight_booking.repository.FlightRepository;
-import com.example.flight_booking.repository.PassengerRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
@@ -28,15 +27,15 @@ public class BookingService {
       BookingStatus.CONFIRMED);
 
   private final BookingRepository bookingRepository;
-  private final PassengerRepository passengerRepository;
-  private final FlightRepository flightRepository;
+  private final PassengerService passengerService;
+  private final FlightService flightService;
 
   public BookingService(BookingRepository bookingRepository,
-      PassengerRepository passengerRepository,
-      FlightRepository flightRepository) {
+      PassengerService passengerService,
+      FlightService flightService) {
     this.bookingRepository = bookingRepository;
-    this.passengerRepository = passengerRepository;
-    this.flightRepository = flightRepository;
+    this.passengerService = passengerService;
+    this.flightService = flightService;
   }
 
   public Booking getBookingEntityById(Long id) {
@@ -45,11 +44,14 @@ public class BookingService {
             "Booking not found with id " + id));
   }
 
-  private Passenger getPassengerEntityById(Long id) {
-    return passengerRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "passenger id is not found. id is " + id));
+  public long countByFlight_FlightIdAndStatusIn(Long flightId, Collection<BookingStatus> statuses) {
+    return bookingRepository.countByFlight_FlightIdAndStatusIn(flightId, statuses);
   }
+
+  private Passenger getPassengerEntityById(Long id) {
+    return passengerService.getPassengerEntityById(id);
+  }
+
 
   public BookingFilterResponseDto getBookingById(Long id){
     Booking booking = getBookingEntityById(id);
@@ -122,9 +124,7 @@ public class BookingService {
   }
 
   private Flight getFlightEntityByIdForUpdate(Long flightId) {
-    return flightRepository.findByFlightId(flightId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "flight id is not found. id is " + flightId));
+    return flightService.getFlightEntityByIdForUpdate(flightId);
   }
 
   private void validateFlightCapacity(Flight flight, BookingStatus targetStatus,

@@ -5,7 +5,6 @@ import com.example.flight_booking.dto.CrewMember.CrewMemberFilterResponseDto;
 import com.example.flight_booking.dto.CrewMember.CrewMemberUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.CrewMember;
-import com.example.flight_booking.repository.AirlineRepository;
 import com.example.flight_booking.repository.CrewMemberRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,11 +13,11 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CrewMemberService {
   private final CrewMemberRepository crewMemberRepository;
-  private final AirlineRepository airlineRepository;
+  private final AirlineService airlineService;
 
-  public CrewMemberService(CrewMemberRepository crewMemberRepository, AirlineRepository airlineRepository) {
+  public CrewMemberService(CrewMemberRepository crewMemberRepository, AirlineService airlineService) {
     this.crewMemberRepository = crewMemberRepository;
-    this.airlineRepository = airlineRepository;
+    this.airlineService = airlineService;
   }
 
   public CrewMember getCrewMemberEntityById(Long id) {
@@ -28,9 +27,7 @@ public class CrewMemberService {
   }
 
   private Airline getAirlineEntityById(Long id) {
-    return airlineRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "airline id is not found. id is: " + id));
+    return airlineService.getAirlineEntityById(id);
   }
 
   public CrewMemberFilterResponseDto getCrewMemberById(Long id){

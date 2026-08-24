@@ -1,15 +1,9 @@
 package com.example.flight_booking.service;
 
 import com.example.flight_booking.dto.flight.*;
-import com.example.flight_booking.entity.Aircraft;
-import com.example.flight_booking.entity.Airline;
-import com.example.flight_booking.entity.Airport;
-import com.example.flight_booking.entity.Flight;
+import com.example.flight_booking.entity.*;
 import com.example.flight_booking.enums.BookingStatus;
-import com.example.flight_booking.repository.AircraftRepository;
-import com.example.flight_booking.repository.AirlineRepository;
-import com.example.flight_booking.repository.AirportRepository;
-import com.example.flight_booking.repository.BookingRepository;
+
 import com.example.flight_booking.repository.FlightRepository;
 
 import java.util.EnumSet;
@@ -27,45 +21,45 @@ public class FlightService {
       BookingStatus.CONFIRMED);
 
   private final FlightRepository flightRepository;
-  private final AirportRepository airportRepository;
-  private final AircraftRepository aircraftRepository;
-  private final AirlineRepository airlineRepository;
-  private final BookingRepository bookingRepository;
+  private final AirportService airportService;
+  private final AircraftService aircraftService;
+  private final AirlineService airlineService;
+  private final BookingService bookingService;
 
   public FlightService(FlightRepository flightRepository,
-      AirportRepository airportRepository,
-      AircraftRepository aircraftRepository,
-      AirlineRepository airlineRepository,
-      BookingRepository bookingRepository) {
+      AirportService airportService,
+      AircraftService aircraftService,
+      AirlineService airlineService,
+      BookingService bookingService) {
     this.flightRepository = flightRepository;
-    this.airportRepository = airportRepository;
-    this.aircraftRepository = aircraftRepository;
-    this.airlineRepository = airlineRepository;
-    this.bookingRepository = bookingRepository;
+    this.airportService = airportService;
+    this.aircraftService = aircraftService;
+    this.airlineService = airlineService;
+    this.bookingService = bookingService;
   }
 
-  private Flight getFlightEntityById(Long id) {
+  public Flight getFlightEntityById(Long id) {
     return flightRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Flight not found with id " + id));
   }
 
-  private Airport getAirportEntityById(Long id, String airportType) {
-    return airportRepository.findById(id)
+  public Flight getFlightEntityByIdForUpdate(Long id) {
+    return flightRepository.findByFlightId(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            airportType + " airport not found with id " + id));
+            "Flight not found with id " + id));
+  }
+
+  private Airport getAirportEntityById(Long id) {
+    return airportService.getAirportEntityById(id);
   }
 
   private Aircraft getAircraftEntityById(Long id) {
-    return aircraftRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Aircraft not found with id " + id));
+    return aircraftService.getAircraftEntityById(id);
   }
 
   private Airline getAirlineEntityById(Long id) {
-    return airlineRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Airline not found with id " + id));
+    return airlineService.getAirlineEntityById(id);
   }
 
 
@@ -75,10 +69,10 @@ public class FlightService {
 
     flight.setFlightNumber(create.getFlightNumber());
 
-    Airport departureAirport = getAirportEntityById(create.getDepartureAirportId(), "Departure");
+    Airport departureAirport = getAirportEntityById(create.getDepartureAirportId());
     flight.setDepartureAirport(departureAirport);
 
-    Airport arrivalAirport = getAirportEntityById(create.getArrivalAirportId(), "Arrival");
+    Airport arrivalAirport = getAirportEntityById(create.getArrivalAirportId());
     flight.setArrivalAirport(arrivalAirport);
 
     Aircraft aircraft = getAircraftEntityById(create.getAircraftId());
@@ -119,10 +113,10 @@ public class FlightService {
 
     flight.setFlightNumber(update.getFlightNumber());
 
-    Airport departureAirport = getAirportEntityById(update.getDepartureAirportId(), "Departure");
+    Airport departureAirport = getAirportEntityById(update.getDepartureAirportId());
     flight.setDepartureAirport(departureAirport);
 
-    Airport arrivalAirport = getAirportEntityById(update.getArrivalAirportId(), "Arrival");
+    Airport arrivalAirport = getAirportEntityById(update.getArrivalAirportId());
     flight.setArrivalAirport(arrivalAirport);
 
     Aircraft aircraft = getAircraftEntityById(update.getAircraftId());
@@ -140,7 +134,7 @@ public class FlightService {
 
   public void deleteFlight(Long id) {
     Flight flight = getFlightEntityById(id);
-    long blockingBookingCount = bookingRepository.countByFlight_FlightIdAndStatusIn(
+    long blockingBookingCount = bookingService.countByFlight_FlightIdAndStatusIn(
         flight.getFlightId(),
         NON_DELETABLE_BOOKING_STATUSES);
 

@@ -18,7 +18,7 @@ public class PassengerService {
     this.passengerRepository = passengerRepository;
   }
 
-  private Passenger getPassengerEntityById(Long id) {
+  public Passenger getPassengerEntityById(Long id) {
     return passengerRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "Passenger not defined. Id is: " + id));

@@ -5,7 +5,6 @@ import com.example.flight_booking.dto.Ticket.TicketFilterResponseDto;
 import com.example.flight_booking.dto.Ticket.TicketUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Ticket;
-import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.repository.TicketRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,17 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class TicketService {
 
   private final TicketRepository ticketRepository;
-  private final BookingRepository bookingRepository;
+  private final BookingService bookingService;
 
-  public TicketService(TicketRepository ticketRepository, BookingRepository bookingRepository) {
+  public TicketService(TicketRepository ticketRepository, BookingService bookingService) {
     this.ticketRepository = ticketRepository;
-    this.bookingRepository = bookingRepository;
-  }
-
-  private Booking getBookingEntityById(Long id) {
-    return bookingRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Booking not found with id " + id));
+    this.bookingService = bookingService;
   }
 
   private Ticket getTicketEntityById(Long id) {
@@ -33,6 +26,11 @@ public class TicketService {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "Ticket not found with id " + id));
   }
+
+  private Booking getBookingEntityById(Long id) {
+    return bookingService.getBookingEntityById(id);
+  }
+
 
   public TicketFilterResponseDto getTicketById(Long id) {
     Ticket ticket = getTicketEntityById(id);

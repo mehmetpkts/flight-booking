@@ -6,7 +6,6 @@ import com.example.flight_booking.dto.Aircraft.AircraftUpdateRequestDto;
 import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.repository.AircraftRepository;
-import com.example.flight_booking.repository.AirlineRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,23 +14,21 @@ import org.springframework.web.server.ResponseStatusException;
 public class AircraftService {
 
   private final AircraftRepository aircraftRepository;
-  private final AirlineRepository airlineRepository;
+  private final AirlineService airlineService;
 
-  public AircraftService(AircraftRepository aircraftRepository, AirlineRepository airlineRepository) {
+  public AircraftService(AircraftRepository aircraftRepository, AirlineService airlineService) {
     this.aircraftRepository = aircraftRepository;
-    this.airlineRepository = airlineRepository;
+    this.airlineService = airlineService;
   }
 
-  private Aircraft getAircraftEntityById(Long id){
+  public Aircraft getAircraftEntityById(Long id){
     return aircraftRepository
             .findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus
                     .NOT_FOUND, "aircraft id is not: " + id));
   }
 
   private Airline getAirlineEntityById(Long id) {
-    return airlineRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "airline id is no: " + id));
+    return airlineService.getAirlineEntityById(id);
   }
 
   public AircraftFilterResponseDto getAircraftById(Long id){

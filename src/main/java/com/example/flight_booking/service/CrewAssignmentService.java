@@ -7,8 +7,6 @@ import com.example.flight_booking.entity.CrewAssignment;
 import com.example.flight_booking.entity.CrewMember;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.repository.CrewAssignmentRepository;
-import com.example.flight_booking.repository.CrewMemberRepository;
-import com.example.flight_booking.repository.FlightRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,15 +15,15 @@ import org.springframework.web.server.ResponseStatusException;
 public class CrewAssignmentService {
 
   private final CrewAssignmentRepository crewAssignmentRepository;
-  private final FlightRepository flightRepository;
-  private final CrewMemberRepository crewMemberRepository;
+  private final FlightService flightService;
+  private final CrewMemberService crewMemberService;
 
   public CrewAssignmentService(CrewAssignmentRepository crewAssignmentRepository,
-      FlightRepository flightRepository,
-      CrewMemberRepository crewMemberRepository) {
+                               FlightService flightService,
+                               CrewMemberService crewMemberService) {
     this.crewAssignmentRepository = crewAssignmentRepository;
-    this.flightRepository = flightRepository;
-    this.crewMemberRepository = crewMemberRepository;
+    this.flightService = flightService;
+    this.crewMemberService = crewMemberService;
   }
 
   public CrewAssignment getCrewAssignmentEntityById(Long id) {
@@ -35,15 +33,11 @@ public class CrewAssignmentService {
   }
 
   private Flight getFlightEntityById(Long id) {
-    return flightRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Flight not found with id " + id));
+    return flightService.getFlightEntityById(id);
   }
 
   private CrewMember getCrewMemberEntityById(Long id) {
-    return crewMemberRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Crew member not found with id " + id));
+    return crewMemberService.getCrewMemberEntityById(id);
   }
 
   public CrewAssignmentFilterResponseDto getCrewAssignmentById(Long id) {

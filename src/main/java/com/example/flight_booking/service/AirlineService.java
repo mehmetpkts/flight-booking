@@ -19,7 +19,7 @@ public class AirlineService {
   }
 
 
-  private Airline getAirlineEntityById(Long id){
+  public Airline getAirlineEntityById(Long id){
     return airlineRepository
             .findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus
                     .NOT_FOUND, "Airline not defined. Id is: " + id));
