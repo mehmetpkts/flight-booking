@@ -3,6 +3,7 @@ package com.example.flight_booking.service;
 import com.example.flight_booking.dto.flight.*;
 import com.example.flight_booking.entity.*;
 import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.repository.BookingRepository;
 
 import com.example.flight_booking.repository.FlightRepository;
 
@@ -21,21 +22,21 @@ public class FlightService {
       BookingStatus.CONFIRMED);
 
   private final FlightRepository flightRepository;
+  private final BookingRepository bookingRepository;
   private final AirportService airportService;
   private final AircraftService aircraftService;
   private final AirlineService airlineService;
-  private final BookingService bookingService;
 
   public FlightService(FlightRepository flightRepository,
+      BookingRepository bookingRepository,
       AirportService airportService,
       AircraftService aircraftService,
-      AirlineService airlineService,
-      BookingService bookingService) {
+      AirlineService airlineService) {
     this.flightRepository = flightRepository;
+    this.bookingRepository = bookingRepository;
     this.airportService = airportService;
     this.aircraftService = aircraftService;
     this.airlineService = airlineService;
-    this.bookingService = bookingService;
   }
 
   public Flight getFlightEntityById(Long id) {
@@ -134,7 +135,7 @@ public class FlightService {
 
   public void deleteFlight(Long id) {
     Flight flight = getFlightEntityById(id);
-    long blockingBookingCount = bookingService.countByFlight_FlightIdAndStatusIn(
+    long blockingBookingCount = bookingRepository.countByFlight_FlightIdAndStatusIn(
         flight.getFlightId(),
         NON_DELETABLE_BOOKING_STATUSES);
 
