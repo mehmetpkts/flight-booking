@@ -5,6 +5,7 @@ import com.example.flight_booking.dto.Aircraft.AircraftFilterResponseDto;
 import com.example.flight_booking.dto.Aircraft.AircraftUpdateRequestDto;
 import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
+import com.example.flight_booking.mapper.AircraftMapper;
 import com.example.flight_booking.repository.AircraftRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,15 @@ public class AircraftService {
 
   private final AircraftRepository aircraftRepository;
   private final AirlineService airlineService;
+  private final AircraftMapper aircraftMapper;
 
-  public AircraftService(AircraftRepository aircraftRepository, AirlineService airlineService) {
+  public AircraftService(
+      AircraftRepository aircraftRepository,
+      AirlineService airlineService,
+      AircraftMapper aircraftMapper) {
     this.aircraftRepository = aircraftRepository;
     this.airlineService = airlineService;
+    this.aircraftMapper = aircraftMapper;
   }
 
   public Aircraft getAircraftEntityById(Long id){
@@ -33,39 +39,19 @@ public class AircraftService {
 
   public AircraftFilterResponseDto getAircraftById(Long id){
     Aircraft aircraft = getAircraftEntityById(id);
-
-    AircraftFilterResponseDto dto = new AircraftFilterResponseDto();
-    dto.setAirlineId(aircraft.getAirline().getAirlineId());
-    dto.setAirlineName(aircraft.getAirline().getName());
-    dto.setCapacity(aircraft.getCapacity());
-    dto.setManufacturer(aircraft.getManufacturer());
-    dto.setModel(aircraft.getModel());
-    dto.setStatus(aircraft.getStatus().name());
-
-    return dto;
+    return aircraftMapper.toFilterResponseDto(aircraft);
   }
 
   public Aircraft createAircraft(AircraftCreateRequestDto create) {
     Airline airline = getAirlineEntityById(create.getAirlineId());
-
-    Aircraft aircraft = new Aircraft();
-    aircraft.setModel(create.getModel());
-    aircraft.setManufacturer(create.getManufacturer());
-    aircraft.setCapacity(create.getCapacity());
-    aircraft.setStatus(create.getStatus());
-    aircraft.setAirline(airline);
-
+    Aircraft aircraft = aircraftMapper.toEntity(create, airline);
     return aircraftRepository.save(aircraft);
   }
 
 
   public Aircraft updateAircraft(Long id, AircraftUpdateRequestDto update) {
     Aircraft aircraft = getAircraftEntityById(id);
-
-    aircraft.setModel(update.getModel());
-    aircraft.setManufacturer(update.getManufacturer());
-    aircraft.setCapacity(update.getCapacity());
-    aircraft.setStatus(update.getStatus());
+    aircraftMapper.updateEntity(aircraft, update);
     return aircraftRepository.save(aircraft);
   }
 
