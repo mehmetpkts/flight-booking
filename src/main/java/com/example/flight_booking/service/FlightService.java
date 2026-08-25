@@ -3,6 +3,7 @@ package com.example.flight_booking.service;
 import com.example.flight_booking.dto.flight.*;
 import com.example.flight_booking.entity.*;
 import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.mapper.FlightMapper;
 import com.example.flight_booking.repository.BookingRepository;
 
 import com.example.flight_booking.repository.FlightRepository;
@@ -26,17 +27,20 @@ public class FlightService {
   private final AirportService airportService;
   private final AircraftService aircraftService;
   private final AirlineService airlineService;
+  private final FlightMapper flightMapper;
 
   public FlightService(FlightRepository flightRepository,
       BookingRepository bookingRepository,
       AirportService airportService,
       AircraftService aircraftService,
-      AirlineService airlineService) {
+      AirlineService airlineService,
+      FlightMapper flightMapper) {
     this.flightRepository = flightRepository;
     this.bookingRepository = bookingRepository;
     this.airportService = airportService;
     this.aircraftService = aircraftService;
     this.airlineService = airlineService;
+    this.flightMapper = flightMapper;
   }
 
   public Flight getFlightEntityById(Long id) {
@@ -65,27 +69,11 @@ public class FlightService {
 
 
   public Flight createFlight(FlightCreateRequestDto create) {
-
-    Flight flight = new Flight();
-
-    flight.setFlightNumber(create.getFlightNumber());
-
     Airport departureAirport = getAirportEntityById(create.getDepartureAirportId());
-    flight.setDepartureAirport(departureAirport);
-
     Airport arrivalAirport = getAirportEntityById(create.getArrivalAirportId());
-    flight.setArrivalAirport(arrivalAirport);
-
     Aircraft aircraft = getAircraftEntityById(create.getAircraftId());
-    flight.setAircraft(aircraft);
-
     Airline airline = getAirlineEntityById(create.getAirlineId());
-    flight.setAirline(airline);
-
-    flight.setDepartureTime(create.getDepartureTime());
-    flight.setArrivalTime(create.getArrivalTime());
-    flight.setStatus(create.getStatus());
-
+    Flight flight = flightMapper.toEntity(create, departureAirport, arrivalAirport, aircraft, airline);
     return flightRepository.save(flight);
   }
 
@@ -95,41 +83,16 @@ public class FlightService {
 
   public FlightFilterResponseDto getFlightById(Long id) {
     Flight flight = getFlightEntityById(id);
-
-    FlightFilterResponseDto dto = new FlightFilterResponseDto();
-    dto.setFlightId(flight.getFlightId());
-    dto.setFlightNumber(flight.getFlightNumber());
-    dto.setDepartureAirportName(flight.getDepartureAirport().getName());
-    dto.setDepartureAirportCity(flight.getDepartureAirport().getCity());
-    dto.setArrivalAirportName(flight.getArrivalAirport().getName());
-    dto.setArrivalAirportCity(flight.getArrivalAirport().getCity());
-    dto.setAirlineName(flight.getAirline().getName());
-    dto.setAirlineCountry(flight.getAirline().getCountry());
-
-    return dto;
+    return flightMapper.toFilterResponseDto(flight);
   }
 
   public Flight updateFlight(Long id, FlightUpdateRequestDto update) {
     Flight flight = getFlightEntityById(id);
-
-    flight.setFlightNumber(update.getFlightNumber());
-
     Airport departureAirport = getAirportEntityById(update.getDepartureAirportId());
-    flight.setDepartureAirport(departureAirport);
-
     Airport arrivalAirport = getAirportEntityById(update.getArrivalAirportId());
-    flight.setArrivalAirport(arrivalAirport);
-
     Aircraft aircraft = getAircraftEntityById(update.getAircraftId());
-    flight.setAircraft(aircraft);
-
     Airline airline = getAirlineEntityById(update.getAirlineId());
-    flight.setAirline(airline);
-
-    flight.setDepartureTime(update.getDepartureTime());
-    flight.setArrivalTime(update.getArrivalTime());
-    flight.setStatus(update.getStatus());
-
+    flightMapper.updateEntity(flight, update, departureAirport, arrivalAirport, aircraft, airline);
     return flightRepository.save(flight);
   }
 
