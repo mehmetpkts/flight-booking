@@ -1,7 +1,6 @@
 package com.example.flight_booking.dto.Booking;
 
 import com.example.flight_booking.enums.BookingStatus;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -17,6 +16,4 @@ public class BookingCreateRequestDto {
     private LocalDateTime bookingDate;
     @NotNull(message = "Booking status must not be null")
     private BookingStatus status;
-    @NotBlank(message = "PNR must not be blank")
-    private String pnr;
 }

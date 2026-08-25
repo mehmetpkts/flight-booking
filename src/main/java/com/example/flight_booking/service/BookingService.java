@@ -8,9 +8,9 @@ import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.repository.BookingRepository;
+import com.example.flight_booking.util.PnrGeneratorUtil;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
@@ -22,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class BookingService {
 
   private static final BigDecimal CANCELLATION_PENALTY_FEE = new BigDecimal("250.00");
+  private static final int MAX_PNR_GENERATION_ATTEMPTS = 20;
   private static final Set<BookingStatus> SEAT_OCCUPYING_STATUSES = EnumSet.of(
       BookingStatus.CHECKED_IN,
       BookingStatus.CONFIRMED);
@@ -42,10 +43,6 @@ public class BookingService {
     return bookingRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "Booking not found with id " + id));
-  }
-
-  public long countByFlight_FlightIdAndStatusIn(Long flightId, Collection<BookingStatus> statuses) {
-    return bookingRepository.countByFlight_FlightIdAndStatusIn(flightId, statuses);
   }
 
   private Passenger getPassengerEntityById(Long id) {
@@ -79,11 +76,10 @@ public class BookingService {
 
     validateFlightDepartureTime(flight);
     validatePassengerHasNoBookingForFlight(passenger.getPassengerId(), flight.getFlightId());
-    validatePnrIsUnique(create.getPnr());
     validateFlightCapacity(flight, create.getStatus(), false);
 
     booking.setBookingDate(create.getBookingDate());
-    booking.setPnr(create.getPnr());
+    booking.setPnr(generateUniquePnr());
     booking.setStatus(create.getStatus());
     booking.setPassenger(passenger);
     booking.setFlight(flight);
@@ -166,16 +162,22 @@ public class BookingService {
         "Passenger id " + passengerId + " already has a booking for flight id " + flightId);
   }
 
-  private void validatePnrIsUnique(String pnr) {
-    if (bookingRepository.existsByPnr(pnr)) {
-      throw duplicatePnrException(pnr);
-    }
-  }
-
   private void validatePnrIsUniqueForOtherBooking(String pnr, Long bookingId) {
     if (bookingRepository.existsByPnrAndBookingIdNot(pnr, bookingId)) {
       throw duplicatePnrException(pnr);
     }
+  }
+
+  private String generateUniquePnr() {
+    for (int attempt = 0; attempt < MAX_PNR_GENERATION_ATTEMPTS; attempt++) {
+      String generatedPnr = PnrGeneratorUtil.generateRandomPnr();
+      if (!bookingRepository.existsByPnr(generatedPnr)) {
+        return generatedPnr;
+      }
+    }
+
+    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+        "Could not generate a unique PNR");
   }
 
   private ResponseStatusException duplicatePnrException(String pnr) {
