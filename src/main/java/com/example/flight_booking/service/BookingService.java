@@ -6,6 +6,7 @@ import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.mapper.BookingMapper;
 import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.util.PnrGeneratorUtil;
 import java.math.BigDecimal;
@@ -29,13 +30,16 @@ public class BookingService {
   private final BookingRepository bookingRepository;
   private final PassengerService passengerService;
   private final FlightService flightService;
+  private final BookingMapper bookingMapper;
 
   public BookingService(BookingRepository bookingRepository,
       PassengerService passengerService,
-      FlightService flightService) {
+      FlightService flightService,
+      BookingMapper bookingMapper) {
     this.bookingRepository = bookingRepository;
     this.passengerService = passengerService;
     this.flightService = flightService;
+    this.bookingMapper = bookingMapper;
   }
 
   public Booking getBookingEntityById(Long id) {
@@ -58,24 +62,12 @@ public class BookingService {
       bookingRepository.save(booking);
     }
 
-    BookingFilterResponseDto dto = new BookingFilterResponseDto();
-
-    dto.setFlight(booking.getFlight());
-    dto.setBookingDate(booking.getBookingDate());
-    dto.setPassenger(booking.getPassenger());
-    dto.setPnr(booking.getPnr());
-    dto.setStatus(effectiveStatus);
-    dto.setCancellationPenaltyApplied(booking.getCancellationPenaltyApplied());
-    dto.setCancellationPenaltyAmount(booking.getCancellationPenaltyAmount());
-
-    return dto;
+    return bookingMapper.toFilterResponseDto(booking, effectiveStatus);
   }
 
 
   @Transactional
   public Booking createBooking(BookingCreateRequestDto create) {
-
-    Booking booking = new Booking();
     Passenger passenger = getPassengerEntityById(create.getPassengerId());
     Flight flight = getFlightEntityByIdForUpdate(create.getFlightId());
 
@@ -85,11 +77,12 @@ public class BookingService {
 
     validateFlightCapacity(flight, effectiveStatus);
 
-    booking.setBookingDate(create.getBookingDate());
-    booking.setPnr(generateUniquePnr());
-    booking.setStatus(effectiveStatus);
-    booking.setPassenger(passenger);
-    booking.setFlight(flight);
+    Booking booking = bookingMapper.toEntity(
+        create,
+        passenger,
+        flight,
+        effectiveStatus,
+        generateUniquePnr());
     applyCancellationPenalty(booking, effectiveStatus, flight);
 
 
