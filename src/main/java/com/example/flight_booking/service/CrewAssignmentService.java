@@ -6,6 +6,7 @@ import com.example.flight_booking.dto.CrewAssignment.CrewAssignmentUpdateRequest
 import com.example.flight_booking.entity.CrewAssignment;
 import com.example.flight_booking.entity.CrewMember;
 import com.example.flight_booking.entity.Flight;
+import com.example.flight_booking.mapper.CrewAssignmentMapper;
 import com.example.flight_booking.repository.CrewAssignmentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,16 @@ public class CrewAssignmentService {
   private final CrewAssignmentRepository crewAssignmentRepository;
   private final FlightService flightService;
   private final CrewMemberService crewMemberService;
+  private final CrewAssignmentMapper crewAssignmentMapper;
 
   public CrewAssignmentService(CrewAssignmentRepository crewAssignmentRepository,
                                FlightService flightService,
-                               CrewMemberService crewMemberService) {
+                               CrewMemberService crewMemberService,
+                               CrewAssignmentMapper crewAssignmentMapper) {
     this.crewAssignmentRepository = crewAssignmentRepository;
     this.flightService = flightService;
     this.crewMemberService = crewMemberService;
+    this.crewAssignmentMapper = crewAssignmentMapper;
   }
 
   public CrewAssignment getCrewAssignmentEntityById(Long id) {
@@ -42,22 +46,13 @@ public class CrewAssignmentService {
 
   public CrewAssignmentFilterResponseDto getCrewAssignmentById(Long id) {
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
-    CrewAssignmentFilterResponseDto dto = new CrewAssignmentFilterResponseDto();
-    dto.setAssignmentId(crewAssignment.getAssignmentId());
-    dto.setFlight(crewAssignment.getFlight());
-    dto.setCrewMember(crewAssignment.getCrewMember());
-    dto.setDuty(crewAssignment.getDuty());
-    return dto;
+    return crewAssignmentMapper.toFilterResponseDto(crewAssignment);
   }
 
   public CrewAssignment createCrewAssignment(CrewAssignmentCreateRequestDto create) {
     Flight flight = getFlightEntityById(create.getFlightId());
     CrewMember crewMember = getCrewMemberEntityById(create.getCrewMemberId());
-
-    CrewAssignment crewAssignment = new CrewAssignment();
-    crewAssignment.setFlight(flight);
-    crewAssignment.setCrewMember(crewMember);
-    crewAssignment.setDuty(create.getDuty());
+    CrewAssignment crewAssignment = crewAssignmentMapper.toEntity(create, flight, crewMember);
     return crewAssignmentRepository.save(crewAssignment);
   }
 
@@ -66,10 +61,7 @@ public class CrewAssignmentService {
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
     Flight flight = getFlightEntityById(update.getFlightId());
     CrewMember crewMember = getCrewMemberEntityById(update.getCrewMemberId());
-
-    crewAssignment.setFlight(flight);
-    crewAssignment.setCrewMember(crewMember);
-    crewAssignment.setDuty(update.getDuty());
+    crewAssignmentMapper.updateEntity(crewAssignment, update, flight, crewMember);
     return crewAssignmentRepository.save(crewAssignment);
   }
 
