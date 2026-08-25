@@ -5,6 +5,7 @@ import com.example.flight_booking.dto.Ticket.TicketFilterResponseDto;
 import com.example.flight_booking.dto.Ticket.TicketUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Ticket;
+import com.example.flight_booking.mapper.TicketMapper;
 import com.example.flight_booking.repository.TicketRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,15 @@ public class TicketService {
 
   private final TicketRepository ticketRepository;
   private final BookingService bookingService;
+  private final TicketMapper ticketMapper;
 
-  public TicketService(TicketRepository ticketRepository, BookingService bookingService) {
+  public TicketService(
+      TicketRepository ticketRepository,
+      BookingService bookingService,
+      TicketMapper ticketMapper) {
     this.ticketRepository = ticketRepository;
     this.bookingService = bookingService;
+    this.ticketMapper = ticketMapper;
   }
 
   private Ticket getTicketEntityById(Long id) {
@@ -34,35 +40,19 @@ public class TicketService {
 
   public TicketFilterResponseDto getTicketById(Long id) {
     Ticket ticket = getTicketEntityById(id);
-
-    TicketFilterResponseDto dto = new TicketFilterResponseDto();
-    dto.setTicketId(ticket.getTicketId());
-    dto.setBookingId(ticket.getBooking().getBookingId());
-    dto.setTicketNumber(ticket.getTicketNumber());
-    dto.setIssueDate(ticket.getIssueDate());
-    dto.setPrice(ticket.getPrice());
-
-    return dto;
+    return ticketMapper.toFilterResponseDto(ticket);
   }
 
   public Ticket createTicket(TicketCreateRequestDto create) {
     Booking booking = getBookingEntityById(create.getBookingId());
-    Ticket ticket = new Ticket();
-    ticket.setBooking(booking);
-    ticket.setTicketNumber(create.getTicketNumber());
-    ticket.setIssueDate(create.getIssueDate());
-    ticket.setPrice(create.getPrice());
+    Ticket ticket = ticketMapper.toEntity(create, booking);
     return ticketRepository.save(ticket);
   }
 
   public Ticket updateTicket(Long id, TicketUpdateRequestDto update) {
     Ticket ticket = getTicketEntityById(id);
     Booking booking = getBookingEntityById(update.getBookingId());
-
-    ticket.setBooking(booking);
-    ticket.setTicketNumber(update.getTicketNumber());
-    ticket.setIssueDate(update.getIssueDate());
-    ticket.setPrice(update.getPrice());
+    ticketMapper.updateEntity(ticket, update, booking);
     return ticketRepository.save(ticket);
   }
 
