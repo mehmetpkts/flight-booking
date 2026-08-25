@@ -5,6 +5,7 @@ import com.example.flight_booking.dto.CrewMember.CrewMemberFilterResponseDto;
 import com.example.flight_booking.dto.CrewMember.CrewMemberUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.CrewMember;
+import com.example.flight_booking.mapper.CrewMemberMapper;
 import com.example.flight_booking.repository.CrewMemberRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,15 @@ import org.springframework.web.server.ResponseStatusException;
 public class CrewMemberService {
   private final CrewMemberRepository crewMemberRepository;
   private final AirlineService airlineService;
+  private final CrewMemberMapper crewMemberMapper;
 
-  public CrewMemberService(CrewMemberRepository crewMemberRepository, AirlineService airlineService) {
+  public CrewMemberService(
+      CrewMemberRepository crewMemberRepository,
+      AirlineService airlineService,
+      CrewMemberMapper crewMemberMapper) {
     this.crewMemberRepository = crewMemberRepository;
     this.airlineService = airlineService;
+    this.crewMemberMapper = crewMemberMapper;
   }
 
   public CrewMember getCrewMemberEntityById(Long id) {
@@ -32,29 +38,12 @@ public class CrewMemberService {
 
   public CrewMemberFilterResponseDto getCrewMemberById(Long id){
     CrewMember crewMember = getCrewMemberEntityById(id);
-
-    CrewMemberFilterResponseDto dto = new CrewMemberFilterResponseDto();
-
-    dto.setAirline(crewMember.getAirline());
-    dto.setEmployeeNumber(crewMember.getEmployeeNumber());
-    dto.setFirstName(crewMember.getFirstName());
-    dto.setLastName(crewMember.getLastName());
-    dto.setPhone(crewMember.getPhone());
-    dto.setRole(crewMember.getRole());
-
-    return dto;
+    return crewMemberMapper.toFilterResponseDto(crewMember);
   }
 
   public CrewMember createCrewMember(CrewMemberCreateRequestDto create) {
     Airline airline = getAirlineEntityById(create.getAirlineId());
-
-    CrewMember crewMember = new CrewMember();
-    crewMember.setFirstName(create.getFirstName());
-    crewMember.setLastName(create.getLastName());
-    crewMember.setRole(create.getRole());
-    crewMember.setEmployeeNumber(create.getEmployeeNumber());
-    crewMember.setPhone(create.getPhone());
-    crewMember.setAirline(airline);
+    CrewMember crewMember = crewMemberMapper.toEntity(create, airline);
     return crewMemberRepository.save(crewMember);
   }
 
@@ -62,13 +51,7 @@ public class CrewMemberService {
   public CrewMember updateCrewMember(Long id, CrewMemberUpdateRequestDto update) {
     Airline airline = getAirlineEntityById(update.getAirlineId());
     CrewMember crewMember = getCrewMemberEntityById(id);
-
-    crewMember.setFirstName(update.getFirstName());
-    crewMember.setLastName(update.getLastName());
-    crewMember.setRole(update.getRole());
-    crewMember.setEmployeeNumber(update.getEmployeeNumber());
-    crewMember.setPhone(update.getPhone());
-    crewMember.setAirline(airline);
+    crewMemberMapper.updateEntity(crewMember, update, airline);
     return crewMemberRepository.save(crewMember);
   }
 
