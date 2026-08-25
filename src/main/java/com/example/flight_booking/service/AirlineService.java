@@ -4,6 +4,7 @@ import com.example.flight_booking.dto.Airline.AirlineCreateRequestDto;
 import com.example.flight_booking.dto.Airline.AirlineFilterResponseDto;
 import com.example.flight_booking.dto.Airline.AirlineUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
+import com.example.flight_booking.mapper.AirlineMapper;
 import com.example.flight_booking.repository.AirlineRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class AirlineService {
 
   private final AirlineRepository airlineRepository;
+  private final AirlineMapper airlineMapper;
 
-  public AirlineService(AirlineRepository airlineRepository) {
+  public AirlineService(AirlineRepository airlineRepository, AirlineMapper airlineMapper) {
     this.airlineRepository = airlineRepository;
+    this.airlineMapper = airlineMapper;
   }
 
 
@@ -27,32 +30,17 @@ public class AirlineService {
 
   public AirlineFilterResponseDto getAirlineById(Long id) {
     Airline airline = getAirlineEntityById(id);
-
-    AirlineFilterResponseDto dto = new AirlineFilterResponseDto();
-    dto.setName(airline.getName());
-    dto.setCountry(airline.getCountry());
-    dto.setIataCode(airline.getIataCode());
-
-    return dto;
+    return airlineMapper.toFilterResponseDto(airline);
   }
 
   public Airline createAirline(AirlineCreateRequestDto create){
-    Airline airline = new Airline();
-
-    airline.setCountry(create.getCountry());
-    airline.setIataCode(create.getIataCode());
-    airline.setName(create.getName());
-
+    Airline airline = airlineMapper.toEntity(create);
     return airlineRepository.save(airline);
   }
 
   public Airline updateAirline(Long id, AirlineUpdateRequestDto update){
     Airline airline = getAirlineEntityById(id);
-
-    airline.setName(update.getName());
-    airline.setIataCode(update.getIataCode());
-    airline.setCountry(update.getCountry());
-
+    airlineMapper.updateEntity(airline, update);
     return airlineRepository.save(airline);
   }
 
