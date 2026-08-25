@@ -2,7 +2,6 @@ package com.example.flight_booking.service;
 
 import com.example.flight_booking.dto.Booking.BookingCreateRequestDto;
 import com.example.flight_booking.dto.Booking.BookingFilterResponseDto;
-import com.example.flight_booking.dto.Booking.BookingUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
@@ -52,6 +51,12 @@ public class BookingService {
 
   public BookingFilterResponseDto getBookingById(Long id){
     Booking booking = getBookingEntityById(id);
+    BookingStatus effectiveStatus = resolveEffectiveStatus(booking.getStatus(), booking.getFlight());
+
+    if (booking.getStatus() != effectiveStatus) {
+      booking.setStatus(effectiveStatus);
+      bookingRepository.save(booking);
+    }
 
     BookingFilterResponseDto dto = new BookingFilterResponseDto();
 
@@ -59,7 +64,7 @@ public class BookingService {
     dto.setBookingDate(booking.getBookingDate());
     dto.setPassenger(booking.getPassenger());
     dto.setPnr(booking.getPnr());
-    dto.setStatus(booking.getStatus());
+    dto.setStatus(effectiveStatus);
     dto.setCancellationPenaltyApplied(booking.getCancellationPenaltyApplied());
     dto.setCancellationPenaltyAmount(booking.getCancellationPenaltyAmount());
 
@@ -76,39 +81,16 @@ public class BookingService {
 
     validateFlightDepartureTime(flight);
     validatePassengerHasNoBookingForFlight(passenger.getPassengerId(), flight.getFlightId());
-    validateFlightCapacity(flight, create.getStatus(), false);
+    BookingStatus effectiveStatus = resolveEffectiveStatus(create.getStatus(), flight);
+
+    validateFlightCapacity(flight, effectiveStatus);
 
     booking.setBookingDate(create.getBookingDate());
     booking.setPnr(generateUniquePnr());
-    booking.setStatus(create.getStatus());
+    booking.setStatus(effectiveStatus);
     booking.setPassenger(passenger);
     booking.setFlight(flight);
-    applyCancellationPenalty(booking, create.getStatus(), flight);
-
-
-    return bookingRepository.save(booking);
-  }
-
-
-  @Transactional
-  public Booking updateBooking(Long id, BookingUpdateRequestDto update) {
-    Booking booking = getBookingEntityById(id);
-    Passenger passenger = getPassengerEntityById(update.getPassengerId());
-    Flight flight = getFlightEntityByIdForUpdate(update.getFlightId());
-    boolean alreadyOccupyingSameFlightSeat = booking.getFlight().getFlightId().equals(update.getFlightId())
-        && SEAT_OCCUPYING_STATUSES.contains(booking.getStatus());
-
-    validateFlightDepartureTime(flight);
-    validatePassengerHasNoOtherBookingForFlight(passenger.getPassengerId(), flight.getFlightId(), id);
-    validatePnrIsUniqueForOtherBooking(update.getPnr(), id);
-    validateFlightCapacity(flight, update.getStatus(), alreadyOccupyingSameFlightSeat);
-
-    booking.setBookingDate(update.getBookingDate());
-    booking.setPnr(update.getPnr());
-    booking.setStatus(update.getStatus());
-    booking.setPassenger(passenger);
-    booking.setFlight(flight);
-    applyCancellationPenalty(booking, update.getStatus(), flight);
+    applyCancellationPenalty(booking, effectiveStatus, flight);
 
 
     return bookingRepository.save(booking);
@@ -123,8 +105,7 @@ public class BookingService {
     return flightService.getFlightEntityByIdForUpdate(flightId);
   }
 
-  private void validateFlightCapacity(Flight flight, BookingStatus targetStatus,
-      boolean alreadyOccupyingSameFlightSeat) {
+  private void validateFlightCapacity(Flight flight, BookingStatus targetStatus) {
     if (!SEAT_OCCUPYING_STATUSES.contains(targetStatus)) {
       return;
     }
@@ -132,10 +113,6 @@ public class BookingService {
     long occupiedSeatCount = bookingRepository.countByFlight_FlightIdAndStatusIn(
         flight.getFlightId(),
         SEAT_OCCUPYING_STATUSES);
-
-    if (alreadyOccupyingSameFlightSeat) {
-      occupiedSeatCount--;
-    }
 
     if (occupiedSeatCount >= flight.getAircraft().getCapacity()) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -149,23 +126,9 @@ public class BookingService {
     }
   }
 
-  private void validatePassengerHasNoOtherBookingForFlight(Long passengerId, Long flightId,
-      Long bookingId) {
-    if (bookingRepository.existsByPassenger_PassengerIdAndFlight_FlightIdAndBookingIdNot(
-        passengerId, flightId, bookingId)) {
-      throw duplicateBookingException(passengerId, flightId);
-    }
-  }
-
   private ResponseStatusException duplicateBookingException(Long passengerId, Long flightId) {
     return new ResponseStatusException(HttpStatus.CONFLICT,
         "Passenger id " + passengerId + " already has a booking for flight id " + flightId);
-  }
-
-  private void validatePnrIsUniqueForOtherBooking(String pnr, Long bookingId) {
-    if (bookingRepository.existsByPnrAndBookingIdNot(pnr, bookingId)) {
-      throw duplicatePnrException(pnr);
-    }
   }
 
   private String generateUniquePnr() {
@@ -178,11 +141,6 @@ public class BookingService {
 
     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
         "Could not generate a unique PNR");
-  }
-
-  private ResponseStatusException duplicatePnrException(String pnr) {
-    return new ResponseStatusException(HttpStatus.CONFLICT,
-        "Booking already exists with pnr " + pnr);
   }
 
   private void validateFlightDepartureTime(Flight flight) {
@@ -200,6 +158,18 @@ public class BookingService {
     booking.setCancellationPenaltyApplied(shouldApplyPenalty);
     booking.setCancellationPenaltyAmount(
         shouldApplyPenalty ? CANCELLATION_PENALTY_FEE : BigDecimal.ZERO);
+  }
+
+  private BookingStatus resolveEffectiveStatus(BookingStatus requestedStatus, Flight flight) {
+    if (requestedStatus == BookingStatus.CANCELLED) {
+      return requestedStatus;
+    }
+
+    LocalDateTime now = LocalDateTime.now();
+    boolean isWithinFinal24Hours = flight.getDepartureTime().isAfter(now)
+        && !flight.getDepartureTime().isAfter(now.plusHours(24));
+
+    return isWithinFinal24Hours ? BookingStatus.CHECKED_IN : requestedStatus;
   }
 
 }
