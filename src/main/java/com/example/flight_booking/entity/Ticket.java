@@ -32,6 +32,6 @@ public class Ticket {
   @Column(nullable = false)
   private LocalDateTime issueDate;
 
-  @Column(nullable = false)
+  @Column(nullable = false, precision = 19, scale = 2)
   private BigDecimal price;
 }

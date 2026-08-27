@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -12,7 +13,7 @@ public class PaymentCreateRequestDto {
   @NotNull(message = "Booking ID must not be null")
   private Long bookingId;
   @NotNull(message = "Amount must not be null")
-  private Double amount;
+  private BigDecimal amount;
   @NotBlank(message = "Payment method must not be blank")
   private String paymentMethod;
   @NotNull(message = "Payment date must not be null")
