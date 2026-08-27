@@ -5,6 +5,7 @@ import com.example.flight_booking.dto.Payment.PaymentFilterResponseDto;
 import com.example.flight_booking.dto.Payment.PaymentUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Payment;
+import com.example.flight_booking.enums.PaymentStatus;
 import com.example.flight_booking.mapper.PaymentMapper;
 import com.example.flight_booking.repository.PaymentRepository;
 import org.springframework.http.HttpStatus;
@@ -54,6 +55,10 @@ public class PaymentService {
     Booking booking = getBookingEntityById(update.getBookingId());
     paymentMapper.updateEntity(payment, update, booking);
     return paymentRepository.save(payment);
+  }
+
+  public boolean hasCompletedPaymentForBooking(Long bookingId) {
+    return paymentRepository.existsByBooking_BookingIdAndStatus(bookingId, PaymentStatus.COMPLETED);
   }
 
   public void deletePayment(Long id) {
