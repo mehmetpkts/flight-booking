@@ -2,6 +2,7 @@ package com.example.flight_booking.service;
 
 import com.example.flight_booking.dto.Booking.BookingCreateRequestDto;
 import com.example.flight_booking.dto.Booking.BookingFilterResponseDto;
+import com.example.flight_booking.dto.Booking.BookingUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
@@ -23,6 +24,9 @@ public class BookingService {
 
   private static final BigDecimal CANCELLATION_PENALTY_FEE = new BigDecimal("250.00");
   private static final int MAX_PNR_GENERATION_ATTEMPTS = 20;
+  private static final Set<BookingStatus> UPDATABLE_BOOKING_STATUSES = EnumSet.of(
+      BookingStatus.CANCELLED,
+      BookingStatus.CHECKED_IN);
   private static final Set<BookingStatus> SEAT_OCCUPYING_STATUSES = EnumSet.of(
       BookingStatus.CHECKED_IN,
       BookingStatus.CONFIRMED);
@@ -94,6 +98,31 @@ public class BookingService {
     bookingRepository.delete(booking);
   }
 
+  @Transactional
+  public Booking updateBookingStatus(Long id, BookingUpdateRequestDto update) {
+    BookingStatus targetStatus = update.getStatus();
+    validateUpdatableStatus(targetStatus);
+
+    Booking booking = getBookingEntityById(id);
+    Flight flight = getFlightEntityByIdForUpdate(booking.getFlight().getFlightId());
+    BookingStatus currentStatus = booking.getStatus();
+
+    if (currentStatus == targetStatus) {
+      return booking;
+    }
+
+    validateStatusTransition(currentStatus, targetStatus);
+    validateFlightDepartureTimeForStatusUpdate(flight);
+
+    if (targetStatus == BookingStatus.CHECKED_IN) {
+      validateCheckInWindow(flight);
+    }
+
+    booking.setStatus(targetStatus);
+    applyCancellationPenalty(booking, targetStatus, flight);
+    return bookingRepository.save(booking);
+  }
+
   private Flight getFlightEntityByIdForUpdate(Long flightId) {
     return flightService.getFlightEntityByIdForUpdate(flightId);
   }
@@ -140,6 +169,41 @@ public class BookingService {
     if (flight.getDepartureTime().isBefore(LocalDateTime.now())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
           "Cannot create booking for a flight that has already departed. flight id " + flight.getFlightId());
+    }
+  }
+
+  private void validateFlightDepartureTimeForStatusUpdate(Flight flight) {
+    if (!flight.getDepartureTime().isAfter(LocalDateTime.now())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Cannot update booking status after departure. flight id " + flight.getFlightId());
+    }
+  }
+
+  private void validateUpdatableStatus(BookingStatus targetStatus) {
+    if (UPDATABLE_BOOKING_STATUSES.contains(targetStatus)) {
+      return;
+    }
+
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "Booking status update supports only CANCELLED or CHECKED_IN");
+  }
+
+  private void validateStatusTransition(BookingStatus currentStatus, BookingStatus targetStatus) {
+    if (currentStatus == BookingStatus.CANCELLED && targetStatus == BookingStatus.CHECKED_IN) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Cancelled bookings cannot be checked in");
+    }
+  }
+
+  private void validateCheckInWindow(Flight flight) {
+    LocalDateTime now = LocalDateTime.now();
+    boolean isWithinFinal24Hours = flight.getDepartureTime().isAfter(now)
+        && !flight.getDepartureTime().isAfter(now.plusHours(24));
+
+    if (!isWithinFinal24Hours) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Check-in is allowed only within the final 24 hours before departure. flight id "
+              + flight.getFlightId());
     }
   }
 
