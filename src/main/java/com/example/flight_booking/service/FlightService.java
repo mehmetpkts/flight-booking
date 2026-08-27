@@ -21,7 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class FlightService {
 
   private static final Set<BookingStatus> NON_DELETABLE_BOOKING_STATUSES = EnumSet.of(
-      BookingStatus.CONFIRMED);
+      BookingStatus.CONFIRMED,
+      BookingStatus.CHECKED_IN);
 
   private final FlightRepository flightRepository;
   private final BookingRepository bookingRepository;
@@ -131,7 +132,7 @@ public class FlightService {
 
     if (blockingBookingCount > 0) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
-          "Cannot delete flight with confirmed bookings. flight id " + id);
+          "Cannot delete flight with confirmed or checked-in bookings. flight id " + id);
     }
 
     flightRepository.delete(flight);
