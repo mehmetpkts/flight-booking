@@ -8,6 +8,7 @@ import com.example.flight_booking.entity.CrewMember;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.mapper.CrewAssignmentMapper;
 import com.example.flight_booking.repository.CrewAssignmentRepository;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -52,6 +53,9 @@ public class CrewAssignmentService {
   public CrewAssignment createCrewAssignment(CrewAssignmentCreateRequestDto create) {
     Flight flight = getFlightEntityById(create.getFlightId());
     CrewMember crewMember = getCrewMemberEntityById(create.getCrewMemberId());
+    validateCrewAssignmentEligibility(flight, crewMember);
+    validateCrewMemberIsNotAssignedToFlight(flight.getFlightId(), crewMember.getCrewMemberId());
+
     CrewAssignment crewAssignment = crewAssignmentMapper.toEntity(create, flight, crewMember);
     return crewAssignmentRepository.save(crewAssignment);
   }
@@ -61,6 +65,10 @@ public class CrewAssignmentService {
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
     Flight flight = getFlightEntityById(update.getFlightId());
     CrewMember crewMember = getCrewMemberEntityById(update.getCrewMemberId());
+    validateCrewAssignmentEligibility(flight, crewMember);
+    validateCrewMemberIsNotAssignedToFlight(
+        flight.getFlightId(), crewMember.getCrewMemberId(), crewAssignment.getAssignmentId());
+
     crewAssignmentMapper.updateEntity(crewAssignment, update, flight, crewMember);
     return crewAssignmentRepository.save(crewAssignment);
   }
@@ -70,5 +78,34 @@ public class CrewAssignmentService {
     crewAssignmentRepository.delete(crewAssignment);
   }
 
+  private void validateCrewAssignmentEligibility(Flight flight, CrewMember crewMember) {
+    if (!Objects.equals(flight.getAirline().getAirlineId(),
+        crewMember.getAirline().getAirlineId())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Crew member id " + crewMember.getCrewMemberId()
+              + " does not belong to the airline operating flight id " + flight.getFlightId());
+    }
+  }
+
+  private void validateCrewMemberIsNotAssignedToFlight(Long flightId, Long crewMemberId) {
+    if (crewAssignmentRepository.existsByFlight_FlightIdAndCrewMember_CrewMemberId(
+        flightId, crewMemberId)) {
+      throw duplicateCrewAssignmentException(crewMemberId, flightId);
+    }
+  }
+
+  private void validateCrewMemberIsNotAssignedToFlight(
+      Long flightId, Long crewMemberId, Long assignmentId) {
+    if (crewAssignmentRepository
+        .existsByFlight_FlightIdAndCrewMember_CrewMemberIdAndAssignmentIdNot(
+            flightId, crewMemberId, assignmentId)) {
+      throw duplicateCrewAssignmentException(crewMemberId, flightId);
+    }
+  }
+
+  private ResponseStatusException duplicateCrewAssignmentException(Long crewMemberId, Long flightId) {
+    return new ResponseStatusException(HttpStatus.CONFLICT,
+        "Crew member id " + crewMemberId + " is already assigned to flight id " + flightId);
+  }
 
 }
