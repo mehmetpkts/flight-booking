@@ -10,6 +10,7 @@ import com.example.flight_booking.repository.FlightRepository;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
@@ -69,6 +70,11 @@ public class FlightService {
 
 
   public Flight createFlight(FlightCreateRequestDto create) {
+    validateFlightDetails(
+        create.getDepartureAirportId(),
+        create.getArrivalAirportId(),
+        create.getDepartureTime(),
+        create.getArrivalTime());
     Airport departureAirport = getAirportEntityById(create.getDepartureAirportId());
     Airport arrivalAirport = getAirportEntityById(create.getArrivalAirportId());
     Aircraft aircraft = getAircraftEntityById(create.getAircraftId());
@@ -87,6 +93,11 @@ public class FlightService {
   }
 
   public Flight updateFlight(Long id, FlightUpdateRequestDto update) {
+    validateFlightDetails(
+        update.getDepartureAirportId(),
+        update.getArrivalAirportId(),
+        update.getDepartureTime(),
+        update.getArrivalTime());
     Flight flight = getFlightEntityById(id);
     Airport departureAirport = getAirportEntityById(update.getDepartureAirportId());
     Airport arrivalAirport = getAirportEntityById(update.getArrivalAirportId());
@@ -94,6 +105,22 @@ public class FlightService {
     Airline airline = getAirlineEntityById(update.getAirlineId());
     flightMapper.updateEntity(flight, update, departureAirport, arrivalAirport, aircraft, airline);
     return flightRepository.save(flight);
+  }
+
+  private void validateFlightDetails(
+      Long departureAirportId,
+      Long arrivalAirportId,
+      java.time.LocalDateTime departureTime,
+      java.time.LocalDateTime arrivalTime) {
+    if (Objects.equals(departureAirportId, arrivalAirportId)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Departure and arrival airports must be different");
+    }
+
+    if (departureTime == null || arrivalTime == null || !arrivalTime.isAfter(departureTime)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Arrival time must be after departure time");
+    }
   }
 
   public void deleteFlight(Long id) {
