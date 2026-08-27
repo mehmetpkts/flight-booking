@@ -31,10 +31,12 @@ public class AircraftMapper {
     return aircraft;
   }
 
-  public void updateEntity(Aircraft aircraft, AircraftUpdateRequestDto updateRequest) {
+  public void updateEntity(
+      Aircraft aircraft, AircraftUpdateRequestDto updateRequest, Airline airline) {
     aircraft.setModel(updateRequest.getModel());
     aircraft.setManufacturer(updateRequest.getManufacturer());
     aircraft.setCapacity(updateRequest.getCapacity());
     aircraft.setStatus(updateRequest.getStatus());
+    aircraft.setAirline(airline);
   }
 }

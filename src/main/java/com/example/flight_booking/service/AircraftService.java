@@ -50,8 +50,9 @@ public class AircraftService {
 
 
   public Aircraft updateAircraft(Long id, AircraftUpdateRequestDto update) {
+    Airline airline = getAirlineEntityById(update.getAirlineId());
     Aircraft aircraft = getAircraftEntityById(id);
-    aircraftMapper.updateEntity(aircraft, update);
+    aircraftMapper.updateEntity(aircraft, update, airline);
     return aircraftRepository.save(aircraft);
   }
 
