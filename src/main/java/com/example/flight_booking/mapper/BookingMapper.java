@@ -11,11 +11,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookingMapper {
 
+  private final PassengerMapper passengerMapper;
+  private final FlightMapper flightMapper;
+
+  public BookingMapper(PassengerMapper passengerMapper, FlightMapper flightMapper) {
+    this.passengerMapper = passengerMapper;
+    this.flightMapper = flightMapper;
+  }
+
   public BookingFilterResponseDto toFilterResponseDto(Booking booking, BookingStatus effectiveStatus) {
     BookingFilterResponseDto dto = new BookingFilterResponseDto();
-    dto.setFlight(booking.getFlight());
+    dto.setFlight(flightMapper.toFilterResponseDto(booking.getFlight()));
     dto.setBookingDate(booking.getBookingDate());
-    dto.setPassenger(booking.getPassenger());
+    dto.setPassenger(passengerMapper.toFilterResponseDto(booking.getPassenger()));
     dto.setPnr(booking.getPnr());
     dto.setStatus(effectiveStatus);
     dto.setCancellationPenaltyApplied(booking.getCancellationPenaltyApplied());

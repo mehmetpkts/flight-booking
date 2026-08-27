@@ -1,7 +1,7 @@
 package com.example.flight_booking.dto.Booking;
 
-import com.example.flight_booking.entity.Flight;
-import com.example.flight_booking.entity.Passenger;
+import com.example.flight_booking.dto.Passenger.PassengerFilterResponseDto;
+import com.example.flight_booking.dto.flight.FlightFilterResponseDto;
 import com.example.flight_booking.enums.BookingStatus;
 import lombok.Data;
 
@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Data
 public class BookingFilterResponseDto {
 
-    private Passenger passenger;
-    private Flight flight;
+    private PassengerFilterResponseDto passenger;
+    private FlightFilterResponseDto flight;
     private LocalDateTime bookingDate;
     private BookingStatus status;
     private String pnr;
