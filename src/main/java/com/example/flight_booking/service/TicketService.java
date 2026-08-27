@@ -5,6 +5,7 @@ import com.example.flight_booking.dto.Ticket.TicketFilterResponseDto;
 import com.example.flight_booking.dto.Ticket.TicketUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Ticket;
+import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.mapper.TicketMapper;
 import com.example.flight_booking.repository.TicketRepository;
 import org.springframework.http.HttpStatus;
@@ -16,14 +17,17 @@ public class TicketService {
 
   private final TicketRepository ticketRepository;
   private final BookingService bookingService;
+  private final PaymentService paymentService;
   private final TicketMapper ticketMapper;
 
   public TicketService(
       TicketRepository ticketRepository,
       BookingService bookingService,
+      PaymentService paymentService,
       TicketMapper ticketMapper) {
     this.ticketRepository = ticketRepository;
     this.bookingService = bookingService;
+    this.paymentService = paymentService;
     this.ticketMapper = ticketMapper;
   }
 
@@ -37,6 +41,19 @@ public class TicketService {
     return bookingService.getBookingEntityById(id);
   }
 
+  private void validateBookingEligibilityForTicket(Booking booking) {
+    if (booking.getStatus() == BookingStatus.CANCELLED) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Ticket cannot be issued for cancelled booking id " + booking.getBookingId());
+    }
+
+    if (!paymentService.hasCompletedPaymentForBooking(booking.getBookingId())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Ticket cannot be issued before completed payment for booking id "
+              + booking.getBookingId());
+    }
+  }
+
 
   public TicketFilterResponseDto getTicketById(Long id) {
     Ticket ticket = getTicketEntityById(id);
@@ -45,6 +62,7 @@ public class TicketService {
 
   public Ticket createTicket(TicketCreateRequestDto create) {
     Booking booking = getBookingEntityById(create.getBookingId());
+    validateBookingEligibilityForTicket(booking);
     Ticket ticket = ticketMapper.toEntity(create, booking);
     return ticketRepository.save(ticket);
   }
@@ -52,6 +70,7 @@ public class TicketService {
   public Ticket updateTicket(Long id, TicketUpdateRequestDto update) {
     Ticket ticket = getTicketEntityById(id);
     Booking booking = getBookingEntityById(update.getBookingId());
+    validateBookingEligibilityForTicket(booking);
     ticketMapper.updateEntity(ticket, update, booking);
     return ticketRepository.save(ticket);
   }
