@@ -56,9 +56,17 @@ public class BookingService {
     return passengerService.getPassengerEntityById(id);
   }
 
+  private Flight getFlightEntityByIdForUpdate(Long flightId) {
+    return flightService.getFlightEntityByIdForUpdate(flightId);
+  }
 
-  public BookingFilterResponseDto getBookingById(Long id){
+  public BookingFilterResponseDto getBookingById(Long id) {
     Booking booking = getBookingEntityById(id);
+    BookingStatus effectiveStatus = synchronizeBookingStatus(booking);
+    return toBookingFilterResponse(booking, effectiveStatus);
+  }
+
+  private BookingStatus synchronizeBookingStatus(Booking booking) {
     BookingStatus effectiveStatus = resolveEffectiveStatus(booking.getStatus(), booking.getFlight());
 
     if (booking.getStatus() != effectiveStatus) {
@@ -66,10 +74,15 @@ public class BookingService {
       bookingRepository.save(booking);
     }
 
+    return effectiveStatus;
+  }
+
+  private BookingFilterResponseDto toBookingFilterResponse(Booking booking, BookingStatus effectiveStatus) {
     return bookingMapper.toFilterResponseDto(booking, effectiveStatus);
   }
 
 
+  // create için oluşturduğumuz fonksiyonların kullanılması
   @Transactional
   public Booking createBooking(BookingCreateRequestDto create) {
     Passenger passenger = getPassengerEntityById(create.getPassengerId());
@@ -93,11 +106,7 @@ public class BookingService {
     return bookingRepository.save(booking);
   }
 
-  public void deleteBooking(Long id) {
-    Booking booking = getBookingEntityById(id);
-    bookingRepository.delete(booking);
-  }
-
+  // update için oluşturduğumuz kuralların kullanılması
   @Transactional
   public Booking updateBookingStatus(Long id, BookingUpdateRequestDto update) {
     BookingStatus targetStatus = update.getStatus();
@@ -111,6 +120,7 @@ public class BookingService {
       return booking;
     }
 
+
     validateStatusTransition(currentStatus, targetStatus);
     validateFlightDepartureTimeForStatusUpdate(flight);
 
@@ -122,11 +132,11 @@ public class BookingService {
     applyCancellationPenalty(booking, targetStatus, flight);
     return bookingRepository.save(booking);
   }
-
-  private Flight getFlightEntityByIdForUpdate(Long flightId) {
-    return flightService.getFlightEntityByIdForUpdate(flightId);
+  public void deleteBooking(Long id) {
+    Booking booking = getBookingEntityById(id);
+    bookingRepository.delete(booking);
   }
-
+  // target statüye ait olan uçuşları topla ve kapasiteye bak
   private void validateFlightCapacity(Flight flight, BookingStatus targetStatus) {
     if (!SEAT_OCCUPYING_STATUSES.contains(targetStatus)) {
       return;
@@ -142,17 +152,20 @@ public class BookingService {
     }
   }
 
+  // aynı uçuşa birden fazla aynı kişi rezervasyon yapamaz
   private void validatePassengerHasNoBookingForFlight(Long passengerId, Long flightId) {
     if (bookingRepository.existsByPassenger_PassengerIdAndFlight_FlightId(passengerId, flightId)) {
       throw duplicateBookingException(passengerId, flightId);
     }
   }
 
+  // yukarıdaki hatanın durumu
   private ResponseStatusException duplicateBookingException(Long passengerId, Long flightId) {
     return new ResponseStatusException(HttpStatus.CONFLICT,
         "Passenger id " + passengerId + " already has a booking for flight id " + flightId);
   }
 
+  // eşsiz pnr değeri ve 20 farklı değere kadar üretme sınırı
   private String generateUniquePnr() {
     for (int attempt = 0; attempt < MAX_PNR_GENERATION_ATTEMPTS; attempt++) {
       String generatedPnr = PnrGeneratorUtil.generateRandomPnr();
@@ -165,6 +178,7 @@ public class BookingService {
         "Could not generate a unique PNR");
   }
 
+  // uçuşun saat kontrolü(önce mi?)
   private void validateFlightDepartureTime(Flight flight) {
     if (flight.getDepartureTime().isBefore(LocalDateTime.now())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -172,6 +186,7 @@ public class BookingService {
     }
   }
 
+  // uçuşun saat kontrolü(sonra mı?) - durum değişikliğinde vs...
   private void validateFlightDepartureTimeForStatusUpdate(Flight flight) {
     if (!flight.getDepartureTime().isAfter(LocalDateTime.now())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -179,6 +194,7 @@ public class BookingService {
     }
   }
 
+  // değiştirilebilir booking statuslarının kontorlünü yapan metot
   private void validateUpdatableStatus(BookingStatus targetStatus) {
     if (UPDATABLE_BOOKING_STATUSES.contains(targetStatus)) {
       return;
@@ -188,6 +204,7 @@ public class BookingService {
         "Booking status update supports only CANCELLED or CHECKED_IN");
   }
 
+  // eğer hedef statümüz checkedin ise ve şimdiki durumumuz canclled se hata ortaya atar.
   private void validateStatusTransition(BookingStatus currentStatus, BookingStatus targetStatus) {
     if (currentStatus == BookingStatus.CANCELLED && targetStatus == BookingStatus.CHECKED_IN) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -195,6 +212,7 @@ public class BookingService {
     }
   }
 
+// eğer son 24 saat olmadan check-in yapılmak istenirse reddeden metot.
   private void validateCheckInWindow(Flight flight) {
     LocalDateTime now = LocalDateTime.now();
     boolean isWithinFinal24Hours = flight.getDepartureTime().isAfter(now)
@@ -207,6 +225,8 @@ public class BookingService {
     }
   }
 
+
+  // 24 saatten kısaysa ve booking statüs canclled'sa ceza uygulama metotu
   private void applyCancellationPenalty(Booking booking, BookingStatus targetStatus, Flight flight) {
     boolean isCancelled = targetStatus == BookingStatus.CANCELLED;
     boolean isWithin24Hours = !flight.getDepartureTime().isAfter(LocalDateTime.now().plusHours(24));
@@ -217,6 +237,8 @@ public class BookingService {
         shouldApplyPenalty ? CANCELLATION_PENALTY_FEE : BigDecimal.ZERO);
   }
 
+
+  // son 24 saat kaldıysa check in yapmamızı sağlayan yapı
   private BookingStatus resolveEffectiveStatus(BookingStatus requestedStatus, Flight flight) {
     if (requestedStatus == BookingStatus.CANCELLED) {
       return requestedStatus;
