@@ -3,14 +3,10 @@ package com.example.flight_booking.dto.flight;
 import com.example.flight_booking.enums.FlightStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Setter
-@Getter
 @Data
 public class FlightUpdateRequestDto {
     @NotBlank(message = "Flight number must not be blank")
