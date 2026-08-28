@@ -2,7 +2,6 @@ package com.example.flight_booking.mapper;
 
 import com.example.flight_booking.dto.Airport.AirportCreateRequestDto;
 import com.example.flight_booking.dto.Airport.AirportFilterResponseDto;
-import com.example.flight_booking.dto.Airport.AirportUpdateRequestDto;
 import com.example.flight_booking.entity.Airport;
 import org.springframework.stereotype.Component;
 
@@ -25,12 +24,5 @@ public class AirportMapper {
     airport.setCity(createRequest.getCity());
     airport.setIataCode(createRequest.getIataCode());
     return airport;
-  }
-
-  public void updateEntity(Airport airport, AirportUpdateRequestDto updateRequest) {
-    airport.setName(updateRequest.getName());
-    airport.setCity(updateRequest.getCity());
-    airport.setCountry(updateRequest.getCountry());
-    airport.setIataCode(updateRequest.getIataCode());
   }
 }

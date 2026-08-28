@@ -6,10 +6,6 @@ import lombok.Data;
 
 @Data
 public class CrewMemberUpdateRequestDto {
-    @NotBlank(message = "First name must not be blank")
-    private String firstName;
-    @NotBlank(message = "Last name must not be blank")
-    private String lastName;
     @NotBlank(message = "Role must not be blank")
     private String role;
     @NotNull(message = "Employee number must not be null")

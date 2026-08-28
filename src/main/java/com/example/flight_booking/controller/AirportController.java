@@ -2,7 +2,6 @@ package com.example.flight_booking.controller;
 
 import com.example.flight_booking.dto.Airport.AirportCreateRequestDto;
 import com.example.flight_booking.dto.Airport.AirportFilterResponseDto;
-import com.example.flight_booking.dto.Airport.AirportUpdateRequestDto;
 import com.example.flight_booking.service.AirportService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +16,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
@@ -43,11 +41,6 @@ public class AirportController {
     return ResponseEntity.status(HttpStatus.CREATED).body(savedAirline);
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<Airport> updateAirport(@PathVariable Long id, @Valid @RequestBody AirportUpdateRequestDto update) {
-    Airport updateAirport = airportService.updateAirport(id, update);
-    return ResponseEntity.ok(updateAirport);
-  }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAirport(@PathVariable Long id) {

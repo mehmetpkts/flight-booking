@@ -2,7 +2,6 @@ package com.example.flight_booking.service;
 
 import com.example.flight_booking.dto.Airline.AirlineCreateRequestDto;
 import com.example.flight_booking.dto.Airline.AirlineFilterResponseDto;
-import com.example.flight_booking.dto.Airline.AirlineUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.mapper.AirlineMapper;
 import com.example.flight_booking.repository.AirlineRepository;
@@ -42,12 +41,6 @@ public class AirlineService {
 
   public Airline createAirline(AirlineCreateRequestDto create){
     Airline airline = airlineMapper.toEntity(create);
-    return airlineRepository.save(airline);
-  }
-
-  public Airline updateAirline(Long id, AirlineUpdateRequestDto update){
-    Airline airline = getAirlineEntityById(id);
-    airlineMapper.updateEntity(airline, update);
     return airlineRepository.save(airline);
   }
 

@@ -2,7 +2,6 @@ package com.example.flight_booking.service;
 
 import com.example.flight_booking.dto.Airport.AirportCreateRequestDto;
 import com.example.flight_booking.dto.Airport.AirportFilterResponseDto;
-import com.example.flight_booking.dto.Airport.AirportUpdateRequestDto;
 import com.example.flight_booking.entity.Airport;
 import com.example.flight_booking.mapper.AirportMapper;
 import com.example.flight_booking.repository.AirportRepository;
@@ -34,13 +33,6 @@ public class AirportService {
 
   public Airport createAirport(AirportCreateRequestDto create) {
     Airport airport = airportMapper.toEntity(create);
-    return airportRepository.save(airport);
-  }
-
-
-  public Airport updateAirport(Long id, AirportUpdateRequestDto update) {
-    Airport airport = getAirportEntityById(id);
-    airportMapper.updateEntity(airport, update);
     return airportRepository.save(airport);
   }
 
