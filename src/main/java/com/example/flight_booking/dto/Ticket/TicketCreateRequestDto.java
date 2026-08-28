@@ -2,6 +2,7 @@ package com.example.flight_booking.dto.Ticket;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -16,5 +17,6 @@ public class TicketCreateRequestDto {
   @NotNull(message = "Issue date must not be null")
   private LocalDateTime issueDate;
   @NotNull(message = "Price must not be null")
+  @PositiveOrZero(message = "Price must be zero or positive")
   private BigDecimal price;
 }
