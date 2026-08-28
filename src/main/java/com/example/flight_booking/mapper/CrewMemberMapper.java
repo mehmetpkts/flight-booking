@@ -36,8 +36,6 @@ public class CrewMemberMapper {
       CrewMember crewMember,
       CrewMemberUpdateRequestDto updateRequest,
       Airline airline) {
-    crewMember.setFirstName(updateRequest.getFirstName());
-    crewMember.setLastName(updateRequest.getLastName());
     crewMember.setRole(updateRequest.getRole());
     crewMember.setEmployeeNumber(updateRequest.getEmployeeNumber());
     crewMember.setPhone(updateRequest.getPhone());

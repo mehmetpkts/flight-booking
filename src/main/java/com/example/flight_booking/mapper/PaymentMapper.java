@@ -35,7 +35,6 @@ public class PaymentMapper {
     payment.setBooking(booking);
     payment.setAmount(updateRequest.getAmount());
     payment.setPaymentMethod(updateRequest.getPaymentMethod());
-    payment.setPaymentDate(updateRequest.getPaymentDate());
     payment.setStatus(updateRequest.getStatus());
   }
 }

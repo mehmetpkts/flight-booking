@@ -32,11 +32,8 @@ public class AircraftMapper {
   }
 
   public void updateEntity(
-      Aircraft aircraft, AircraftUpdateRequestDto updateRequest, Airline airline) {
-    aircraft.setModel(updateRequest.getModel());
-    aircraft.setManufacturer(updateRequest.getManufacturer());
-    aircraft.setCapacity(updateRequest.getCapacity());
-    aircraft.setStatus(updateRequest.getStatus());
-    aircraft.setAirline(airline);
+          Aircraft aircraft, AircraftUpdateRequestDto updateRequest, Airline airline) {
+          aircraft.setStatus(updateRequest.getStatus());
+          aircraft.setAirline(airline);
   }
 }

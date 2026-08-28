@@ -32,11 +32,7 @@ public class PassengerMapper {
   }
 
   public void updateEntity(Passenger passenger, PassengerUpdateRequestDto updateRequest) {
-    passenger.setFirstName(updateRequest.getFirstName());
-    passenger.setLastName(updateRequest.getLastName());
-    passenger.setPassportNumber(updateRequest.getPassportNumber());
     passenger.setEmail(updateRequest.getEmail());
     passenger.setPhone(updateRequest.getPhoneNumber());
-    passenger.setNationality(updateRequest.getNationality());
   }
 }
