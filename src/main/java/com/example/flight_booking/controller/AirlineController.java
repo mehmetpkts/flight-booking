@@ -6,6 +6,7 @@ import com.example.flight_booking.dto.Airline.AirlineUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.service.AirlineService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,11 @@ public class AirlineController {
 
   public AirlineController(AirlineService airlineService) {
     this.airlineService = airlineService;
+  }
+
+  @GetMapping
+  public ResponseEntity<List<AirlineFilterResponseDto>> getAllAirlines() {
+    return ResponseEntity.ok(airlineService.getAllAirlines());
   }
 
   @GetMapping("/{id}")

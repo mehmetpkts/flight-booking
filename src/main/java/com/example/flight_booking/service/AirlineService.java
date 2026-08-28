@@ -6,6 +6,7 @@ import com.example.flight_booking.dto.Airline.AirlineUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.mapper.AirlineMapper;
 import com.example.flight_booking.repository.AirlineRepository;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +27,12 @@ public class AirlineService {
     return airlineRepository
             .findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus
                     .NOT_FOUND, "Airline not defined. Id is: " + id));
+  }
+
+  public List<AirlineFilterResponseDto> getAllAirlines() {
+    return airlineRepository.findAll().stream()
+        .map(airlineMapper::toFilterResponseDto)
+        .toList();
   }
 
   public AirlineFilterResponseDto getAirlineById(Long id) {
