@@ -5,6 +5,7 @@ import com.example.flight_booking.dto.Payment.PaymentFilterResponseDto;
 import com.example.flight_booking.dto.Payment.PaymentUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Payment;
+import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.enums.PaymentStatus;
 import com.example.flight_booking.mapper.PaymentMapper;
 import com.example.flight_booking.repository.PaymentRepository;
@@ -46,8 +47,17 @@ public class PaymentService {
 
   public Payment createPayment(PaymentCreateRequestDto create) {
     Booking booking = getBookingEntityById(create.getBookingId());
+    validateBookingAcceptsPayment(booking);
     Payment payment = paymentMapper.toEntity(create, booking);
     return paymentRepository.save(payment);
+  }
+
+  // iptal edilmiş rezervasyona ödeme alınmaz
+  private void validateBookingAcceptsPayment(Booking booking) {
+    if (booking.getStatus() == BookingStatus.CANCELLED) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Payment cannot be created for cancelled booking id " + booking.getBookingId());
+    }
   }
 
   public Payment updatePayment(Long id, PaymentUpdateRequestDto update) {

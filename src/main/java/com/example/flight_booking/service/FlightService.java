@@ -3,11 +3,13 @@ package com.example.flight_booking.service;
 import com.example.flight_booking.dto.flight.*;
 import com.example.flight_booking.entity.*;
 import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.enums.FlightStatus;
 import com.example.flight_booking.mapper.FlightMapper;
 import com.example.flight_booking.repository.BookingRepository;
 
 import com.example.flight_booking.repository.FlightRepository;
 
+import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +17,7 @@ import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -93,6 +96,7 @@ public class FlightService {
     return flightMapper.toFilterResponseDto(flight);
   }
 
+  @Transactional
   public Flight updateFlight(Long id, FlightUpdateRequestDto update) {
     validateFlightDetails(
         update.getDepartureAirportId(),
@@ -105,7 +109,28 @@ public class FlightService {
     Aircraft aircraft = getAircraftEntityById(update.getAircraftId());
     Airline airline = getAirlineEntityById(update.getAirlineId());
     flightMapper.updateEntity(flight, update, departureAirport, arrivalAirport, aircraft, airline);
-    return flightRepository.save(flight);
+    Flight savedFlight = flightRepository.save(flight);
+
+    if (savedFlight.getStatus() == FlightStatus.CANCELLED) {
+      cancelActiveBookingsOfFlight(savedFlight);
+    }
+
+    return savedFlight;
+  }
+
+  // uçuş iptal edilirse aktif rezervasyonlar cezasız iptal edilir
+  private void cancelActiveBookingsOfFlight(Flight flight) {
+    List<Booking> activeBookings = bookingRepository.findByFlight_FlightIdAndStatusIn(
+        flight.getFlightId(),
+        NON_DELETABLE_BOOKING_STATUSES);
+
+    for (Booking booking : activeBookings) {
+      booking.setStatus(BookingStatus.CANCELLED);
+      booking.setCancellationPenaltyApplied(false);
+      booking.setCancellationPenaltyAmount(BigDecimal.ZERO);
+    }
+
+    bookingRepository.saveAll(activeBookings);
   }
 
   private void validateFlightDetails(

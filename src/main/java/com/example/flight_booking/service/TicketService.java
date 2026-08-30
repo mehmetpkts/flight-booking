@@ -47,6 +47,11 @@ public class TicketService {
           "Ticket cannot be issued for cancelled booking id " + booking.getBookingId());
     }
 
+    if (ticketRepository.existsByBooking_BookingId(booking.getBookingId())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Ticket already issued for booking id " + booking.getBookingId());
+    }
+
     if (!paymentService.hasCompletedPaymentForBooking(booking.getBookingId())) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
           "Ticket cannot be issued before completed payment for booking id "

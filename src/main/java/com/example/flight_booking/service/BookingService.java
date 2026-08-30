@@ -204,11 +204,16 @@ public class BookingService {
         "Booking status update supports only CANCELLED or CHECKED_IN");
   }
 
-  // eğer hedef statümüz checkedin ise ve şimdiki durumumuz canclled se hata ortaya atar.
+  // status geçiş kuralları: CANCELLED son durumdur, CHECKED_IN iptal edilemez
   private void validateStatusTransition(BookingStatus currentStatus, BookingStatus targetStatus) {
-    if (currentStatus == BookingStatus.CANCELLED && targetStatus == BookingStatus.CHECKED_IN) {
+    if (currentStatus == BookingStatus.CANCELLED) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
-          "Cancelled bookings cannot be checked in");
+          "Cancelled bookings cannot change status");
+    }
+
+    if (currentStatus == BookingStatus.CHECKED_IN && targetStatus == BookingStatus.CANCELLED) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Checked-in bookings cannot be cancelled");
     }
   }
 
