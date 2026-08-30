@@ -69,9 +69,7 @@ public class TicketService {
 
   public Ticket updateTicket(Long id, TicketUpdateRequestDto update) {
     Ticket ticket = getTicketEntityById(id);
-    Booking booking = getBookingEntityById(update.getBookingId());
-    validateBookingEligibilityForTicket(booking);
-    ticketMapper.updateEntity(ticket, update, booking);
+    ticketMapper.updateEntity(ticket, update);
     return ticketRepository.save(ticket);
   }
 

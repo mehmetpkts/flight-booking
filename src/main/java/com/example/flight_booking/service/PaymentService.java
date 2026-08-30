@@ -52,8 +52,7 @@ public class PaymentService {
 
   public Payment updatePayment(Long id, PaymentUpdateRequestDto update) {
     Payment payment = getPaymentEntityById(id);
-    Booking booking = getBookingEntityById(update.getBookingId());
-    paymentMapper.updateEntity(payment, update, booking);
+    paymentMapper.updateEntity(payment, update);
     return paymentRepository.save(payment);
   }
 

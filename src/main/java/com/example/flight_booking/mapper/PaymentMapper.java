@@ -31,8 +31,7 @@ public class PaymentMapper {
     return payment;
   }
 
-  public void updateEntity(Payment payment, PaymentUpdateRequestDto updateRequest, Booking booking) {
-    payment.setBooking(booking);
+  public void updateEntity(Payment payment, PaymentUpdateRequestDto updateRequest) {
     payment.setAmount(updateRequest.getAmount());
     payment.setPaymentMethod(updateRequest.getPaymentMethod());
     payment.setStatus(updateRequest.getStatus());

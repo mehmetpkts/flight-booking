@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 
 @Data
 public class TicketUpdateRequestDto {
+  @NotNull(message = "Booking ID must not be null")
+  private Long bookingId;
   @NotNull(message = "Price must not be null")
   @PositiveOrZero(message = "Price must be zero or positive")
   private BigDecimal price;

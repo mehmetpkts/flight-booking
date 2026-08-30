@@ -29,8 +29,7 @@ public class TicketMapper {
     return ticket;
   }
 
-  public void updateEntity(Ticket ticket, TicketUpdateRequestDto updateRequest, Booking booking) {
-    ticket.setBooking(booking);
+  public void updateEntity(Ticket ticket, TicketUpdateRequestDto updateRequest) {
     ticket.setPrice(updateRequest.getPrice());
   }
 }
