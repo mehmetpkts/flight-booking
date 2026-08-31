@@ -44,18 +44,24 @@ public class AircraftController {
 
   @PostMapping
   public ResponseEntity<Aircraft> createAircraft(@Valid @RequestBody AircraftCreateRequestDto create) {
+    logger.info("Uçak oluşturma isteği alındı.");
     Aircraft createAircraft = aircraftService.createAircraft(create);
+    logger.info("Uçak oluşturuldu.");
     return ResponseEntity.status(HttpStatus.CREATED).body(createAircraft);
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<Aircraft> updateAircraft(@PathVariable Long id, @Valid @RequestBody AircraftUpdateRequestDto update) {
+    logger.info("Uçak güncelleme isteği alındı.");
     Aircraft updatedAircraft = aircraftService.updateAircraft(id, update);
+    logger.info("Uçak güncellendi.");
     return ResponseEntity.ok(updatedAircraft);
   }
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAircraft (@PathVariable Long id){
+    logger.info("Uçak silme işlemi alındı.");
     aircraftService.deleteAircraft(id);
+    logger.info("Uçal silindi.");
     return ResponseEntity.noContent().build();
   }
 }
