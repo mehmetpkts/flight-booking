@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/airlines")
@@ -24,26 +26,44 @@ public class AirlineController {
   public AirlineController(AirlineService airlineService) {
     this.airlineService = airlineService;
   }
+  private static final Logger logger = LoggerFactory.getLogger(AirlineController.class);
 
   @GetMapping
   public ResponseEntity<List<AirlineFilterResponseDto>> getAllAirlines() {
-    return ResponseEntity.ok(airlineService.getAllAirlines());
+
+    logger.info("Liste olarak havayolu getirme isteği alındı.");
+
+    List<AirlineFilterResponseDto> airlines = airlineService.getAllAirlines();
+
+    logger.info("Liste başarı ile getirildi!");
+
+    return ResponseEntity.ok(airlines);
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<AirlineFilterResponseDto> getAirlineById(@PathVariable Long id) {
-    return ResponseEntity.ok(airlineService.getAirlineById(id));
+
+    logger.info("id'ye göre havayolu çekilme isteği alındı.");
+    AirlineFilterResponseDto airline = airlineService.getAirlineById(id);
+    logger.info("Havayolu başarı ile çekildi!");
+
+    return ResponseEntity.ok(airline);
   }
 
   @PostMapping
   public ResponseEntity<Airline> createAirline(@Valid @RequestBody AirlineCreateRequestDto create) {
+
+    logger.info("Havayolu oluşturma isteği alındı.");
     Airline savedAirline = airlineService.createAirline(create);
+    logger.info("Havayolu oluştruldu!");
     return ResponseEntity.status(HttpStatus.CREATED).body(savedAirline);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAirline(@PathVariable Long id) {
+    logger.info("Havayolu silme isteği alındı.");
     airlineService.deleteAirline(id);
+    logger.info("Havayolu silindi.");
     return ResponseEntity.noContent().build();
   }
 }
