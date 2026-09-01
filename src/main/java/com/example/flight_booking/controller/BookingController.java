@@ -33,9 +33,9 @@ public class BookingController {
   @GetMapping("/{id}")
   public ResponseEntity<BookingFilterResponseDto> getBookingById(@PathVariable Long id) {
 
-    logger.info("Id ile rezervasyon getirilme isteği oluşturuldu:");
+    logger.info("Id ile rezervasyon getirilme isteği oluşturuldu. bookingId = {}", id);
     BookingFilterResponseDto booking = bookingService.getBookingById(id);
-    logger.info("Rezervasyon getirildi.");
+    logger.info("Rezervasyon getirildi. bookingId = {}", id);
 
     return ResponseEntity.ok(booking);
   }
@@ -43,9 +43,9 @@ public class BookingController {
   @PostMapping
   public ResponseEntity<Booking> createBooking(@Valid @RequestBody BookingCreateRequestDto create) {
 
-    logger.info("Rezervasyon güncelleme isteği alındı.");
+    logger.info("Rezervasyon oluşturma isteği alındı.");
     Booking savedBooking = bookingService.createBooking(create);
-    logger.info("Rezervasyon güncellendi!");
+    logger.info("Rezervasyon oluşturuldu!");
 
     return ResponseEntity.status(HttpStatus.CREATED).body(savedBooking);
   }
@@ -54,9 +54,9 @@ public class BookingController {
   public ResponseEntity<Booking> updateBookingStatus(@PathVariable Long id,
       @Valid @RequestBody BookingUpdateRequestDto update) {
 
-    logger.info("Rezevasyon oluşturma isteği alındı");
+    logger.info("Rezevasyon statüsünü güncelleme isteği alındı. BookingId: {}", id);
     Booking updatedBooking = bookingService.updateBookingStatus(id, update);
-    logger.info("Rezervasyon oluşturuldu!");
+    logger.info("Rezervasyon statüsü güncellendi! BookingId: {}", id);
     return ResponseEntity.ok(updatedBooking);
   }
 
@@ -64,9 +64,9 @@ public class BookingController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
 
-    logger.info("Rezervasyon silme isteği oluşturuldu.");
+    logger.info("Rezervasyon silme isteği oluşturuldu. BookingId: {}",id);
     bookingService.deleteBooking(id);
-    logger.info("Rezervasyon silindi.");
+    logger.info("Rezervasyon silindi. BookingId: {}", id);
 
     return ResponseEntity.noContent().build();
   }

@@ -43,9 +43,9 @@ public class AirlineController {
   @GetMapping("/{id}")
   public ResponseEntity<AirlineFilterResponseDto> getAirlineById(@PathVariable Long id) {
 
-    logger.info("id'ye göre havayolu çekilme isteği alındı.");
+    logger.info("id'ye göre havayolu çekilme isteği alındı. airlineId = {}",id);
     AirlineFilterResponseDto airline = airlineService.getAirlineById(id);
-    logger.info("Havayolu başarı ile çekildi!");
+    logger.info("Havayolu başarı ile çekildi! airlineId = {}", id);
 
     return ResponseEntity.ok(airline);
   }
@@ -61,9 +61,9 @@ public class AirlineController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAirline(@PathVariable Long id) {
-    logger.info("Havayolu silme isteği alındı.");
+    logger.info("Havayolu silme isteği alındı. airlineId = {}", id);
     airlineService.deleteAirline(id);
-    logger.info("Havayolu silindi.");
+    logger.info("Havayolu silindi.airlineId = {}", id);
     return ResponseEntity.noContent().build();
   }
 }

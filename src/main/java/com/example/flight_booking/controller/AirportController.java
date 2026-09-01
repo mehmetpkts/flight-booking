@@ -35,9 +35,9 @@ public class AirportController {
   @GetMapping("/{id}")
   public ResponseEntity<AirportFilterResponseDto> getAirportById(@PathVariable Long id) {
 
-    logger.info("Id'ye göre havalimanı getirme isteği oluşturuldu!");
+    logger.info("Id'ye göre havalimanı getirme isteği oluşturuldu! airportId={}", id);
     AirportFilterResponseDto airport = airportService.getAirportById(id);
-    logger.info("Havalimanı getirildi!");
+    logger.info("Havalimanı getirildi! airportId = {}", id);
     return ResponseEntity.ok(airport);
   }
 
@@ -54,9 +54,9 @@ public class AirportController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAirport(@PathVariable Long id) {
-    logger.info("Havalimanı silme isteği alındı.");
+    logger.info("Havalimanı silme isteği alındı. airportId={}", id);
     airportService.deleteAirport(id);
-    logger.info("Havalimanı silindi!");
+    logger.info("Havalimanı silindi! airportId={}", id);
     return ResponseEntity.noContent().build();
   }
 

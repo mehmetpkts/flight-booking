@@ -33,9 +33,9 @@ public class PassengerController {
   @GetMapping("/{id}")
   public ResponseEntity<PassengerFilterResponseDto> getPassengerById(@PathVariable Long id) {
 
-    logger.info("id'ye göre yolcu isteği alındı.");
+    logger.info("id'ye göre yolcu isteği alındı. PassengerId: {}", id);
     PassengerFilterResponseDto passenger = passengerService.getPassengerById(id);
-    logger.info("id'ye yolcu getirildi.");
+    logger.info("id'ye yolcu getirildi. PassengerId: {}", id);
     return ResponseEntity.ok(passenger);
   }
 
@@ -53,9 +53,9 @@ public class PassengerController {
   @PutMapping("/{id}")
   public ResponseEntity<Passenger> updatePassenger(@PathVariable Long id, @Valid @RequestBody PassengerUpdateRequestDto update) {
 
-    logger.info("Yolcu özellikeleri değiştirme isteği alındı.");
+    logger.info("Yolcu özellikeleri değiştirme isteği alındı. PassengerId: {}", id);
     Passenger updatedPassenger = passengerService.updatePassenger(id, update);
-    logger.info("Yolcu özelliği-leri değiştirildi.");
+    logger.info("Yolcu özelliği-leri değiştirildi. PassengerId: {}", id);
 
     return ResponseEntity.ok(updatedPassenger);
   }
@@ -63,9 +63,9 @@ public class PassengerController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deletePassenger(@PathVariable Long id) {
 
-    logger.info("Yolcu silinme isteği alındı.");
+    logger.info("Yolcu silinme isteği alındı. PassengerId: {}", id);
     passengerService.deletePassenger(id);
-    logger.info("Yolcu silindi!");
+    logger.info("Yolcu silindi! PassengerId: {}", id);
 
     return ResponseEntity.noContent().build();
   }

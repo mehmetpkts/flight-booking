@@ -52,16 +52,16 @@ public class AircraftController {
 
   @PutMapping("/{id}")
   public ResponseEntity<Aircraft> updateAircraft(@PathVariable Long id, @Valid @RequestBody AircraftUpdateRequestDto update) {
-    logger.info("Uçak güncelleme isteği alındı.");
+    logger.info("Uçak güncelleme isteği alındı. aircraftId={}", id);
     Aircraft updatedAircraft = aircraftService.updateAircraft(id, update);
-    logger.info("Uçak güncellendi.");
+    logger.info("Uçak güncellendi.aircraftId={}", id);
     return ResponseEntity.ok(updatedAircraft);
   }
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAircraft (@PathVariable Long id){
-    logger.info("Uçak silme işlemi alındı.");
+    logger.info("Uçak silme işlemi alındı. aircraftId={}", id);
     aircraftService.deleteAircraft(id);
-    logger.info("Uçal silindi.");
+    logger.info("Uçal silindi. aircraftId={}", id);
     return ResponseEntity.noContent().build();
   }
 }

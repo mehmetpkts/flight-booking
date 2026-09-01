@@ -33,9 +33,9 @@ public class TicketController {
   @GetMapping("/{id}")
   public ResponseEntity<TicketFilterResponseDto> getTicketById(@PathVariable Long id) {
 
-    logger.info("id'ye göre bilet getirme isteği alındı.");
+    logger.info("id'ye göre bilet getirme isteği alındı. TicketId: {}", id);
     TicketFilterResponseDto ticket = ticketService.getTicketById(id);
-    logger.info("Bilet verisi alındı");
+    logger.info("Bilet verisi alındı. TicketId: {}", id);
 
     return ResponseEntity.ok(ticket);
   }
@@ -54,18 +54,18 @@ public class TicketController {
   public ResponseEntity<Ticket> updateTicket(@PathVariable Long id,
       @Valid @RequestBody TicketUpdateRequestDto update) {
 
-    logger.info("Bilet özellikleri güncelleme isteği alındı.");
+    logger.info("Bilet özellikleri güncelleme isteği alındı. TicketId: {}", id);
     Ticket updatedTicket = ticketService.updateTicket(id, update);
-    logger.info("Bilet özellikleri güncellendi!");
+    logger.info("Bilet özellikleri güncellendi! TicketId: {}", id);
 
     return ResponseEntity.ok(updatedTicket);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
-    logger.info("Bilet silem isteği alındı.");
+    logger.info("Bilet silme isteği alındı. TicketId: {}", id);
     ticketService.deleteTicket(id);
-    logger.info("Bilet silindi!");
+    logger.info("Bilet silindi! TicketId: {}", id);
     return ResponseEntity.noContent().build();
   }
 }

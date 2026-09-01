@@ -36,9 +36,9 @@ public class FlightController {
   @GetMapping("/{id}")
   public ResponseEntity<FlightFilterResponseDto> getFlightById(@PathVariable Long id) {
 
-    logger.info("id uçuş isteği oluşturuldu.");
+    logger.info("id uçuş isteği oluşturuldu. FlightId: {}", id);
     FlightFilterResponseDto flight = flightService.getFlightById(id);
-    logger.info("id ile uçuş verisi getirildi!");
+    logger.info("id ile uçuş verisi getirildi! FlightId: {}", id);
 
     return ResponseEntity.ok(flight);
   }
@@ -56,9 +56,9 @@ public class FlightController {
   @PutMapping("/{id}")
   public ResponseEntity<Flight> updateFlight(@PathVariable Long id, @Valid @RequestBody FlightUpdateRequestDto update) {
 
-    logger.info("Uçuş özellikleri güncelleme isteği oluşturuldu.");
+    logger.info("Uçuş özellikleri güncelleme isteği oluşturuldu. FlightId: {}", id);
     Flight updatedFlight = flightService.updateFlight(id, update);
-    logger.info("Uçuş özellikleri güncellendi.");
+    logger.info("Uçuş özellikleri güncellendi. FlightId: {}", id);
 
     return ResponseEntity.ok(updatedFlight);
   }
@@ -66,9 +66,9 @@ public class FlightController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
 
-    logger.info("Uçuş silme isteği oluşturuldu.");
+    logger.info("Uçuş silme isteği oluşturuldu. FlightId: {}", id);
     flightService.deleteFlight(id);
-    logger.info("Uçuş silindi.");
+    logger.info("Uçuş silindi. FlightId: {}", id);
     return ResponseEntity.noContent().build();
   }
 
@@ -77,16 +77,16 @@ public class FlightController {
 
     logger.info("IATA koduyla uçuş sorgusu alındı: {} ", requestDto);
     List<Flight> flights = flightService.getByIataCode(requestDto);
-    logger.info("IATA sorgusu tamamlandı");
+    logger.info("IATA sorgusu tamamlandı, iataCode: {}", requestDto);
     return flights;
   }
 
   @PostMapping("/filter")
   public List<Flight> filterFlights(@RequestBody FlightFilterRequestDto filterRequestDto) {
 
-    logger.info("Uçuştaki filtreleme metodu istek alındı.");
+    logger.info("Uçuştaki filtreleme metodu istek alındı. FilterRequestDto: {}", filterRequestDto);
     List<Flight> flights = flightService.getByArrivalAndDepartureCitiesAndStatus(filterRequestDto);
-    logger.info("Filtreleme sonuçları alındı!");
+    logger.info("Filtreleme sonuçları alındı! FilterRequestDto: {}", filterRequestDto);
 
     return flights;
   }

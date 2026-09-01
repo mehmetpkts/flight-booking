@@ -33,9 +33,9 @@ public class CrewMemberController {
   @GetMapping("/{id}")
   public ResponseEntity<CrewMemberFilterResponseDto> getCrewMemberById(@PathVariable Long id) {
 
-    logger.info("id'ye göre ekip üyesi getirme isteği alındı.");
+    logger.info("id'ye göre ekip üyesi getirme isteği alındı. CrewMemberId: {}", id);
     CrewMemberFilterResponseDto crewMember = crewMemberService.getCrewMemberById(id);
-    logger.info("id'ye göre ekip üyesi getirildi!");
+    logger.info("id'ye göre ekip üyesi getirildi! CrewMemberId: {}", id);
 
     return ResponseEntity.ok(crewMember);
   }
@@ -53,9 +53,9 @@ public class CrewMemberController {
   @PutMapping("/{id}")
   public ResponseEntity<CrewMember> updateCrewMember(@PathVariable Long id, @Valid @RequestBody CrewMemberUpdateRequestDto update) {
 
-    logger.info("Ekip üyesi özellikleri değiştirme isteği alındı.");
+    logger.info("Ekip üyesi özellikleri değiştirme isteği alındı. CrewMemberId: {}", id);
     CrewMember updatedCrewMember = crewMemberService.updateCrewMember(id, update);
-    logger.info("Ekip üyesi özelliğiğ-likleri değiştirildi.");
+    logger.info("Ekip üyesi özelliğiğ-likleri değiştirildi. CrewMemberId: {}", id);
 
     return ResponseEntity.ok(updatedCrewMember);
   }
@@ -63,9 +63,9 @@ public class CrewMemberController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteCrewMember(@PathVariable Long id) {
 
-    logger.info("Ekip üyesi silme isteği alındı.");
+    logger.info("Ekip üyesi silme isteği alındı. CrewMemberId: {}", id);
     crewMemberService.deleteCrewMember(id);
-    logger.info("Ekip üyesi silindi.");
+    logger.info("Ekip üyesi silindi. CrewMemberId: {}", id);
 
     return ResponseEntity.noContent().build();
   }

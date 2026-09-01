@@ -34,9 +34,9 @@ public class CrewAssignmentController {
   @GetMapping("/{id}")
   public ResponseEntity<CrewAssignmentFilterResponseDto> getCrewAssignmentById(@PathVariable Long id) {
 
-    logger.info("Ekip atam tablosundan id'ye göre veri çekme isteği oluşturuldu.");
+    logger.info("Ekip atam tablosundan id'ye göre veri çekme isteği oluşturuldu. CrewAssignmentId: {}", id);
     CrewAssignmentFilterResponseDto crewAssignmnet = crewAssignmentService.getCrewAssignmentById(id);
-    logger.info("Ekip atam tablosundan id'ye göre veri çekme isteği çekildi.");
+    logger.info("Ekip atam tablosundan id'ye göre veri çekme isteği çekildi. CrewAssignmentId: {}" , id);
 
     return ResponseEntity.ok(crewAssignmnet);
   }
@@ -56,17 +56,17 @@ public class CrewAssignmentController {
   public ResponseEntity<CrewAssignment> updateCrewAssignment(@PathVariable Long id,
       @Valid @RequestBody CrewAssignmentUpdateRequestDto update) {
 
-    logger.info("id'ye göre görev atama kısmında güncelleme isteği alındı.");
+    logger.info("id'ye göre görev atama kısmında güncelleme isteği alındı. CrewAssignmentId: {}", id);
     CrewAssignment crewAssignment = crewAssignmentService.updateCrewAssignment(id, update);
-    logger.info("id'ye göre görev atama kısmında güncelleme gerçekleşti!");
+    logger.info("id'ye göre görev atama kısmında güncelleme gerçekleşti!CrewAssignmentId: {}", id);
     return ResponseEntity.ok(crewAssignment);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteCrewAssignment(@PathVariable Long id) {
-    logger.info("id'ye görev atama silinme isteği alındı.");
+    logger.info("id'ye görev atama silinme isteği alındı. CrewAssignmentId: {}", id);
     crewAssignmentService.deleteCrewAssignment(id);
-    logger.info("id'ye göre görev atama silindi!");
+    logger.info("id'ye göre görev atama silindi! CrewAssignmentId: {}", id);
     return ResponseEntity.noContent().build();
   }
 

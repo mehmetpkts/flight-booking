@@ -33,9 +33,9 @@ public class PaymentController {
   @GetMapping("/{id}")
   public ResponseEntity<PaymentFilterResponseDto> getPaymentById(@PathVariable Long id) {
 
-    logger.info("id'ye göre ödeme getirme isteği alındı.");
+    logger.info("id'ye göre ödeme getirme isteği alındı. Paymentid: {}", id);
     PaymentFilterResponseDto payment = paymentService.getPaymentById(id);
-    logger.info("id'ye göre ödeme isteği getirildi.");
+    logger.info("id'ye göre ödeme isteği getirildi. Paymentid: {}", id);
 
     return ResponseEntity.ok(payment);
   }
@@ -54,9 +54,9 @@ public class PaymentController {
   public ResponseEntity<Payment> updatePayment(@PathVariable Long id,
       @Valid @RequestBody PaymentUpdateRequestDto update) {
 
-    logger.info("id'ye göre ödeme tablosu güncelleme isteği alındı.");
+    logger.info("id'ye göre ödeme tablosu güncelleme isteği alındı. Paymentid: {}", id);
     Payment updatedPayment = paymentService.updatePayment(id, update);
-    logger.info("Ödeme veirisinde güncelleme tamamlandı.");
+    logger.info("Ödeme veirisinde güncelleme tamamlandı. Paymentid: {}", id);
 
     return ResponseEntity.ok(updatedPayment);
   }
@@ -64,9 +64,9 @@ public class PaymentController {
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
 
-    logger.info("Veri silme isteği alındı.");
+    logger.info("Veri silme isteği alındı. Paymentid: {}", id);
     paymentService.deletePayment(id);
-    logger.info("Veri silindi!");
+    logger.info("Veri silindi! Paymentid: {}", id);
 
     return ResponseEntity.noContent().build();
   }
