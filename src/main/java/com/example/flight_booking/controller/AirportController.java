@@ -1,8 +1,11 @@
 package com.example.flight_booking.controller;
 
+
 import com.example.flight_booking.dto.Airport.AirportCreateRequestDto;
 import com.example.flight_booking.dto.Airport.AirportFilterResponseDto;
 import com.example.flight_booking.service.AirportService;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
@@ -27,24 +30,33 @@ public class AirportController {
   public AirportController(AirportService airportService) {
     this.airportService = airportService;
   }
-
+  private static final Logger logger = LoggerFactory.getLogger(AirlineController.class);
 
   @GetMapping("/{id}")
   public ResponseEntity<AirportFilterResponseDto> getAirportById(@PathVariable Long id) {
-    return ResponseEntity.ok(airportService.getAirportById(id));
+
+    logger.info("Id'ye göre havalimanı getirme isteği oluşturuldu!");
+    AirportFilterResponseDto airport = airportService.getAirportById(id);
+    logger.info("Havalimanı getirildi!");
+    return ResponseEntity.ok(airport);
   }
 
 
   @PostMapping
   public ResponseEntity<Airport> createAirport(@Valid @RequestBody AirportCreateRequestDto create) {
+
+    logger.info("havalimanı oluşturma isteği alındı.");
     Airport savedAirline = airportService.createAirport(create);
+    logger.info("Havalimanı oluşturuldu!");
     return ResponseEntity.status(HttpStatus.CREATED).body(savedAirline);
   }
 
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAirport(@PathVariable Long id) {
+    logger.info("Havalimanı silme isteği alındı.");
     airportService.deleteAirport(id);
+    logger.info("Havalimanı silindi!");
     return ResponseEntity.noContent().build();
   }
 
