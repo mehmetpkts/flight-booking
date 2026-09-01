@@ -17,14 +17,16 @@ public class AviationstackController {
     this.aviationstackService = aviationstackService;
   }
 
-  @GetMapping("/flights")
-  public ResponseEntity<AviationstackFlightsResponse> getFlights(
-      @RequestParam(required = false) String flightIata,
-      @RequestParam(required = false) String depIata,
-      @RequestParam(required = false) String arrIata) {
-    if (flightIata != null && !flightIata.isBlank()) {
-      return ResponseEntity.ok(aviationstackService.getFlights(flightIata));
-    }
+  @GetMapping("/flights/by-number")
+  public ResponseEntity<AviationstackFlightsResponse> getByFlightIata(
+          @RequestParam String flightIata) {
+    return ResponseEntity.ok(aviationstackService.getFlights(flightIata));
+  }
+
+  @GetMapping("/flights/search")
+  public ResponseEntity<AviationstackFlightsResponse> search(
+          @RequestParam(required = false) String depIata,
+          @RequestParam(required = false) String arrIata) {
     return ResponseEntity.ok(aviationstackService.searchFlights(depIata, arrIata));
   }
 }
