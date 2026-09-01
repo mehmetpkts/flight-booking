@@ -30,7 +30,7 @@ public class AirportController {
   public AirportController(AirportService airportService) {
     this.airportService = airportService;
   }
-  private static final Logger logger = LoggerFactory.getLogger(AirlineController.class);
+  private static final Logger logger = LoggerFactory.getLogger(AirportController.class);
 
   @GetMapping("/{id}")
   public ResponseEntity<AirportFilterResponseDto> getAirportById(@PathVariable Long id) {
