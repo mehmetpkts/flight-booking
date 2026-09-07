@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class BookingService {
 
+  private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
   private static final BigDecimal CANCELLATION_PENALTY_FEE = new BigDecimal("250.00");
   private static final int MAX_PNR_GENERATION_ATTEMPTS = 20;
   private static final Set<BookingStatus> UPDATABLE_BOOKING_STATUSES = EnumSet.of(
@@ -47,9 +50,13 @@ public class BookingService {
   }
 
   public Booking getBookingEntityById(Long id) {
+    logger.debug("Booking aranıyor. bookingId={}", id);
     return bookingRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Booking not found with id " + id));
+        .orElseThrow(() -> {
+          logger.warn("Booking bulunamadı. bookingId={}", id);
+          return new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "Booking not found with id " + id);
+        });
   }
 
   private Passenger getPassengerEntityById(Long id) {
@@ -85,6 +92,9 @@ public class BookingService {
   // create için oluşturduğumuz fonksiyonların kullanılması
   @Transactional
   public Booking createBooking(BookingCreateRequestDto create) {
+    logger.info("Booking oluşturuluyor. passengerId={}, flightId={}, status={}",
+        create.getPassengerId(), create.getFlightId(), create.getStatus());
+
     Passenger passenger = getPassengerEntityById(create.getPassengerId());
     Flight flight = getFlightEntityByIdForUpdate(create.getFlightId());
 
@@ -103,13 +113,18 @@ public class BookingService {
     applyCancellationPenalty(booking, effectiveStatus, flight);
 
 
-    return bookingRepository.save(booking);
+    Booking savedBooking = bookingRepository.save(booking);
+    logger.info("Booking oluşturuldu. bookingId={}, passengerId={}, flightId={}, status={}",
+        savedBooking.getBookingId(), passenger.getPassengerId(), flight.getFlightId(),
+        savedBooking.getStatus());
+    return savedBooking;
   }
 
   // update için oluşturduğumuz kuralların kullanılması
   @Transactional
   public Booking updateBookingStatus(Long id, BookingUpdateRequestDto update) {
     BookingStatus targetStatus = update.getStatus();
+    logger.info("Booking durumu güncelleniyor. bookingId={}, targetStatus={}", id, targetStatus);
     validateUpdatableStatus(targetStatus);
 
     Booking booking = getBookingEntityById(id);
@@ -117,6 +132,7 @@ public class BookingService {
     BookingStatus currentStatus = booking.getStatus();
 
     if (currentStatus == targetStatus) {
+      logger.info("Booking durumu zaten güncel. bookingId={}, status={}", id, currentStatus);
       return booking;
     }
 
@@ -130,11 +146,18 @@ public class BookingService {
 
     booking.setStatus(targetStatus);
     applyCancellationPenalty(booking, targetStatus, flight);
-    return bookingRepository.save(booking);
+    Booking savedBooking = bookingRepository.save(booking);
+    logger.info("Booking durumu güncellendi. bookingId={}, status={}",
+        savedBooking.getBookingId(), savedBooking.getStatus());
+    return savedBooking;
   }
   public void deleteBooking(Long id) {
+    logger.info("Booking siliniyor. bookingId={}", id);
+
     Booking booking = getBookingEntityById(id);
     bookingRepository.delete(booking);
+
+    logger.info("Booking silindi. bookingId={}", id);
   }
   // target statüye ait olan uçuşları topla ve kapasiteye bak
   private void validateFlightCapacity(Flight flight, BookingStatus targetStatus) {
