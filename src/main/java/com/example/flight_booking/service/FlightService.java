@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class FlightService {
 
+  private static final Logger logger = LoggerFactory.getLogger(FlightService.class);
   private static final Set<BookingStatus> NON_DELETABLE_BOOKING_STATUSES = EnumSet.of(
       BookingStatus.CONFIRMED,
       BookingStatus.CHECKED_IN);
@@ -49,15 +52,23 @@ public class FlightService {
   }
 
   public Flight getFlightEntityById(Long id) {
+    logger.debug("Uçuş aranıyor. flightId={}", id);
     return flightRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Flight not found with id " + id));
+        .orElseThrow(() -> {
+          logger.warn("Uçuş bulunamadı. flightId={}", id);
+          return new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "Flight not found with id " + id);
+        });
   }
 
   public Flight getFlightEntityByIdForUpdate(Long id) {
+    logger.debug("Uçuş güncelleme için aranıyor. flightId={}", id);
     return flightRepository.findByFlightId(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Flight not found with id " + id));
+        .orElseThrow(() -> {
+          logger.warn("Uçuş bulunamadı. flightId={}", id);
+          return new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "Flight not found with id " + id);
+        });
   }
 
   private Airport getAirportEntityById(Long id) {
@@ -74,6 +85,9 @@ public class FlightService {
 
 
   public Flight createFlight(FlightCreateRequestDto create) {
+    logger.info("Uçuş oluşturuluyor. flightNumber={}, airlineId={}, aircraftId={}, status={}",
+        create.getFlightNumber(), create.getAirlineId(), create.getAircraftId(), create.getStatus());
+
     validateFlightDetails(
         create.getDepartureAirportId(),
         create.getArrivalAirportId(),
@@ -84,7 +98,11 @@ public class FlightService {
     Aircraft aircraft = getAircraftEntityById(create.getAircraftId());
     Airline airline = getAirlineEntityById(create.getAirlineId());
     Flight flight = flightMapper.toEntity(create, departureAirport, arrivalAirport, aircraft, airline);
-    return flightRepository.save(flight);
+    Flight savedFlight = flightRepository.save(flight);
+
+    logger.info("Uçuş oluşturuldu. flightId={}, flightNumber={}",
+        savedFlight.getFlightId(), savedFlight.getFlightNumber());
+    return savedFlight;
   }
 
 //  public List<Flight> getAllFlights() {
@@ -98,6 +116,9 @@ public class FlightService {
 
   @Transactional
   public Flight updateFlight(Long id, FlightUpdateRequestDto update) {
+    logger.info("Uçuş güncelleniyor. flightId={}, flightNumber={}, status={}",
+        id, update.getFlightNumber(), update.getStatus());
+
     validateFlightDetails(
         update.getDepartureAirportId(),
         update.getArrivalAirportId(),
@@ -115,6 +136,8 @@ public class FlightService {
       cancelActiveBookingsOfFlight(savedFlight);
     }
 
+    logger.info("Uçuş güncellendi. flightId={}, status={}",
+        savedFlight.getFlightId(), savedFlight.getStatus());
     return savedFlight;
   }
 
@@ -123,6 +146,9 @@ public class FlightService {
     List<Booking> activeBookings = bookingRepository.findByFlight_FlightIdAndStatusIn(
         flight.getFlightId(),
         NON_DELETABLE_BOOKING_STATUSES);
+
+    logger.info("İptal edilen uçuşun aktif rezervasyonları iptal ediliyor. flightId={}, bookingCount={}",
+        flight.getFlightId(), activeBookings.size());
 
     for (Booking booking : activeBookings) {
       booking.setStatus(BookingStatus.CANCELLED);
@@ -150,29 +176,43 @@ public class FlightService {
   }
 
   public void deleteFlight(Long id) {
+    logger.info("Uçuş siliniyor. flightId={}", id);
+
     Flight flight = getFlightEntityById(id);
     long blockingBookingCount = bookingRepository.countByFlight_FlightIdAndStatusIn(
         flight.getFlightId(),
         NON_DELETABLE_BOOKING_STATUSES);
 
     if (blockingBookingCount > 0) {
+      logger.warn("Uçuş silinemedi; aktif rezervasyonlar var. flightId={}, bookingCount={}",
+          id, blockingBookingCount);
       throw new ResponseStatusException(HttpStatus.CONFLICT,
           "Cannot delete flight with confirmed or checked-in bookings. flight id " + id);
     }
 
     flightRepository.delete(flight);
+    logger.info("Uçuş silindi. flightId={}", id);
   }
 
   public List<Flight> getByIataCode(FlightIataCodeRequestDto flightIataCodeRequestDto){
-    return flightRepository.findByDepartureAirportIataCode(
+    logger.debug("Kalkış IATA koduna göre uçuşlar filtreleniyor. iataCode={}",
         flightIataCodeRequestDto.getIataCode());
+    List<Flight> flights = flightRepository.findByDepartureAirportIataCode(
+        flightIataCodeRequestDto.getIataCode());
+    logger.debug("Kalkış IATA koduna göre uçuşlar listelendi. resultCount={}", flights.size());
+    return flights;
   }
 
   public List<Flight> getByArrivalAndDepartureCitiesAndStatus(FlightFilterRequestDto filterRequestDto) {
-    return flightRepository.findByDepartureAirport_cityAndArrivalAirport_cityAndStatus(
+    logger.debug("Uçuşlar filtreleniyor. departureCity={}, arrivalCity={}, status={}",
+        filterRequestDto.getDepartureCity(), filterRequestDto.getArrivalCity(),
+        filterRequestDto.getFlightStatus());
+    List<Flight> flights = flightRepository.findByDepartureAirport_cityAndArrivalAirport_cityAndStatus(
         filterRequestDto.getDepartureCity(),
         filterRequestDto.getArrivalCity(),
         filterRequestDto.getFlightStatus());
+    logger.debug("Uçuşlar filtrelendi. resultCount={}", flights.size());
+    return flights;
   }
 
 }
