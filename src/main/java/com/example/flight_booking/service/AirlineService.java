@@ -9,12 +9,15 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class AirlineService {
 
   private final AirlineRepository airlineRepository;
   private final AirlineMapper airlineMapper;
+  private static final Logger logger = LoggerFactory.getLogger(AirlineService.class);
 
   public AirlineService(AirlineRepository airlineRepository, AirlineMapper airlineMapper) {
     this.airlineRepository = airlineRepository;
@@ -23,13 +26,20 @@ public class AirlineService {
 
 
   public Airline getAirlineEntityById(Long id){
-    return airlineRepository
-            .findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus
-                    .NOT_FOUND, "Airline not defined. Id is: " + id));
+    logger.debug("Havayolu aranıyor. AirlineId: {}", id);
+    return airlineRepository.findById(id).orElseThrow(()->{
+      logger.warn("Havayolu Bulunamadı. AirlineId: {}", id);
+      return new ResponseStatusException(
+              HttpStatus.NOT_FOUND, "Airline id is not: " + id
+      );
+    });
   }
 
   public List<AirlineFilterResponseDto> getAllAirlines() {
-    return airlineRepository.findAll().stream()
+    List<Airline> airlines = airlineRepository.findAll();
+    logger.debug("Havayolları listeleniyor. Toplam kayıt sayısı: {}", airlines.size());
+
+    return airlines.stream()
         .map(airlineMapper::toFilterResponseDto)
         .toList();
   }
@@ -40,12 +50,23 @@ public class AirlineService {
   }
 
   public Airline createAirline(AirlineCreateRequestDto create){
+    logger.info("Airline oluşturuluyor. name={}, iataCode={}",
+        create.getName(), create.getIataCode());
+
     Airline airline = airlineMapper.toEntity(create);
-    return airlineRepository.save(airline);
+    Airline savedAirline = airlineRepository.save(airline);
+
+    logger.info("Airline oluşturuldu. airlineId={}, iataCode={}",
+        savedAirline.getAirlineId(), savedAirline.getIataCode());
+    return savedAirline;
   }
 
   public void deleteAirline(Long id){
+    logger.info("Airline siliniyor. airlineId={}", id);
+
     airlineRepository.delete(getAirlineEntityById(id));
+
+    logger.info("Airline silindi. airlineId={}", id);
   }
 
 
