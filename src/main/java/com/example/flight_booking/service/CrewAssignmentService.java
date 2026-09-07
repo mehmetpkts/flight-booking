@@ -9,6 +9,8 @@ import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.mapper.CrewAssignmentMapper;
 import com.example.flight_booking.repository.CrewAssignmentRepository;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CrewAssignmentService {
 
+  private static final Logger logger = LoggerFactory.getLogger(CrewAssignmentService.class);
   private final CrewAssignmentRepository crewAssignmentRepository;
   private final FlightService flightService;
   private final CrewMemberService crewMemberService;
@@ -32,9 +35,13 @@ public class CrewAssignmentService {
   }
 
   public CrewAssignment getCrewAssignmentEntityById(Long id) {
+    logger.debug("Crew ataması aranıyor. assignmentId={}", id);
     return crewAssignmentRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-            "Crew assignment not found with id " + id));
+        .orElseThrow(() -> {
+          logger.warn("Crew ataması bulunamadı. assignmentId={}", id);
+          return new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "Crew assignment not found with id " + id);
+        });
   }
 
   private Flight getFlightEntityById(Long id) {
@@ -51,17 +58,27 @@ public class CrewAssignmentService {
   }
 
   public CrewAssignment createCrewAssignment(CrewAssignmentCreateRequestDto create) {
+    logger.info("Crew ataması oluşturuluyor. flightId={}, crewMemberId={}, duty={}",
+        create.getFlightId(), create.getCrewMemberId(), create.getDuty());
+
     Flight flight = getFlightEntityById(create.getFlightId());
     CrewMember crewMember = getCrewMemberEntityById(create.getCrewMemberId());
     validateCrewAssignmentEligibility(flight, crewMember);
     validateCrewMemberIsNotAssignedToFlight(flight.getFlightId(), crewMember.getCrewMemberId());
 
     CrewAssignment crewAssignment = crewAssignmentMapper.toEntity(create, flight, crewMember);
-    return crewAssignmentRepository.save(crewAssignment);
+    CrewAssignment savedCrewAssignment = crewAssignmentRepository.save(crewAssignment);
+
+    logger.info("Crew ataması oluşturuldu. assignmentId={}, flightId={}, crewMemberId={}",
+        savedCrewAssignment.getAssignmentId(), flight.getFlightId(), crewMember.getCrewMemberId());
+    return savedCrewAssignment;
   }
 
 
   public CrewAssignment updateCrewAssignment(Long id, CrewAssignmentUpdateRequestDto update) {
+    logger.info("Crew ataması güncelleniyor. assignmentId={}, flightId={}, crewMemberId={}",
+        id, update.getFlightId(), update.getCrewMemberId());
+
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
     Flight flight = getFlightEntityById(update.getFlightId());
     CrewMember crewMember = getCrewMemberEntityById(update.getCrewMemberId());
@@ -70,12 +87,19 @@ public class CrewAssignmentService {
         flight.getFlightId(), crewMember.getCrewMemberId(), crewAssignment.getAssignmentId());
 
     crewAssignmentMapper.updateEntity(crewAssignment, update, flight, crewMember);
-    return crewAssignmentRepository.save(crewAssignment);
+    CrewAssignment savedCrewAssignment = crewAssignmentRepository.save(crewAssignment);
+
+    logger.info("Crew ataması güncellendi. assignmentId={}", savedCrewAssignment.getAssignmentId());
+    return savedCrewAssignment;
   }
 
   public void deleteCrewAssignment(Long id) {
+    logger.info("Crew ataması siliniyor. assignmentId={}", id);
+
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
     crewAssignmentRepository.delete(crewAssignment);
+
+    logger.info("Crew ataması silindi. assignmentId={}", id);
   }
 
   private void validateCrewAssignmentEligibility(Flight flight, CrewMember crewMember) {
