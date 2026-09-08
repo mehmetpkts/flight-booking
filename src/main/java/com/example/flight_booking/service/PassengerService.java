@@ -4,13 +4,12 @@ import com.example.flight_booking.dto.Passenger.PassengerCreateRequestDto;
 import com.example.flight_booking.dto.Passenger.PassengerFilterResponseDto;
 import com.example.flight_booking.dto.Passenger.PassengerUpdateRequestDto;
 import com.example.flight_booking.entity.Passenger;
+import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.PassengerMapper;
 import com.example.flight_booking.repository.PassengerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PassengerService {
@@ -29,8 +28,7 @@ public class PassengerService {
     return passengerRepository.findById(id)
         .orElseThrow(() -> {
           logger.warn("Yolcu bulunamadı. passengerId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Passenger not defined. Id is: " + id);
+          return new ResourceNotFoundException("Passenger", id);
         });
   }
 

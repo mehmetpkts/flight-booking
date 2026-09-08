@@ -6,14 +6,15 @@ import com.example.flight_booking.dto.CrewAssignment.CrewAssignmentUpdateRequest
 import com.example.flight_booking.entity.CrewAssignment;
 import com.example.flight_booking.entity.CrewMember;
 import com.example.flight_booking.entity.Flight;
+import com.example.flight_booking.exception.BusinessRuleException;
+import com.example.flight_booking.exception.DuplicateResourceException;
+import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.CrewAssignmentMapper;
 import com.example.flight_booking.repository.CrewAssignmentRepository;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CrewAssignmentService {
@@ -39,8 +40,7 @@ public class CrewAssignmentService {
     return crewAssignmentRepository.findById(id)
         .orElseThrow(() -> {
           logger.warn("Crew ataması bulunamadı. assignmentId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Crew assignment not found with id " + id);
+          return new ResourceNotFoundException("Crew assignment", id);
         });
   }
 
@@ -105,7 +105,7 @@ public class CrewAssignmentService {
   private void validateCrewAssignmentEligibility(Flight flight, CrewMember crewMember) {
     if (!Objects.equals(flight.getAirline().getAirlineId(),
         crewMember.getAirline().getAirlineId())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new BusinessRuleException(
           "Crew member id " + crewMember.getCrewMemberId()
               + " does not belong to the airline operating flight id " + flight.getFlightId());
     }
@@ -127,8 +127,8 @@ public class CrewAssignmentService {
     }
   }
 
-  private ResponseStatusException duplicateCrewAssignmentException(Long crewMemberId, Long flightId) {
-    return new ResponseStatusException(HttpStatus.CONFLICT,
+  private DuplicateResourceException duplicateCrewAssignmentException(Long crewMemberId, Long flightId) {
+    return new DuplicateResourceException(
         "Crew member id " + crewMemberId + " is already assigned to flight id " + flightId);
   }
 

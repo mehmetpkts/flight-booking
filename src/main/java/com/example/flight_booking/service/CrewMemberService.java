@@ -5,13 +5,12 @@ import com.example.flight_booking.dto.CrewMember.CrewMemberFilterResponseDto;
 import com.example.flight_booking.dto.CrewMember.CrewMemberUpdateRequestDto;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.CrewMember;
+import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.CrewMemberMapper;
 import com.example.flight_booking.repository.CrewMemberRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class CrewMemberService {
@@ -34,8 +33,7 @@ public class CrewMemberService {
     return crewMemberRepository.findById(id)
         .orElseThrow(() -> {
           logger.warn("Ekip üyesi bulunamadı. crewMemberId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Crew member not found with id " + id);
+          return new ResourceNotFoundException("Crew member", id);
         });
   }
 

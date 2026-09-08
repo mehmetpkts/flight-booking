@@ -7,13 +7,13 @@ import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Payment;
 import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.enums.PaymentStatus;
+import com.example.flight_booking.exception.BusinessRuleException;
+import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.PaymentMapper;
 import com.example.flight_booking.repository.PaymentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class PaymentService {
@@ -37,8 +37,7 @@ public class PaymentService {
     return paymentRepository.findById(id)
         .orElseThrow(() -> {
           logger.warn("Ödeme bulunamadı. paymentId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Payment not found with id " + id);
+          return new ResourceNotFoundException("Payment", id);
         });
   }
 
@@ -71,7 +70,7 @@ public class PaymentService {
     if (booking.getStatus() == BookingStatus.CANCELLED) {
       logger.warn("İptal edilmiş rezervasyon için ödeme oluşturulamadı. bookingId={}",
           booking.getBookingId());
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
+      throw new BusinessRuleException(
           "Payment cannot be created for cancelled booking id " + booking.getBookingId());
     }
   }

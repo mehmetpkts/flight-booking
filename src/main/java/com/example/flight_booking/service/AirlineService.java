@@ -3,14 +3,13 @@ package com.example.flight_booking.service;
 import com.example.flight_booking.dto.Airline.AirlineCreateRequestDto;
 import com.example.flight_booking.dto.Airline.AirlineFilterResponseDto;
 import com.example.flight_booking.entity.Airline;
+import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.AirlineMapper;
 import com.example.flight_booking.repository.AirlineRepository;
 import java.util.List;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AirlineService {
@@ -27,11 +26,9 @@ public class AirlineService {
 
   public Airline getAirlineEntityById(Long id){
     logger.debug("Havayolu aranıyor. AirlineId: {}", id);
-    return airlineRepository.findById(id).orElseThrow(()->{
+    return airlineRepository.findById(id).orElseThrow(() -> {
       logger.warn("Havayolu Bulunamadı. AirlineId: {}", id);
-      return new ResponseStatusException(
-              HttpStatus.NOT_FOUND, "Airline id is not: " + id
-      );
+      return new ResourceNotFoundException("Airline", id);
     });
   }
 

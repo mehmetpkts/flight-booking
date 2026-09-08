@@ -6,13 +6,14 @@ import com.example.flight_booking.dto.Ticket.TicketUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Ticket;
 import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.exception.BusinessRuleException;
+import com.example.flight_booking.exception.DuplicateResourceException;
+import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.TicketMapper;
 import com.example.flight_booking.repository.TicketRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TicketService {
@@ -39,8 +40,7 @@ public class TicketService {
     return ticketRepository.findById(id)
         .orElseThrow(() -> {
           logger.warn("Bilet bulunamadı. ticketId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Ticket not found with id " + id);
+          return new ResourceNotFoundException("Ticket", id);
         });
   }
 
@@ -52,20 +52,20 @@ public class TicketService {
     if (booking.getStatus() == BookingStatus.CANCELLED) {
       logger.warn("İptal edilmiş rezervasyon için bilet oluşturulamadı. bookingId={}",
           booking.getBookingId());
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
+      throw new BusinessRuleException(
           "Ticket cannot be issued for cancelled booking id " + booking.getBookingId());
     }
 
     if (ticketRepository.existsByBooking_BookingId(booking.getBookingId())) {
       logger.warn("Rezervasyon için zaten bilet var. bookingId={}", booking.getBookingId());
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
+      throw new DuplicateResourceException(
           "Ticket already issued for booking id " + booking.getBookingId());
     }
 
     if (!paymentService.hasCompletedPaymentForBooking(booking.getBookingId())) {
       logger.warn("Tamamlanmış ödemesi olmayan rezervasyon için bilet oluşturulamadı. bookingId={}",
           booking.getBookingId());
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
+      throw new BusinessRuleException(
           "Ticket cannot be issued before completed payment for booking id "
               + booking.getBookingId());
     }

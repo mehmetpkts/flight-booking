@@ -7,6 +7,9 @@ import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.enums.BookingStatus;
+import com.example.flight_booking.exception.BusinessRuleException;
+import com.example.flight_booking.exception.DuplicateResourceException;
+import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.BookingMapper;
 import com.example.flight_booking.repository.BookingRepository;
 import com.example.flight_booking.util.PnrGeneratorUtil;
@@ -16,10 +19,10 @@ import java.util.EnumSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class BookingService {
@@ -54,8 +57,7 @@ public class BookingService {
     return bookingRepository.findById(id)
         .orElseThrow(() -> {
           logger.warn("Booking bulunamadı. bookingId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Booking not found with id " + id);
+          return new ResourceNotFoundException("Booking", id);
         });
   }
 
@@ -112,12 +114,15 @@ public class BookingService {
         generateUniquePnr());
     applyCancellationPenalty(booking, effectiveStatus, flight);
 
-
-    Booking savedBooking = bookingRepository.save(booking);
-    logger.info("Booking oluşturuldu. bookingId={}, passengerId={}, flightId={}, status={}",
-        savedBooking.getBookingId(), passenger.getPassengerId(), flight.getFlightId(),
-        savedBooking.getStatus());
-    return savedBooking;
+    try {
+      Booking savedBooking = bookingRepository.save(booking);
+      logger.info("Booking oluşturuldu. bookingId={}, passengerId={}, flightId={}, status={}",
+          savedBooking.getBookingId(), passenger.getPassengerId(), flight.getFlightId(),
+          savedBooking.getStatus());
+      return savedBooking;
+    } catch (DataIntegrityViolationException ex) {
+      throw new DuplicateResourceException("Booking already exists for this passenger and flight.");
+    }
   }
 
   // update için oluşturduğumuz kuralların kullanılması
@@ -146,10 +151,15 @@ public class BookingService {
 
     booking.setStatus(targetStatus);
     applyCancellationPenalty(booking, targetStatus, flight);
-    Booking savedBooking = bookingRepository.save(booking);
-    logger.info("Booking durumu güncellendi. bookingId={}, status={}",
-        savedBooking.getBookingId(), savedBooking.getStatus());
-    return savedBooking;
+
+    try {
+      Booking savedBooking = bookingRepository.save(booking);
+      logger.info("Booking durumu güncellendi. bookingId={}, status={}",
+          savedBooking.getBookingId(), savedBooking.getStatus());
+      return savedBooking;
+    } catch (DataIntegrityViolationException ex) {
+      throw new DuplicateResourceException("Booking update failed due to a data conflict.");
+    }
   }
   public void deleteBooking(Long id) {
     logger.info("Booking siliniyor. bookingId={}", id);
@@ -170,7 +180,7 @@ public class BookingService {
         SEAT_OCCUPYING_STATUSES);
 
     if (occupiedSeatCount >= flight.getAircraft().getCapacity()) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
+      throw new BusinessRuleException(
           "Flight capacity exceeded for flight id " + flight.getFlightId());
     }
   }
@@ -178,14 +188,9 @@ public class BookingService {
   // aynı uçuşa birden fazla aynı kişi rezervasyon yapamaz
   private void validatePassengerHasNoBookingForFlight(Long passengerId, Long flightId) {
     if (bookingRepository.existsByPassenger_PassengerIdAndFlight_FlightId(passengerId, flightId)) {
-      throw duplicateBookingException(passengerId, flightId);
+      throw new DuplicateResourceException(
+          "Passenger id " + passengerId + " already has a booking for flight id " + flightId);
     }
-  }
-
-  // yukarıdaki hatanın durumu
-  private ResponseStatusException duplicateBookingException(Long passengerId, Long flightId) {
-    return new ResponseStatusException(HttpStatus.CONFLICT,
-        "Passenger id " + passengerId + " already has a booking for flight id " + flightId);
   }
 
   // eşsiz pnr değeri ve 20 farklı değere kadar üretme sınırı
@@ -197,14 +202,14 @@ public class BookingService {
       }
     }
 
-    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+    throw new BusinessRuleException(HttpStatus.INTERNAL_SERVER_ERROR,
         "Could not generate a unique PNR");
   }
 
   // uçuşun saat kontrolü(önce mi?)
   private void validateFlightDepartureTime(Flight flight) {
     if (flight.getDepartureTime().isBefore(LocalDateTime.now())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new BusinessRuleException(
           "Cannot create booking for a flight that has already departed. flight id " + flight.getFlightId());
     }
   }
@@ -212,7 +217,7 @@ public class BookingService {
   // uçuşun saat kontrolü(sonra mı?) - durum değişikliğinde vs...
   private void validateFlightDepartureTimeForStatusUpdate(Flight flight) {
     if (!flight.getDepartureTime().isAfter(LocalDateTime.now())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new BusinessRuleException(
           "Cannot update booking status after departure. flight id " + flight.getFlightId());
     }
   }
@@ -223,20 +228,18 @@ public class BookingService {
       return;
     }
 
-    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+    throw new BusinessRuleException(
         "Booking status update supports only CANCELLED or CHECKED_IN");
   }
 
   // status geçiş kuralları: CANCELLED son durumdur, CHECKED_IN iptal edilemez
   private void validateStatusTransition(BookingStatus currentStatus, BookingStatus targetStatus) {
     if (currentStatus == BookingStatus.CANCELLED) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
-          "Cancelled bookings cannot change status");
+      throw new BusinessRuleException("Cancelled bookings cannot change status");
     }
 
     if (currentStatus == BookingStatus.CHECKED_IN && targetStatus == BookingStatus.CANCELLED) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
-          "Checked-in bookings cannot be cancelled");
+      throw new BusinessRuleException("Checked-in bookings cannot be cancelled");
     }
   }
 
@@ -247,7 +250,7 @@ public class BookingService {
         && !flight.getDepartureTime().isAfter(now.plusHours(24));
 
     if (!isWithinFinal24Hours) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+      throw new BusinessRuleException(
           "Check-in is allowed only within the final 24 hours before departure. flight id "
               + flight.getFlightId());
     }

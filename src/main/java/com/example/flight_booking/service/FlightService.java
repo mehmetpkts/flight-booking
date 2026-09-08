@@ -4,23 +4,22 @@ import com.example.flight_booking.dto.flight.*;
 import com.example.flight_booking.entity.*;
 import com.example.flight_booking.enums.BookingStatus;
 import com.example.flight_booking.enums.FlightStatus;
+import com.example.flight_booking.exception.BusinessRuleException;
+import com.example.flight_booking.exception.ResourceNotFoundException;
+import com.example.flight_booking.exception.ValidationException;
 import com.example.flight_booking.mapper.FlightMapper;
 import com.example.flight_booking.repository.BookingRepository;
-
 import com.example.flight_booking.repository.FlightRepository;
-
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class FlightService {
@@ -56,8 +55,7 @@ public class FlightService {
     return flightRepository.findById(id)
         .orElseThrow(() -> {
           logger.warn("Uçuş bulunamadı. flightId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Flight not found with id " + id);
+          return new ResourceNotFoundException("Flight", id);
         });
   }
 
@@ -66,8 +64,7 @@ public class FlightService {
     return flightRepository.findByFlightId(id)
         .orElseThrow(() -> {
           logger.warn("Uçuş bulunamadı. flightId={}", id);
-          return new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "Flight not found with id " + id);
+          return new ResourceNotFoundException("Flight", id);
         });
   }
 
@@ -165,13 +162,15 @@ public class FlightService {
       java.time.LocalDateTime departureTime,
       java.time.LocalDateTime arrivalTime) {
     if (Objects.equals(departureAirportId, arrivalAirportId)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Departure and arrival airports must be different");
+      throw new BusinessRuleException("Departure and arrival airports must be different");
     }
 
-    if (departureTime == null || arrivalTime == null || !arrivalTime.isAfter(departureTime)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Arrival time must be after departure time");
+    if (departureTime == null || arrivalTime == null) {
+      throw new ValidationException("Departure time and arrival time are required");
+    }
+
+    if (!arrivalTime.isAfter(departureTime)) {
+      throw new ValidationException("Arrival time must be after departure time");
     }
   }
 
@@ -186,7 +185,7 @@ public class FlightService {
     if (blockingBookingCount > 0) {
       logger.warn("Uçuş silinemedi; aktif rezervasyonlar var. flightId={}, bookingCount={}",
           id, blockingBookingCount);
-      throw new ResponseStatusException(HttpStatus.CONFLICT,
+      throw new BusinessRuleException(HttpStatus.CONFLICT,
           "Cannot delete flight with confirmed or checked-in bookings. flight id " + id);
     }
 
