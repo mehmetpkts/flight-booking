@@ -48,7 +48,7 @@ public class AircraftService {
     return aircraftMapper.toFilterResponseDto(aircraft);
   }
 
-  public List<AircraftFilterResponseDto> getAllAircrafts() {
+  public List<AircraftFilterResponseDto> getAllAircraft() {
     List<Aircraft> aircrafts = aircraftRepository.findAll();
     logger.debug("Uçaklar listeleniyor. Toplam kayıt sayısı: {}", aircrafts.size());
     return aircrafts.stream()

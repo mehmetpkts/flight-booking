@@ -3,6 +3,7 @@ package com.example.flight_booking.controller;
 
 import com.example.flight_booking.dto.Airport.AirportCreateRequestDto;
 import com.example.flight_booking.dto.Airport.AirportFilterResponseDto;
+import com.example.flight_booking.service.AircraftService;
 import com.example.flight_booking.service.AirportService;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -21,14 +22,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/airports")
 public class AirportController {
 
   private final AirportService airportService;
+  private final AircraftService aircraftService;
 
-  public AirportController(AirportService airportService) {
+  public AirportController(AirportService airportService, AircraftService aircraftService) {
     this.airportService = airportService;
+    this.aircraftService = aircraftService;
   }
   private static final Logger logger = LoggerFactory.getLogger(AirportController.class);
 
@@ -38,6 +43,12 @@ public class AirportController {
     logger.info("Id'ye göre havalimanı getirme isteği oluşturuldu! airportId={}", id);
     AirportFilterResponseDto airport = airportService.getAirportById(id);
     logger.info("Havalimanı getirildi! airportId = {}", id);
+    return ResponseEntity.ok(airport);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<AirportFilterResponseDto>> getAirportAll(){
+    List<AirportFilterResponseDto> airport = airportService.getAllAirport();
     return ResponseEntity.ok(airport);
   }
 

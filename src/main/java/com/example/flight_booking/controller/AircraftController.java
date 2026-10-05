@@ -46,7 +46,7 @@ public class AircraftController {
   @GetMapping
   public ResponseEntity<List<AircraftFilterResponseDto>> getAllAircrafts() {
     logger.info("Uçakların hepsi listeleniyor.");
-    List<AircraftFilterResponseDto> aircrafts = aircraftService.getAllAircrafts();
+    List<AircraftFilterResponseDto> aircrafts = aircraftService.getAllAircraft();
     logger.info("Uçaklar başarıyla listelendi.");
     return ResponseEntity.ok(aircrafts);
   }

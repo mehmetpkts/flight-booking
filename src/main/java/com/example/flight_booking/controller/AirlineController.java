@@ -30,13 +30,9 @@ public class AirlineController {
 
   @GetMapping
   public ResponseEntity<List<AirlineFilterResponseDto>> getAllAirlines() {
-
     logger.info("Liste olarak havayolu getirme isteği alındı.");
-
     List<AirlineFilterResponseDto> airlines = airlineService.getAllAirlines();
-
     logger.info("Liste başarı ile getirildi!");
-
     return ResponseEntity.ok(airlines);
   }
 
@@ -47,6 +43,12 @@ public class AirlineController {
     AirlineFilterResponseDto airline = airlineService.getAirlineById(id);
     logger.info("Havayolu başarı ile çekildi! airlineId = {}", id);
 
+    return ResponseEntity.ok(airline);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<AirlineFilterResponseDto>> getAllAirline(){
+    List<AirlineFilterResponseDto> airline = airlineService.getAllAirlines();
     return ResponseEntity.ok(airline);
   }
 

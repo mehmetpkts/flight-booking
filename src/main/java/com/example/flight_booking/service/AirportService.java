@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AirportService {
 
@@ -28,6 +30,13 @@ public class AirportService {
       logger.warn("Havalimanı bulunamadı, AirportId: {}", id);
       return new ResourceNotFoundException("Airport", id);
     });
+  }
+
+  public List<AirportFilterResponseDto> getAllAirport(){
+    List<Airport> airports = airportRepository.findAll();
+    return airports.stream()
+            .map(airportMapper::toFilterResponseDto)
+            .toList();
   }
 
   public AirportFilterResponseDto getAirportById(Long id){
