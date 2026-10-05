@@ -28,10 +28,14 @@ public class FlightController {
     this.flightService = flightService;
   }
   private static final Logger logger = LoggerFactory.getLogger(FlightController.class);
-//  @GetMapping
-//  public List<Flight> getAllFlights() {
-//    return flightService.getAllFlights();
-//  }
+
+  @GetMapping
+  public ResponseEntity<List<FlightFilterResponseDto>> getAllFlights(){
+    logger.info("Uçuş listeleme isteği alındı.");
+    List<FlightFilterResponseDto> flights = flightService.getAllFlights();
+    logger.info("Uçuşlar listelendi.");
+    return ResponseEntity.ok(flights);
+  }
 
   @GetMapping("/{id}")
   public ResponseEntity<FlightFilterResponseDto> getFlightById(@PathVariable Long id) {

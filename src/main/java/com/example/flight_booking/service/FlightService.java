@@ -102,9 +102,14 @@ public class FlightService {
     return savedFlight;
   }
 
-//  public List<Flight> getAllFlights() {
-//    return flightRepository.findAll();
-//  }
+  public List<FlightFilterResponseDto> getAllFlights() {
+    logger.info("Uçuşları listeleme isteği alındı.");
+    List<Flight> flights = flightRepository.findAll();
+    logger.info("Uçuşlar listelendi.");
+    return flights.stream()
+            .map(flightMapper::toFilterResponseDto)
+            .toList();
+  }
 
   public FlightFilterResponseDto getFlightById(Long id) {
     Flight flight = getFlightEntityById(id);
