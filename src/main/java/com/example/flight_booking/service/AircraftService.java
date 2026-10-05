@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AircraftService {
 
@@ -44,6 +46,14 @@ public class AircraftService {
   public AircraftFilterResponseDto getAircraftById(Long id){
     Aircraft aircraft = getAircraftEntityById(id);
     return aircraftMapper.toFilterResponseDto(aircraft);
+  }
+
+  public List<AircraftFilterResponseDto> getAllAircrafts() {
+    List<Aircraft> aircrafts = aircraftRepository.findAll();
+    logger.debug("Uçaklar listeleniyor. Toplam kayıt sayısı: {}", aircrafts.size());
+    return aircrafts.stream()
+        .map(aircraftMapper::toFilterResponseDto)
+        .toList();
   }
 
   public Aircraft createAircraft(AircraftCreateRequestDto create) {

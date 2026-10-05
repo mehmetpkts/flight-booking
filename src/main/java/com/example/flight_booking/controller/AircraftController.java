@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/aircrafts")
 public class AircraftController {
@@ -39,6 +41,14 @@ public class AircraftController {
 
     logger.info("Uçak başarıyla getirildi. aircraftId={}", id);
     return ResponseEntity.ok(aircraft);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<AircraftFilterResponseDto>> getAllAircrafts() {
+    logger.info("Uçakların hepsi listeleniyor.");
+    List<AircraftFilterResponseDto> aircrafts = aircraftService.getAllAircrafts();
+    logger.info("Uçaklar başarıyla listelendi.");
+    return ResponseEntity.ok(aircrafts);
   }
 
 
