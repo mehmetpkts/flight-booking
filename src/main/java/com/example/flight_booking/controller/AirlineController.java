@@ -46,12 +46,6 @@ public class AirlineController {
     return ResponseEntity.ok(airline);
   }
 
-  @GetMapping
-  public ResponseEntity<List<AirlineFilterResponseDto>> getAllAirline(){
-    List<AirlineFilterResponseDto> airline = airlineService.getAllAirlines();
-    return ResponseEntity.ok(airline);
-  }
-
   @PostMapping
   public ResponseEntity<Airline> createAirline(@Valid @RequestBody AirlineCreateRequestDto create) {
 

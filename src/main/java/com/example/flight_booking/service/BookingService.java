@@ -16,6 +16,7 @@ import com.example.flight_booking.util.PnrGeneratorUtil;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,17 @@ public class BookingService {
           logger.warn("Booking bulunamadı. bookingId={}", id);
           return new ResourceNotFoundException("Booking", id);
         });
+  }
+
+  public List<BookingFilterResponseDto> getAllBooking() {
+    logger.info("Randevu listesi getiriliyor.");
+    List<Booking> bookings = bookingRepository.findAll();
+    logger.info("Randevu listesi getirildi.");
+    return bookings.stream()
+        .map(booking -> bookingMapper.toFilterResponseDto(
+            booking,
+            resolveEffectiveStatus(booking.getStatus(), booking.getFlight())))
+        .toList();
   }
 
   private Passenger getPassengerEntityById(Long id) {

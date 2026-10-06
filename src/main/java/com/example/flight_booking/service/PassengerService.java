@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PassengerService {
 
@@ -35,6 +37,13 @@ public class PassengerService {
   public PassengerFilterResponseDto getPassengerById(Long id) {
     Passenger passenger = getPassengerEntityById(id);
     return passengerMapper.toFilterResponseDto(passenger);
+  }
+
+  public List<PassengerFilterResponseDto> getAllPassenger(){
+    List<Passenger> passengers = passengerRepository.findAll();
+    return passengers.stream()
+            .map(passengerMapper::toFilterResponseDto)
+            .toList();
   }
 
   public Passenger createPassenger(PassengerCreateRequestDto create) {

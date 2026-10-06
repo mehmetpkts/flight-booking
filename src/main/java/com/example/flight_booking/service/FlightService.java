@@ -80,6 +80,14 @@ public class FlightService {
     return airlineService.getAirlineEntityById(id);
   }
 
+  public List<FlightFilterResponseDto> getAllFlights() {
+    logger.info("Uçuşları listeleme isteği alındı.");
+    List<Flight> flights = flightRepository.findAll();
+    logger.info("Uçuşlar listelendi.");
+    return flights.stream()
+            .map(flightMapper::toFilterResponseDto)
+            .toList();
+  }
 
   public Flight createFlight(FlightCreateRequestDto create) {
     logger.info("Uçuş oluşturuluyor. flightNumber={}, airlineId={}, aircraftId={}, status={}",
@@ -102,14 +110,6 @@ public class FlightService {
     return savedFlight;
   }
 
-  public List<FlightFilterResponseDto> getAllFlights() {
-    logger.info("Uçuşları listeleme isteği alındı.");
-    List<Flight> flights = flightRepository.findAll();
-    logger.info("Uçuşlar listelendi.");
-    return flights.stream()
-            .map(flightMapper::toFilterResponseDto)
-            .toList();
-  }
 
   public FlightFilterResponseDto getFlightById(Long id) {
     Flight flight = getFlightEntityById(id);

@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CrewMemberService {
   private static final Logger logger = LoggerFactory.getLogger(CrewMemberService.class);
@@ -44,6 +46,13 @@ public class CrewMemberService {
   public CrewMemberFilterResponseDto getCrewMemberById(Long id){
     CrewMember crewMember = getCrewMemberEntityById(id);
     return crewMemberMapper.toFilterResponseDto(crewMember);
+  }
+
+  public List<CrewMemberFilterResponseDto> getAllCrewMember(){
+    List<CrewMember> crewMembers = crewMemberRepository.findAll();
+    return crewMembers.stream()
+            .map(crewMemberMapper::toFilterResponseDto)
+            .toList();
   }
 
   public CrewMember createCrewMember(CrewMemberCreateRequestDto create) {

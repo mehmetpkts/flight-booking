@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
@@ -38,6 +40,12 @@ public class PaymentController {
     logger.info("id'ye göre ödeme isteği getirildi. Paymentid: {}", id);
 
     return ResponseEntity.ok(payment);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<PaymentFilterResponseDto>> getAllPayment(){
+    List<PaymentFilterResponseDto> payments = paymentService.getAllPayment();
+    return ResponseEntity.ok(payments);
   }
 
   @PostMapping

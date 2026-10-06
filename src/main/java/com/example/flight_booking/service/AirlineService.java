@@ -33,8 +33,9 @@ public class AirlineService {
   }
 
   public List<AirlineFilterResponseDto> getAllAirlines() {
+    logger.info("Havayolu listesi getiriliyor.");
     List<Airline> airlines = airlineRepository.findAll();
-    logger.debug("Havayolları listeleniyor. Toplam kayıt sayısı: {}", airlines.size());
+    logger.info("Havayolları listeleniyor. Toplam kayıt sayısı: {}", airlines.size());
 
     return airlines.stream()
         .map(airlineMapper::toFilterResponseDto)

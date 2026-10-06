@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/crew-assignments")
 public class CrewAssignmentController {
@@ -39,6 +41,12 @@ public class CrewAssignmentController {
     logger.info("Ekip atam tablosundan id'ye göre veri çekme isteği çekildi. CrewAssignmentId: {}" , id);
 
     return ResponseEntity.ok(crewAssignmnet);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<CrewAssignmentFilterResponseDto>> getAllCrewAssignment(){
+    List<CrewAssignmentFilterResponseDto> crewAssignment = crewAssignmentService.getAllCrewAssignment();
+    return ResponseEntity.ok(crewAssignment);
   }
 
   @PostMapping

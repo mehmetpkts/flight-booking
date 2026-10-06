@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/bookings")
 public class BookingController {
@@ -37,6 +39,14 @@ public class BookingController {
     BookingFilterResponseDto booking = bookingService.getBookingById(id);
     logger.info("Rezervasyon getirildi. bookingId = {}", id);
 
+    return ResponseEntity.ok(booking);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<BookingFilterResponseDto>> getAllBooking(){
+    logger.info("Randevu listesi getiriliyor.");
+    List<BookingFilterResponseDto> booking = bookingService.getAllBooking();
+    logger.info("Randevu listesi getirildi.");
     return ResponseEntity.ok(booking);
   }
 

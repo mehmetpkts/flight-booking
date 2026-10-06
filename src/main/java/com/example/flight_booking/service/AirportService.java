@@ -33,7 +33,9 @@ public class AirportService {
   }
 
   public List<AirportFilterResponseDto> getAllAirport(){
+    logger.info("Havalimanı listesi getiriliyor.");
     List<Airport> airports = airportRepository.findAll();
+    logger.info("Havalimanı listesi getirildi.");
     return airports.stream()
             .map(airportMapper::toFilterResponseDto)
             .toList();

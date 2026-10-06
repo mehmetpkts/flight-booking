@@ -11,6 +11,8 @@ import com.example.flight_booking.exception.DuplicateResourceException;
 import com.example.flight_booking.exception.ResourceNotFoundException;
 import com.example.flight_booking.mapper.CrewAssignmentMapper;
 import com.example.flight_booking.repository.CrewAssignmentRepository;
+
+import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +57,13 @@ public class CrewAssignmentService {
   public CrewAssignmentFilterResponseDto getCrewAssignmentById(Long id) {
     CrewAssignment crewAssignment = getCrewAssignmentEntityById(id);
     return crewAssignmentMapper.toFilterResponseDto(crewAssignment);
+  }
+
+  public List<CrewAssignmentFilterResponseDto> getAllCrewAssignment(){
+    List<CrewAssignment> crewAssignments = crewAssignmentRepository.findAll();
+    return crewAssignments.stream()
+            .map(crewAssignmentMapper::toFilterResponseDto)
+            .toList();
   }
 
   public CrewAssignment createCrewAssignment(CrewAssignmentCreateRequestDto create) {

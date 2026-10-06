@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
@@ -38,6 +40,12 @@ public class TicketController {
     logger.info("Bilet verisi alındı. TicketId: {}", id);
 
     return ResponseEntity.ok(ticket);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<TicketFilterResponseDto>> getAllTicket(){
+    List<TicketFilterResponseDto> tickets = ticketService.getAllTicket();
+    return ResponseEntity.ok(tickets);
   }
 
   @PostMapping

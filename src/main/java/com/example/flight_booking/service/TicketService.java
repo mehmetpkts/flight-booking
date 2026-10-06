@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TicketService {
 
@@ -46,6 +48,13 @@ public class TicketService {
 
   private Booking getBookingEntityById(Long id) {
     return bookingService.getBookingEntityById(id);
+  }
+
+  public List<TicketFilterResponseDto> getAllTicket(){
+    List<Ticket> tickets = ticketRepository.findAll();
+    return tickets.stream()
+            .map(ticketMapper::toFilterResponseDto)
+            .toList();
   }
 
   private void validateBookingEligibilityForTicket(Booking booking) {

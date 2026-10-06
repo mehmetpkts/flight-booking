@@ -47,6 +47,12 @@ public class FlightController {
     return ResponseEntity.ok(flight);
   }
 
+  @GetMapping
+  public ResponseEntity<List<FlightFilterResponseDto>> getAllFlight(){
+    List<FlightFilterResponseDto> flight = flightService.getAllFlights();
+    return ResponseEntity.ok(flight);
+  }
+
   @PostMapping
   public ResponseEntity<Flight> createFlight(@Valid @RequestBody FlightCreateRequestDto create) {
 

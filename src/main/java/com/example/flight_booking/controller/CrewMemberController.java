@@ -19,12 +19,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/crew-members")
 public class CrewMemberController {
 
   private final CrewMemberService crewMemberService;
-
   public CrewMemberController(CrewMemberService crewMemberService) {
     this.crewMemberService = crewMemberService;
   }
@@ -37,6 +38,12 @@ public class CrewMemberController {
     CrewMemberFilterResponseDto crewMember = crewMemberService.getCrewMemberById(id);
     logger.info("id'ye göre ekip üyesi getirildi! CrewMemberId: {}", id);
 
+    return ResponseEntity.ok(crewMember);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<CrewMemberFilterResponseDto>> getAllCrewMember(){
+    List<CrewMemberFilterResponseDto> crewMember = crewMemberService.getAllCrewMember();
     return ResponseEntity.ok(crewMember);
   }
 

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/passengers")
 public class PassengerController {
@@ -36,6 +38,12 @@ public class PassengerController {
     logger.info("id'ye göre yolcu isteği alındı. PassengerId: {}", id);
     PassengerFilterResponseDto passenger = passengerService.getPassengerById(id);
     logger.info("id'ye yolcu getirildi. PassengerId: {}", id);
+    return ResponseEntity.ok(passenger);
+  }
+
+  @GetMapping
+  public ResponseEntity<List<PassengerFilterResponseDto>> getAllPassenger(){
+    List<PassengerFilterResponseDto> passenger = passengerService.getAllPassenger();
     return ResponseEntity.ok(passenger);
   }
 
