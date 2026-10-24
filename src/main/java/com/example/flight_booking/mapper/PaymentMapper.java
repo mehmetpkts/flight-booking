@@ -5,35 +5,25 @@ import com.example.flight_booking.dto.Payment.PaymentFilterResponseDto;
 import com.example.flight_booking.dto.Payment.PaymentUpdateRequestDto;
 import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Payment;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Component
-public class PaymentMapper {
+@Mapper(componentModel = "spring")
+public interface PaymentMapper {
 
-  public PaymentFilterResponseDto toFilterResponseDto(Payment payment) {
-    PaymentFilterResponseDto dto = new PaymentFilterResponseDto();
-    dto.setPaymentId(payment.getPaymentId());
-    dto.setBookingId(payment.getBooking().getBookingId());
-    dto.setAmount(payment.getAmount());
-    dto.setPaymentMethod(payment.getPaymentMethod());
-    dto.setPaymentDate(payment.getPaymentDate());
-    dto.setStatus(payment.getStatus());
-    return dto;
-  }
+  @Mapping(target = "bookingId", source = "booking.bookingId")
+  PaymentFilterResponseDto toFilterResponseDto(Payment payment);
 
-  public Payment toEntity(PaymentCreateRequestDto createRequest, Booking booking) {
-    Payment payment = new Payment();
-    payment.setBooking(booking);
-    payment.setAmount(createRequest.getAmount());
-    payment.setPaymentMethod(createRequest.getPaymentMethod());
-    payment.setPaymentDate(createRequest.getPaymentDate());
-    payment.setStatus(createRequest.getStatus());
-    return payment;
-  }
+  @Mapping(target = "booking", source = "booking")
+  @Mapping(target = "amount", source = "createRequest.amount")
+  @Mapping(target = "paymentMethod", source = "createRequest.paymentMethod")
+  @Mapping(target = "paymentDate", source = "createRequest.paymentDate")
+  @Mapping(target = "status", source = "createRequest.status")
+  Payment toEntity(PaymentCreateRequestDto createRequest, Booking booking);
 
-  public void updateEntity(Payment payment, PaymentUpdateRequestDto updateRequest) {
-    payment.setAmount(updateRequest.getAmount());
-    payment.setPaymentMethod(updateRequest.getPaymentMethod());
-    payment.setStatus(updateRequest.getStatus());
-  }
+  @Mapping(target = "amount", source = "updateRequest.amount")
+  @Mapping(target = "paymentMethod", source = "updateRequest.paymentMethod")
+  @Mapping(target = "status", source = "updateRequest.status")
+  void updateEntity(@MappingTarget Payment payment, PaymentUpdateRequestDto updateRequest);
 }

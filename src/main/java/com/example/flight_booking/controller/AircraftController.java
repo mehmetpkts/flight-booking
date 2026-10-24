@@ -28,6 +28,7 @@ public class AircraftController {
   private final AircraftService aircraftService;
 
   public AircraftController(AircraftService aircraftService) {
+
     this.aircraftService = aircraftService;
   }
 
@@ -61,12 +62,12 @@ public class AircraftController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Aircraft> updateAircraft(@PathVariable Long id, @Valid @RequestBody AircraftUpdateRequestDto update) {
-    logger.info("Uçak güncelleme isteği alındı. aircraftId={}", id);
-    Aircraft updatedAircraft = aircraftService.updateAircraft(id, update);
-    logger.info("Uçak güncellendi.aircraftId={}", id);
-    return ResponseEntity.ok(updatedAircraft);
-  }
+    public ResponseEntity<Aircraft> updateAircraft(@PathVariable Long id, @Valid @RequestBody AircraftUpdateRequestDto update) {
+      logger.info("Uçak güncelleme isteği alındı. aircraftId={}", id);
+      Aircraft updatedAircraft = aircraftService.updateAircraft(id, update);
+      logger.info("Uçak güncellendi.aircraftId={}", id);
+      return ResponseEntity.ok(updatedAircraft);
+    }
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteAircraft (@PathVariable Long id){
     logger.info("Uçak silme işlemi alındı. aircraftId={}", id);

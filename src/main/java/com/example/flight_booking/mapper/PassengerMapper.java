@@ -4,35 +4,20 @@ import com.example.flight_booking.dto.Passenger.PassengerCreateRequestDto;
 import com.example.flight_booking.dto.Passenger.PassengerFilterResponseDto;
 import com.example.flight_booking.dto.Passenger.PassengerUpdateRequestDto;
 import com.example.flight_booking.entity.Passenger;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Component
-public class PassengerMapper {
+@Mapper(componentModel = "spring")
+public interface PassengerMapper {
 
-  public PassengerFilterResponseDto toFilterResponseDto(Passenger passenger) {
-    PassengerFilterResponseDto dto = new PassengerFilterResponseDto();
-    dto.setFirstName(passenger.getFirstName());
-    dto.setLastName(passenger.getLastName());
-    dto.setPassportNumber(passenger.getPassportNumber());
-    dto.setEmail(passenger.getEmail());
-    dto.setPhoneNumber(passenger.getPhone());
-    dto.setNationality(passenger.getNationality());
-    return dto;
-  }
+  @Mapping(target = "phoneNumber", source = "phone")
+  PassengerFilterResponseDto toFilterResponseDto(Passenger passenger);
 
-  public Passenger toEntity(PassengerCreateRequestDto createRequest) {
-    Passenger passenger = new Passenger();
-    passenger.setFirstName(createRequest.getFirstName());
-    passenger.setLastName(createRequest.getLastName());
-    passenger.setPassportNumber(createRequest.getPassportNumber());
-    passenger.setEmail(createRequest.getEmail());
-    passenger.setPhone(createRequest.getPhoneNumber());
-    passenger.setNationality(createRequest.getNationality());
-    return passenger;
-  }
+  @Mapping(target = "phone", source = "createRequest.phoneNumber")
+  Passenger toEntity(PassengerCreateRequestDto createRequest);
 
-  public void updateEntity(Passenger passenger, PassengerUpdateRequestDto updateRequest) {
-    passenger.setEmail(updateRequest.getEmail());
-    passenger.setPhone(updateRequest.getPhoneNumber());
-  }
+  @Mapping(target = "email", source = "updateRequest.email")
+  @Mapping(target = "phone", source = "updateRequest.phoneNumber")
+  void updateEntity(@MappingTarget Passenger passenger, PassengerUpdateRequestDto updateRequest);
 }

@@ -3,25 +3,12 @@ package com.example.flight_booking.mapper;
 import com.example.flight_booking.dto.Airline.AirlineCreateRequestDto;
 import com.example.flight_booking.dto.Airline.AirlineFilterResponseDto;
 import com.example.flight_booking.entity.Airline;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class AirlineMapper {
+@Mapper(componentModel = "spring")
+public interface AirlineMapper {
 
-  public AirlineFilterResponseDto toFilterResponseDto(Airline airline) {
-    AirlineFilterResponseDto dto = new AirlineFilterResponseDto();
-    dto.setName(airline.getName());
-    dto.setCountry(airline.getCountry());
-    dto.setIataCode(airline.getIataCode());
-    return dto;
-  }
+  AirlineFilterResponseDto toFilterResponseDto(Airline airline);
 
-  public Airline toEntity(AirlineCreateRequestDto createRequest) {
-    Airline airline = new Airline();
-    airline.setCountry(createRequest.getCountry());
-    airline.setIataCode(createRequest.getIataCode());
-    airline.setName(createRequest.getName());
-    return airline;
-  }
-
+  Airline toEntity(AirlineCreateRequestDto createRequest);
 }

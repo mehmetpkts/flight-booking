@@ -6,38 +6,29 @@ import com.example.flight_booking.dto.CrewAssignment.CrewAssignmentUpdateRequest
 import com.example.flight_booking.entity.CrewAssignment;
 import com.example.flight_booking.entity.CrewMember;
 import com.example.flight_booking.entity.Flight;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Component
-public class CrewAssignmentMapper {
+@Mapper(componentModel = "spring")
+public interface CrewAssignmentMapper {
 
-  public CrewAssignmentFilterResponseDto toFilterResponseDto(CrewAssignment crewAssignment) {
-    CrewAssignmentFilterResponseDto dto = new CrewAssignmentFilterResponseDto();
-    dto.setAssignmentId(crewAssignment.getAssignmentId());
-    dto.setFlight(crewAssignment.getFlight());
-    dto.setCrewMember(crewAssignment.getCrewMember());
-    dto.setDuty(crewAssignment.getDuty());
-    return dto;
-  }
+  CrewAssignmentFilterResponseDto toFilterResponseDto(CrewAssignment crewAssignment);
 
-  public CrewAssignment toEntity(
+  @Mapping(target = "flight", source = "flight")
+  @Mapping(target = "crewMember", source = "crewMember")
+  @Mapping(target = "duty", source = "createRequest.duty")
+  CrewAssignment toEntity(
       CrewAssignmentCreateRequestDto createRequest,
       Flight flight,
-      CrewMember crewMember) {
-    CrewAssignment crewAssignment = new CrewAssignment();
-    crewAssignment.setFlight(flight);
-    crewAssignment.setCrewMember(crewMember);
-    crewAssignment.setDuty(createRequest.getDuty());
-    return crewAssignment;
-  }
+      CrewMember crewMember);
 
-  public void updateEntity(
-      CrewAssignment crewAssignment,
+  @Mapping(target = "flight", source = "flight")
+  @Mapping(target = "crewMember", source = "crewMember")
+  @Mapping(target = "duty", source = "updateRequest.duty")
+  void updateEntity(
+      @MappingTarget CrewAssignment crewAssignment,
       CrewAssignmentUpdateRequestDto updateRequest,
       Flight flight,
-      CrewMember crewMember) {
-    crewAssignment.setFlight(flight);
-    crewAssignment.setCrewMember(crewMember);
-    crewAssignment.setDuty(updateRequest.getDuty());
-  }
+      CrewMember crewMember);
 }

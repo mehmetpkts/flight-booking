@@ -7,56 +7,49 @@ import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
 import com.example.flight_booking.entity.Airport;
 import com.example.flight_booking.entity.Flight;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Component
-public class FlightMapper {
+@Mapper(componentModel = "spring")
+public interface FlightMapper {
 
-  public Flight toEntity(
+  @Mapping(target = "flightNumber", source = "createRequest.flightNumber")
+  @Mapping(target = "departureAirport", source = "departureAirport")
+  @Mapping(target = "arrivalAirport", source = "arrivalAirport")
+  @Mapping(target = "aircraft", source = "aircraft")
+  @Mapping(target = "airline", source = "airline")
+  @Mapping(target = "departureTime", source = "createRequest.departureTime")
+  @Mapping(target = "arrivalTime", source = "createRequest.arrivalTime")
+  @Mapping(target = "status", source = "createRequest.status")
+  Flight toEntity(
       FlightCreateRequestDto createRequest,
       Airport departureAirport,
       Airport arrivalAirport,
       Aircraft aircraft,
-      Airline airline) {
-    Flight flight = new Flight();
-    flight.setFlightNumber(createRequest.getFlightNumber());
-    flight.setDepartureAirport(departureAirport);
-    flight.setArrivalAirport(arrivalAirport);
-    flight.setAircraft(aircraft);
-    flight.setAirline(airline);
-    flight.setDepartureTime(createRequest.getDepartureTime());
-    flight.setArrivalTime(createRequest.getArrivalTime());
-    flight.setStatus(createRequest.getStatus());
-    return flight;
-  }
+      Airline airline);
 
-  public FlightFilterResponseDto toFilterResponseDto(Flight flight) {
-    FlightFilterResponseDto dto = new FlightFilterResponseDto();
-    dto.setFlightId(flight.getFlightId());
-    dto.setFlightNumber(flight.getFlightNumber());
-    dto.setDepartureAirportName(flight.getDepartureAirport().getName());
-    dto.setDepartureAirportCity(flight.getDepartureAirport().getCity());
-    dto.setArrivalAirportName(flight.getArrivalAirport().getName());
-    dto.setArrivalAirportCity(flight.getArrivalAirport().getCity());
-    dto.setAirlineName(flight.getAirline().getName());
-    dto.setAirlineCountry(flight.getAirline().getCountry());
-    return dto;
-  }
+  @Mapping(target = "departureAirportName", source = "departureAirport.name")
+  @Mapping(target = "departureAirportCity", source = "departureAirport.city")
+  @Mapping(target = "arrivalAirportName", source = "arrivalAirport.name")
+  @Mapping(target = "arrivalAirportCity", source = "arrivalAirport.city")
+  @Mapping(target = "airlineName", source = "airline.name")
+  @Mapping(target = "airlineCountry", source = "airline.country")
+  FlightFilterResponseDto toFilterResponseDto(Flight flight);
 
-  public void updateEntity(
-      Flight flight,
+  @Mapping(target = "flightNumber", source = "updateRequest.flightNumber")
+  @Mapping(target = "departureAirport", source = "departureAirport")
+  @Mapping(target = "arrivalAirport", source = "arrivalAirport")
+  @Mapping(target = "aircraft", source = "aircraft")
+  @Mapping(target = "airline", source = "airline")
+  @Mapping(target = "departureTime", source = "updateRequest.departureTime")
+  @Mapping(target = "arrivalTime", source = "updateRequest.arrivalTime")
+  @Mapping(target = "status", source = "updateRequest.status")
+  void updateEntity(
+      @MappingTarget Flight flight,
       FlightUpdateRequestDto updateRequest,
       Airport departureAirport,
       Airport arrivalAirport,
       Aircraft aircraft,
-      Airline airline) {
-    flight.setFlightNumber(updateRequest.getFlightNumber());
-    flight.setDepartureAirport(departureAirport);
-    flight.setArrivalAirport(arrivalAirport);
-    flight.setAircraft(aircraft);
-    flight.setAirline(airline);
-    flight.setDepartureTime(updateRequest.getDepartureTime());
-    flight.setArrivalTime(updateRequest.getArrivalTime());
-    flight.setStatus(updateRequest.getStatus());
-  }
+      Airline airline);
 }

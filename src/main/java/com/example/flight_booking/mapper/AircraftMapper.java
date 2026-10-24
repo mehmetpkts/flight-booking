@@ -5,35 +5,26 @@ import com.example.flight_booking.dto.Aircraft.AircraftFilterResponseDto;
 import com.example.flight_booking.dto.Aircraft.AircraftUpdateRequestDto;
 import com.example.flight_booking.entity.Aircraft;
 import com.example.flight_booking.entity.Airline;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Component
-public class AircraftMapper {
+@Mapper(componentModel = "spring")
+public interface AircraftMapper {
 
-  public AircraftFilterResponseDto toFilterResponseDto(Aircraft aircraft) {
-    AircraftFilterResponseDto dto = new AircraftFilterResponseDto();
-    dto.setAirlineId(aircraft.getAirline().getAirlineId());
-    dto.setAirlineName(aircraft.getAirline().getName());
-    dto.setCapacity(aircraft.getCapacity());
-    dto.setManufacturer(aircraft.getManufacturer());
-    dto.setModel(aircraft.getModel());
-    dto.setStatus(aircraft.getStatus().name());
-    return dto;
-  }
+  @Mapping(target = "airlineId", source = "airline.airlineId")
+  @Mapping(target = "airlineName", source = "airline.name")
+  @Mapping(target = "status", expression = "java(aircraft.getStatus() != null ? aircraft.getStatus().name() : null)")
+  AircraftFilterResponseDto toFilterResponseDto(Aircraft aircraft);
 
-  public Aircraft toEntity(AircraftCreateRequestDto createRequest, Airline airline) {
-    Aircraft aircraft = new Aircraft();
-    aircraft.setModel(createRequest.getModel());
-    aircraft.setManufacturer(createRequest.getManufacturer());
-    aircraft.setCapacity(createRequest.getCapacity());
-    aircraft.setStatus(createRequest.getStatus());
-    aircraft.setAirline(airline);
-    return aircraft;
-  }
+  @Mapping(target = "airline", source = "airline")
+  @Mapping(target = "status", source = "createRequest.status")
+  Aircraft toEntity(AircraftCreateRequestDto createRequest, Airline airline);
 
-  public void updateEntity(
-          Aircraft aircraft, AircraftUpdateRequestDto updateRequest, Airline airline) {
-          aircraft.setStatus(updateRequest.getStatus());
-          aircraft.setAirline(airline);
-  }
+  @Mapping(target = "status", source = "updateRequest.status")
+  @Mapping(target = "airline", source = "airline")
+  void updateEntity(
+      @MappingTarget Aircraft aircraft,
+      AircraftUpdateRequestDto updateRequest,
+      Airline airline);
 }

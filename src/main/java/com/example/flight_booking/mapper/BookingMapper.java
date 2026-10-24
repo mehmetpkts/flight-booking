@@ -6,43 +6,26 @@ import com.example.flight_booking.entity.Booking;
 import com.example.flight_booking.entity.Flight;
 import com.example.flight_booking.entity.Passenger;
 import com.example.flight_booking.enums.BookingStatus;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class BookingMapper {
+@Mapper(componentModel = "spring", uses = {PassengerMapper.class, FlightMapper.class})
+public interface BookingMapper {
 
-  private final PassengerMapper passengerMapper;
-  private final FlightMapper flightMapper;
+  @Mapping(target = "flight", source = "booking.flight")
+  @Mapping(target = "passenger", source = "booking.passenger")
+  @Mapping(target = "status", source = "effectiveStatus")
+  BookingFilterResponseDto toFilterResponseDto(Booking booking, BookingStatus effectiveStatus);
 
-  public BookingMapper(PassengerMapper passengerMapper, FlightMapper flightMapper) {
-    this.passengerMapper = passengerMapper;
-    this.flightMapper = flightMapper;
-  }
-
-  public BookingFilterResponseDto toFilterResponseDto(Booking booking, BookingStatus effectiveStatus) {
-    BookingFilterResponseDto dto = new BookingFilterResponseDto();
-    dto.setFlight(flightMapper.toFilterResponseDto(booking.getFlight()));
-    dto.setBookingDate(booking.getBookingDate());
-    dto.setPassenger(passengerMapper.toFilterResponseDto(booking.getPassenger()));
-    dto.setPnr(booking.getPnr());
-    dto.setStatus(effectiveStatus);
-    dto.setCancellationPenaltyApplied(booking.getCancellationPenaltyApplied());
-    dto.setCancellationPenaltyAmount(booking.getCancellationPenaltyAmount());
-    return dto;
-  }
-
-  public Booking toEntity(
+  @Mapping(target = "bookingDate", source = "createRequest.bookingDate")
+  @Mapping(target = "status", source = "effectiveStatus")
+  @Mapping(target = "pnr", source = "pnr")
+  @Mapping(target = "passenger", source = "passenger")
+  @Mapping(target = "flight", source = "flight")
+  Booking toEntity(
       BookingCreateRequestDto createRequest,
       Passenger passenger,
       Flight flight,
       BookingStatus effectiveStatus,
-      String pnr) {
-    Booking booking = new Booking();
-    booking.setBookingDate(createRequest.getBookingDate());
-    booking.setPnr(pnr);
-    booking.setStatus(effectiveStatus);
-    booking.setPassenger(passenger);
-    booking.setFlight(flight);
-    return booking;
-  }
+      String pnr);
 }
